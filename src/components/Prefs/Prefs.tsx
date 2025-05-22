@@ -63,7 +63,9 @@ export function Prefs() {
         handleClose={onClosePrefsHeader}
       />
       <div
-        className={`prefs-panel ${isPrefs ? 'visible' : ''}`}
+        className={`prefs-panel ${isPrefs ? 'visible' : ''} ${
+          prefs.isDarkMode ? 'dark-mode' : ''
+        }`}
         // onMouseLeave={closePrefsModal}
       >
         <div className='close-container' onClick={closePrefsModal}>

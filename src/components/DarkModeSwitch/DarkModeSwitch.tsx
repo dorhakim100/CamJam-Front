@@ -16,6 +16,7 @@ export const DarkModeSwitch = styled(Switch)(({ theme }) => ({
     transform: 'translateX(8px)', // adjust initial thumb position
     '&.Mui-checked': {
       color: '#fff',
+
       transform: 'translateX(36px)', // adjust thumb position when checked
       '& .MuiSwitch-thumb:before': {
         backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
@@ -24,15 +25,15 @@ export const DarkModeSwitch = styled(Switch)(({ theme }) => ({
       },
       '& + .MuiSwitch-track': {
         opacity: 1,
-        backgroundColor: '#aab4be',
+        backgroundColor: '#fff',
         ...theme.applyStyles('dark', {
-          backgroundColor: '#8796A5',
+          backgroundColor: '#fff',
         }),
       },
     },
   },
   '& .MuiSwitch-thumb': {
-    backgroundColor: '#001e3c',
+    backgroundColor: '#003892',
     width: 40, // increased thumb width
     height: 40, // increased thumb height
     '&::before': {
@@ -52,12 +53,13 @@ export const DarkModeSwitch = styled(Switch)(({ theme }) => ({
       backgroundColor: '#003892',
     }),
   },
+
   '& .MuiSwitch-track': {
     opacity: 1,
     backgroundColor: '#aab4be',
     borderRadius: 44 / 2, // half the new height for a fully rounded track
     ...theme.applyStyles('dark', {
-      backgroundColor: '#8796A5',
+      backgroundColor: '#d44',
     }),
   },
 }))

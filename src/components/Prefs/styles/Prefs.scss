@@ -19,6 +19,10 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   position: fixed;
   transition: 0.2s ease-in;
+
+  &.dark-mode {
+    background-color: $very-dark-gray;
+  }
   // translate: 150%;
   // padding: 2em;
   @media (min-width: 1020px) {
