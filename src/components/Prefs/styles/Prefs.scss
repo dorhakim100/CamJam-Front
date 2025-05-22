@@ -1,0 +1,101 @@
+.prefs-panel {
+  display: flex;
+  flex-direction: column;
+  // gap: 1em;
+  position: absolute;
+  top: 4.6em;
+  @media (max-width: 1020px) {
+    top: 4.6em;
+  }
+
+  // right: -300px;
+  left: -300px;
+  transition: right 0.3s ease;
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  position: fixed;
+  transition: 0.2s ease-in;
+  // translate: 150%;
+  // padding: 2em;
+  @media (min-width: 1020px) {
+    // top: 15em;
+    // transform: scale(1.2);
+    padding: 1em;
+    .close-container {
+      transform: scale(1.2);
+    }
+    button {
+      font-size: 1.2em;
+    }
+  }
+  .close-container {
+    align-self: end;
+    // position: absolute;
+    background-color: $light-gray;
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
+    transition: 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    color: $dark-gray;
+    svg {
+      // font-size: 0.8em;
+      width: 20px;
+    }
+
+    &:hover {
+      background-color: $medium-red;
+      background-color: $light-red;
+    }
+  }
+}
+
+.accessibility-panel.visible {
+  left: 1em;
+}
+
+.prefs-panel {
+  left: auto;
+  right: -300px;
+  // padding: 2em;
+
+  .MuiSwitch-sizeMedium {
+    margin: 0.5em;
+  }
+}
+
+.prefs-panel.visible {
+  right: 0.2em;
+}
+
+.prefs-control {
+  display: flex;
+  flex-direction: column;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}

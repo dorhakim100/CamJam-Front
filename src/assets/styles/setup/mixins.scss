@@ -1,0 +1,41 @@
+// forms.scss
+
+/// Fluid type: scales between $min-font → $max-font across $min-screen → $max-screen
+@function fluid-type(
+  $min-font,
+  // number in px (unitless, e.g. 14)
+  $max-font,
+  // number in px (unitless, e.g. 18)
+  $min-screen: 320px,
+  $max-screen: 1200px
+) {
+  // turn 320px → 320 (unitless), 1200px → 1200
+  $min-scr-num: $min-screen / 1px;
+  $max-scr-num: $max-screen / 1px;
+
+  // now fonts (unitless px) / screens (unitless) → unitless slope
+  $slope: ($max-font - $min-font) / ($max-scr-num - $min-scr-num);
+
+  // intercept back in px
+  $y-int: $min-font - ($slope * $min-scr-num);
+
+  @return clamp(
+    #{$min-font}px,
+    // never below this
+    #{$y-int}px + #{$slope * 100}vw,
+    // fluid expression
+    #{$max-font}px // never above this
+  );
+}
+
+/// Helper mixin so you don’t need to remember clamp(...)
+@mixin fluid-font(
+  $min,
+  // min font in px
+  $max,
+  // max font in px
+  $min-scr: 320px,
+  $max-scr: 1200px
+) {
+  font-size: fluid-type($min, $max, $min-scr, $max-scr);
+}

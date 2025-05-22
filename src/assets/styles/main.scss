@@ -1,0 +1,24 @@
+@import 'setup/variables.scss';
+@import 'setup/mixins.scss';
+// @import "setup/functions.scss";
+@import 'setup/typography.scss';
+
+@import 'basics/helpers.scss';
+@import 'basics/layout.scss';
+@import 'basics/base.scss';
+@import 'basics/forms.scss';
+
+// pages
+@import 'App.scss';
+
+@import '../../pages/Home/styles/Home.scss';
+@import '../../pages/About/styles/About.scss';
+@import '../../pages/Services/styles/Services.scss';
+@import '../../pages/Login/styles/Login.scss';
+
+@import '../../components/AppHeader/styles/AppHeader.scss';
+@import '../../components/AppFooter/styles/AppFooter.scss';
+@import '../../components/Prefs/styles/Prefs.scss';
+@import '../../components/PrefsButton/styles/PrefsButton.scss';
+@import '../../components/SearchBar/styles/SearchBar.scss';
+@import '../../components/ShadowOverlay/styles/ShadowOverlay.scss';

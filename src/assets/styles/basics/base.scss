@@ -1,0 +1,92 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.6;
+}
+
+body {
+  // max-width: 1024px;
+  // margin: 0 auto;
+  // position: static;
+  // font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  width: 100%;
+  height: 100%;
+  // min-height: 100vh;
+  // min-width: 100vw;
+  min-height: 100vh;
+
+  background-color: $neutral-gray;
+  color: $dark-gray;
+  transition: color 0.3s, background-color 0.3s;
+
+  &.dark-mode {
+    background-color: $dark-gray;
+    color: $neutral-gray;
+  }
+  // font-family: regularAssistant;
+  // transition: color 0.3s, background-color 0.3s;
+}
+
+.main {
+  min-height: 100vh;
+
+  margin-top: 6em;
+  padding: 0 1em;
+
+  background-color: $neutral-gray;
+  color: $dark-gray;
+  transition: color 0.3s, background-color 0.3s;
+  &.dark-mode {
+    background-color: $dark-gray;
+    color: $neutral-gray;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 0.6em;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+input {
+  max-width: 100%;
+}
+
+canvas {
+  display: block !important; /* Ensures the canvas is displayed */
+  margin: 0 auto; /* Centers the canvas if needed */
+  z-index: 20;
+  opacity: 1;
+}
+
+p {
+  text-align: justify;
+}

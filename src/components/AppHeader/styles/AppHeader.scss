@@ -1,0 +1,53 @@
+.header {
+  background-color: transparent;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  // width: 100%;
+  z-index: 1000;
+  /* Start off-screen with a slight scale down */
+  transform: translateX(-100%) scale(0.8);
+  transform-origin: top center; /* Adjust origin if needed */
+  // transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: 0.2s ease-in;
+  top: 4.6em;
+  height: 0px;
+  // opacity: 0;
+  border-bottom-right-radius: 5px;
+
+  &.visable {
+    transform: translateX(0) scale(1);
+    height: fit-content;
+
+    opacity: 1;
+    background-color: white;
+    &.dark-mode {
+      background-color: $very-dark-gray;
+      color: $neutral-gray;
+
+      li:hover {
+        background-color: black;
+      }
+    }
+  }
+
+  nav {
+    ul {
+      margin: 0px;
+      //   display: flex;
+      //   justify-content: space-between;
+
+      li {
+        padding: 1em;
+        cursor: pointer;
+
+        a {
+        }
+        &:hover {
+          background-color: $light-gray;
+        }
+      }
+    }
+  }
+}

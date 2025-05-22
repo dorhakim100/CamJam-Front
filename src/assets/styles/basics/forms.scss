@@ -1,0 +1,18 @@
+a {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+button {
+  // border: 0;
+  // background-color: $clr1;
+  // color: whitesmoke;
+  padding: 5px 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+* {
+  @include fluid-font(14, 19);
+}
