@@ -70,10 +70,10 @@ export function Prefs() {
           <CloseIcon />
         </div>
         <div className='prefs-control'>
-          <LanguageSwitch
+          {/* <LanguageSwitch
             onClick={() => onSetPrefs('lang')}
             checked={!prefs.isEnglish}
-          />
+          /> */}
           <DarkModeSwitch
             onClick={() => onSetPrefs('darkMode')}
             checked={prefs.isDarkMode}

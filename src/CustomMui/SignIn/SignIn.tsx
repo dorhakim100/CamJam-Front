@@ -18,7 +18,7 @@ import AppTheme from '../shared-theme/AppTheme'
 import ColorModeSelect from '../shared-theme/ColorModeSelect'
 import { useColorScheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { RootState } from '../../store/store'
 
@@ -27,6 +27,9 @@ import {
   FacebookIcon,
   SitemarkIcon,
 } from './components/CustomIcons'
+
+import logo from '../../../public/logo.png'
+import logoDark from '../../../public/logo-dark.png'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -141,6 +144,8 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
   const [isSignup, setIsSignup] = React.useState(false)
 
+  const [logoSrc, setLogoSrc] = useState(logo)
+
   const handleSignup = () => {
     setIsSignup(!isSignup)
   }
@@ -148,6 +153,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   useEffect(() => {
     if (prefs.isDarkMode !== undefined) {
       setMode(prefs.isDarkMode ? 'dark' : 'light')
+      setLogoSrc(prefs.isDarkMode ? logoDark : logo)
     }
   }, [prefs.isDarkMode])
 
@@ -160,7 +166,16 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
           sx={{ position: 'fixed', top: '1rem', right: '1rem' }}
         /> */}
           <Card variant='outlined'>
-            <SitemarkIcon />
+            {/* <SitemarkIcon /> */}
+            <img
+              src={logoSrc}
+              alt=''
+              style={{
+                width: 150,
+                height: 100,
+                // objectFit: 'cover',
+              }}
+            />
             <Typography
               component='h1'
               variant='h4'
