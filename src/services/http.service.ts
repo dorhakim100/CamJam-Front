@@ -6,21 +6,21 @@ const BASE_URL =
 const axios = Axios.create({ withCredentials: true })
 
 export const httpService = {
-  get(endpoint:string, data:any) {
+  get(endpoint: string, data: any) {
     return ajax(endpoint, 'GET', data)
   },
-  post(endpoint:string, data:any) {
+  post(endpoint: string, data: any) {
     return ajax(endpoint, 'POST', data)
   },
-  put(endpoint:string, data:any) {
+  put(endpoint: string, data: any) {
     return ajax(endpoint, 'PUT', data)
   },
-  delete(endpoint:string, data:any) {
+  delete(endpoint: string, data: any) {
     return ajax(endpoint, 'DELETE', data)
   },
 }
 
-async function ajax(endpoint:string, method = 'GET', data = null) {
+async function ajax(endpoint: string, method = 'GET', data = null) {
   const url = `${BASE_URL}${endpoint}`
   const params = method === 'GET' ? data : null
 

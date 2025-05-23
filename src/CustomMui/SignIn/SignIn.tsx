@@ -31,6 +31,7 @@ import {
 import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
 import { showErrorMsg } from '../../services/event-bus.service'
+import { userService } from '../../services/user/user.service'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -95,18 +96,15 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false)
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const isValid = validateInputs()
     if (!isValid) {
       showErrorMsg('Please fill in all required fields correctly.')
       return
     }
-    if (emailError || passwordError) {
-      return
-    }
+
     const data = new FormData(event.currentTarget)
-    console.log(data)
 
     const credientials: any = {}
     credientials.email = data.get('email')
@@ -114,9 +112,18 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
     if (isSignup) {
       credientials.fullname = data.get('fullname')
+      credientials.validatePassword = data.get('validate-password')
     }
 
-    console.log(credientials)
+    try {
+      if (isSignup) {
+        const saved = userService.signup(credientials)
+      } else {
+        const logged = await userService.login(credientials)
+      }
+    } catch (err) {
+      showErrorMsg('An error occurred while signing in. Please try again.')
+    }
   }
 
   const validateInputs = () => {
