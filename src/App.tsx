@@ -20,6 +20,10 @@ function App() {
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
 
+  const user = useSelector(
+    (stateSelector: RootState) => stateSelector.userModule.user
+  )
+
   useEffect(() => {
     if (prefs.isDarkMode) {
       document.body.classList.add('dark-mode')
@@ -37,9 +41,17 @@ function App() {
       <main className={`main ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
         <SearchBar />
         <Routes>
-          {routes.map((route, index) => (
-            <Route key={index} path={route.path} element={<route.element />} />
-          ))}
+          {routes.map((route, index) => {
+            if (user && route.path === '/signin') return
+
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={<route.element />}
+              />
+            )
+          })}
         </Routes>
       </main>
       <AppFooter />

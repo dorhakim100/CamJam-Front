@@ -4,6 +4,7 @@ import React from 'react'
 import { Home } from '../../pages/Home/Home'
 import { About } from '../../pages/About/About'
 import { RoomList } from '../../pages/RoomList/RoomList.tsx'
+import { UserDetails } from '../../pages/UserDetails/UserDetails.tsx'
 
 import { SignIn } from '../../CustomMui/SignIn/SignIn.tsx'
 
@@ -19,16 +20,21 @@ export const routes: Route[] = [
     path: '/',
     element: Home,
   },
-  {
-    title: 'Rooms',
-    path: '/room',
-    element: RoomList,
-  },
 
   {
     title: 'Sign in',
     path: '/signin',
     element: SignIn,
+  },
+  {
+    title: 'Profile',
+    path: '/user',
+    element: UserDetails,
+  },
+  {
+    title: 'Rooms',
+    path: '/room',
+    element: RoomList,
   },
   {
     title: 'About',

@@ -154,6 +154,7 @@ function saveLoggedinUser(user: User) {
 
 function getEmptyUser() {
   return {
+    id: '',
     password: '',
     fullname: '',
     email: '',
@@ -164,9 +165,6 @@ function getEmptyUser() {
 function getDefaultFilter() {
   return {
     txt: '',
-    calledUserId: '',
-    onlyMembers: false,
-    pageIdx: 0,
   }
 }
 

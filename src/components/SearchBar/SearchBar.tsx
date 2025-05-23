@@ -16,16 +16,21 @@ import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import MenuIcon from '@mui/icons-material/Menu'
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+
 import SearchIcon from '@mui/icons-material/Search'
 import SettingsIcon from '@mui/icons-material/Settings'
+import PersonIcon from '@mui/icons-material/Person'
 
 export function SearchBar() {
   const navigate = useNavigate()
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
+  const user = useSelector(
+    (stateSelector: RootState) => stateSelector.userModule.user
+  )
+  console.log(user)
+
   const isPrefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.isPrefs
   )
@@ -41,6 +46,7 @@ export function SearchBar() {
   }
 
   useEffect(() => {
+    let filteredRoutes
     const options = routes.map((route) => {
       return {
         title: route.title,
@@ -49,8 +55,11 @@ export function SearchBar() {
         },
       }
     })
-    setDropdownOptions(options)
-  }, [])
+    if (user)
+      filteredRoutes = options.filter((option) => option.title !== 'Sign in')
+    else filteredRoutes = options.filter((option) => option.title !== 'Profile')
+    setDropdownOptions(filteredRoutes)
+  }, [user])
 
   return (
     <div className='search-bar-container'>
@@ -103,24 +112,42 @@ export function SearchBar() {
             <SearchIcon />
           </IconButton>
         </div>
-        <div className='settings-container'>
-          <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
-          <IconButton
-            color='primary'
-            className='prefs-button'
-            sx={{
-              p: '10px',
-              '&:focus': {
-                outline: 'none',
-              },
-            }}
-            aria-label='directions'
-            onClick={() => {
-              setIsPrefs(!isPrefs)
-            }}
-          >
-            <SettingsIcon className='settings-btn' />
-          </IconButton>
+        <div className='buttons-container'>
+          {user && (
+            <div className='profile-container'>
+              <IconButton
+                color='primary'
+                sx={{
+                  p: '10px',
+                  color: prefs.isDarkMode ? '#fff' : '#000',
+                  '&:focus': {
+                    outline: 'none',
+                  },
+                }}
+              >
+                <PersonIcon />
+              </IconButton>
+            </div>
+          )}
+          <div className='settings-container'>
+            <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
+            <IconButton
+              color='primary'
+              className='prefs-button'
+              sx={{
+                p: '10px',
+                '&:focus': {
+                  outline: 'none',
+                },
+              }}
+              aria-label='directions'
+              onClick={() => {
+                setIsPrefs(!isPrefs)
+              }}
+            >
+              <SettingsIcon className='settings-btn' />
+            </IconButton>
+          </div>
         </div>
       </Paper>
     </div>

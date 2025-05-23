@@ -19,6 +19,7 @@ import ColorModeSelect from '../shared-theme/ColorModeSelect'
 import { useColorScheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { RootState } from '../../store/store'
 
@@ -32,6 +33,7 @@ import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { userService } from '../../services/user/user.service'
+import { login, signup } from '../../store/actions/user.actios'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -117,12 +119,13 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     try {
       let user
       if (isSignup) {
-        user = await userService.signup(credientials)
+        user = await signup(credientials)
       } else {
-        user = await userService.login(credientials)
+        user = await login(credientials)
       }
       if (user) {
         showSuccessMsg('Login successful!')
+        navigate('/')
       } else {
         showErrorMsg('Login failed. Please check your credentials.')
       }
@@ -178,6 +181,8 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   }
 
   const { mode, setMode } = useColorScheme()
+
+  const navigate = useNavigate()
 
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
