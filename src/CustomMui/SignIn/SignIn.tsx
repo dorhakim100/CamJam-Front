@@ -30,7 +30,7 @@ import {
 
 import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
-import { showErrorMsg } from '../../services/event-bus.service'
+import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { userService } from '../../services/user/user.service'
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -112,14 +112,19 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
     if (isSignup) {
       credientials.fullname = data.get('fullname')
-      credientials.validatePassword = data.get('validate-password')
     }
 
     try {
+      let user
       if (isSignup) {
-        const saved = userService.signup(credientials)
+        user = await userService.signup(credientials)
       } else {
-        const logged = await userService.login(credientials)
+        user = await userService.login(credientials)
+      }
+      if (user) {
+        showSuccessMsg('Login successful!')
+      } else {
+        showErrorMsg('Login failed. Please check your credentials.')
       }
     } catch (err) {
       showErrorMsg('An error occurred while signing in. Please try again.')

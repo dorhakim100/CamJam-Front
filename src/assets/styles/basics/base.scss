@@ -20,7 +20,7 @@ body {
 
   background-color: $neutral-gray;
   color: $dark-gray;
-  transition: color 0.3s, background-color 0.3s;
+  transition: color 0.3s ease-out, background-color 0.3s ease-out;
 
   &.dark-mode {
     background-color: $dark-gray;
