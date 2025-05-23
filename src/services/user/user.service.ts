@@ -6,6 +6,8 @@ import { UserFilter } from '../../types/userFilter/UserFilter'
 import { User } from '../../types/user/User'
 import { UserCred } from '../../types/userCred/UserCred'
 import { u } from 'framer-motion/client'
+import { getPrefs } from '../util.service'
+import { setPrefs } from '../util.service'
 
 export const userService = {
   login,
@@ -15,12 +17,12 @@ export const userService = {
   getById,
   remove,
   update,
-  // getLoggedinUser,
+  getLoggedinUser,
   getDefaultFilter,
   saveLoggedinUser,
   getEmptyUser,
 
-  // getRememberedUser,
+  getRememberedUser,
   // getMaxPage,
 }
 
@@ -63,7 +65,7 @@ async function update(user: User) {
     // console.log(savedUser)
     // return
 
-    // const loggedinUser = await getLoggedinUser() // Might not work because its defined in the main service???
+    const loggedinUser = await getLoggedinUser() // Might not work because its defined in the main service???
 
     // if (loggedinUser.id === user.id) saveLoggedinUser(savedUser)
 
@@ -79,6 +81,12 @@ async function update(user: User) {
 async function login(userCred: UserCred) {
   try {
     const user = await httpService.post('auth/login', userCred)
+    const prefs = getPrefs()
+
+    setPrefs({
+      ...prefs,
+      user: userCred.isRemember ? user.id : null,
+    })
     // console.log(user)
     if (user) {
       const saved = saveLoggedinUser(user)
@@ -116,27 +124,27 @@ async function logout() {
   }
 }
 
-// async function getLoggedinUser() {
-//   try {
-//     const remembered = await getRememberedUser()
+async function getLoggedinUser() {
+  try {
+    const remembered = await getRememberedUser()
 
-//     if (!remembered) {
-//       const logged = JSON.parse(
-//         sessionStorage.getItem(STORAGE_KEY_LOGGEDIN_USER)
-//       )
-//       if (!logged) return
+    if (!remembered) {
+      const sessionStr = sessionStorage.getItem(STORAGE_KEY_LOGGEDIN_USER)
+      if (!sessionStr) return null
+      const logged = JSON.parse(sessionStr)
+      if (!logged) return
 
-//       const retrieved = await getById(logged._id)
+      const retrieved = await getById(logged._id)
 
-//       return saveLoggedinUser(retrieved)
-//       return
-//     }
-//     return saveLoggedinUser(remembered)
-//   } catch (err) {
-//     // console.log(err)
-//     throw err
-//   }
-// }
+      return saveLoggedinUser(retrieved)
+      return
+    }
+    return saveLoggedinUser(remembered)
+  } catch (err) {
+    // console.log(err)
+    throw err
+  }
+}
 
 function saveLoggedinUser(user: User) {
   user = {
@@ -168,51 +176,51 @@ function getDefaultFilter() {
   }
 }
 
-// async function getRememberedById(userId) {
-//   try {
-//     const user = await httpService.get(`user/rememberMe/${userId}`)
-//     return user
-//   } catch (err) {
-//     // console.log(err)
-//     throw err
-//   }
-// }
+async function getRememberedById(userId: string) {
+  try {
+    const user = await httpService.get(`user/rememberMe/${userId}`, null)
+    return user
+  } catch (err) {
+    // console.log(err)
+    throw err
+  }
+}
 
-// async function getRememberedUser() {
-//   const sessionUser = JSON.parse(
-//     sessionStorage.getItem(STORAGE_KEY_LOGGEDIN_USER)
-//   )
+async function getRememberedUser() {
+  // const sessionStr = sessionStorage.getItem(STORAGE_KEY_LOGGEDIN_USER)
+  // if (!sessionStr) return null
+  // const sessionUser = JSON.parse(sessionStr)
 
-//   try {
-//     if (sessionUser) {
-//       const retrievedUser = await getRememberedById(sessionUser._id)
+  try {
+    // if (sessionUser) {
+    //   const retrievedUser = await getRememberedById(sessionUser._id)
 
-//       return saveLoggedinUser(retrievedUser)
-//     }
-//     const prefs = getPrefs()
+    //   return saveLoggedinUser(retrievedUser)
+    // }
+    const prefs = getPrefs()
 
-//     if (!prefs.user) return
-//     const userId = prefs.user._id ? prefs.user._id : null
-//     if (userId) {
-//       // const cred = {
-//       //   username: prefs.user.username,
-//       //   password: '',
-//       //   isRemembered: true,
-//       // }
-//       // const user = await login(cred)
+    if (!prefs.user) return
+    const userId = prefs.user ? prefs.user : null
+    if (userId) {
+      // const cred = {
+      //   username: prefs.user.username,
+      //   password: '',
+      //   isRemembered: true,
+      // }
+      // const user = await login(cred)
 
-//       const user = await getRememberedById(userId)
-//       // const user = await loginToken()
-//       if (user) return saveLoggedinUser(user)
-//     } else {
-//       throw new Error('No userId found in prefs')
-//       return null
-//     }
-//   } catch (err) {
-//     // console.log(err)
-//     throw err
-//   }
-// }
+      const user = await getRememberedById(userId)
+      // const user = await loginToken()
+      if (user) return saveLoggedinUser(user)
+    } else {
+      throw new Error('No userId found in prefs')
+      return null
+    }
+  } catch (err) {
+    // console.log(err)
+    throw err
+  }
+}
 
 // async function getMaxPage(filter: UserFilter) {
 //   const PAGE_SIZE = 6

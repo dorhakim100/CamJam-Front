@@ -89,7 +89,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   const [validatePasswordMessage, setValidatePasswordMessage] =
     React.useState('')
   const [open, setOpen] = React.useState(false)
-
+  const credientials: any = {}
   const handleClickOpen = () => {
     setOpen(true)
   }
@@ -108,7 +108,6 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
     const data = new FormData(event.currentTarget)
 
-    const credientials: any = {}
     credientials.email = data.get('email')
     credientials.password = data.get('password')
 
@@ -125,7 +124,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       }
       if (user) {
         showSuccessMsg('Login successful!')
-        navigate('/')
+        // navigate('/')
       } else {
         showErrorMsg('Login failed. Please check your credentials.')
       }
@@ -202,6 +201,12 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       setLogoSrc(prefs.isDarkMode ? logoDark : logo)
     }
   }, [prefs.isDarkMode])
+
+  const toggleRememberMe = () => {
+    credientials.isRemember = !credientials.isRemember || false
+
+    console.log(credientials.isRemember)
+  }
 
   return (
     <div
@@ -319,6 +324,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
               <FormControlLabel
                 control={<Checkbox value='remember' color='primary' />}
                 label='Remember me'
+                onChange={toggleRememberMe}
               />
               <ForgotPassword open={open} handleClose={handleClose} />
               <Button

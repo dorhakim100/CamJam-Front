@@ -20,6 +20,9 @@ import IconButton from '@mui/material/IconButton'
 import SearchIcon from '@mui/icons-material/Search'
 import SettingsIcon from '@mui/icons-material/Settings'
 import PersonIcon from '@mui/icons-material/Person'
+import { userService } from '../../services/user/user.service.ts'
+import { login, setRemembered } from '../../store/actions/user.actios.ts'
+import { showErrorMsg } from '../../services/event-bus.service.ts'
 
 export function SearchBar() {
   const navigate = useNavigate()
@@ -60,6 +63,32 @@ export function SearchBar() {
     else filteredRoutes = options.filter((option) => option.title !== 'Profile')
     setDropdownOptions(filteredRoutes)
   }, [user])
+
+  useEffect(() => {
+    const setRememberedUser = async () => {
+      try {
+        const remembered = await userService.getRememberedUser()
+
+        if (!remembered) return
+
+        setRemembered(remembered)
+
+        const cred = {
+          email: remembered.email,
+          password: '',
+          isRemember: true,
+        }
+        console.log('remembered: ', remembered)
+
+        await login(cred)
+      } catch (err) {
+        // // console.log(err)
+
+        showErrorMsg(`Couldn't load saved user`)
+      }
+    }
+    setRememberedUser()
+  }, [])
 
   return (
     <div className='search-bar-container'>

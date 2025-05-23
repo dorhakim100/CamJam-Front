@@ -5,4 +5,5 @@ export interface UserCred {
   validatePassword?: string
   fullname?: string
   imgUrl?: string
+  isRemember?: boolean
 }

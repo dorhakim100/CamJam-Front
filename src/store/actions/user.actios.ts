@@ -71,6 +71,7 @@ export async function signup(credentials: UserCred) {
       type: SET_USER,
       user,
     })
+    if (user && credentials.isRemember) return
     // socketService.login(user._id)
     return user
   } catch (err) {
@@ -106,4 +107,11 @@ export async function loadUser(userId: string) {
     throw err
     // console.log('Cannot load user', err)
   }
+}
+
+export function setRemembered(user: User) {
+  store.dispatch({
+    type: SET_USER,
+    user,
+  })
 }
