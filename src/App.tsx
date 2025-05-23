@@ -8,6 +8,7 @@ import { AppHeader } from './components/AppHeader/AppHeader'
 import { AppFooter } from './components/AppFooter/AppFooter.tsx'
 import { Prefs } from './components/Prefs/Prefs'
 import { PrefsButton } from './components/PrefsButton/PrefsButton.tsx'
+import { UserMsg } from './components/UserMsg/UserMsg.tsx'
 
 import { RootState } from './store/store.ts'
 
@@ -32,6 +33,7 @@ function App() {
       <AppHeader routes={routes} />
       <Prefs />
       {/* <PrefsButton /> */}
+      <UserMsg />
       <main className={`main ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
         <SearchBar />
         <Routes>

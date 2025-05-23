@@ -30,6 +30,7 @@ import {
 
 import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
+import { showErrorMsg } from '../../services/event-bus.service'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -80,6 +81,10 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('')
   const [passwordError, setPasswordError] = React.useState(false)
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('')
+  const [validatePasswordError, setValidatePasswordError] =
+    React.useState(false)
+  const [validatePasswordMessage, setValidatePasswordMessage] =
+    React.useState('')
   const [open, setOpen] = React.useState(false)
 
   const handleClickOpen = () => {
@@ -91,21 +96,36 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const isValid = validateInputs()
+    if (!isValid) {
+      showErrorMsg('Please fill in all required fields correctly.')
+      return
+    }
     if (emailError || passwordError) {
-      event.preventDefault()
       return
     }
     const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+    console.log(data)
+
+    const credientials: any = {}
+    credientials.email = data.get('email')
+    credientials.password = data.get('password')
+
+    if (isSignup) {
+      credientials.fullname = data.get('fullname')
+    }
+
+    console.log(credientials)
   }
 
   const validateInputs = () => {
     const fullname = document.getElementById('fullname') as HTMLInputElement
     const email = document.getElementById('email') as HTMLInputElement
     const password = document.getElementById('password') as HTMLInputElement
+    const validatePassword = document.getElementById(
+      'validate-password'
+    ) as HTMLInputElement
 
     let isValid = true
 
@@ -133,6 +153,15 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       setPasswordErrorMessage('')
     }
 
+    if (isSignup && password.value !== validatePassword.value) {
+      setValidatePasswordError(true)
+      setValidatePasswordMessage('Validate password must be identical')
+      isValid = false
+    } else {
+      setValidatePasswordError(false)
+      setValidatePasswordMessage('')
+    }
+
     return isValid
   }
 
@@ -158,7 +187,11 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
   }, [prefs.isDarkMode])
 
   return (
-    <div className='login-sign-up-container'>
+    <div
+      className={`login-sign-up-container ${
+        prefs.isDarkMode ? 'dark-mode' : ''
+      }`}
+    >
       <AppTheme {...props}>
         <CssBaseline enableColorScheme />
         <SignInContainer direction='column' justifyContent='space-between'>
@@ -247,6 +280,25 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
                   color={passwordError ? 'error' : 'primary'}
                 />
               </FormControl>
+              {isSignup && (
+                <FormControl>
+                  <FormLabel htmlFor='password'>Validate Password</FormLabel>
+                  <TextField
+                    error={validatePasswordError}
+                    helperText={validatePasswordMessage}
+                    name='validate-password'
+                    placeholder='••••••'
+                    type='password'
+                    id='validate-password'
+                    autoComplete='current-password'
+                    autoFocus
+                    required
+                    fullWidth
+                    variant='outlined'
+                    color={passwordError ? 'error' : 'primary'}
+                  />
+                </FormControl>
+              )}
               <FormControlLabel
                 control={<Checkbox value='remember' color='primary' />}
                 label='Remember me'

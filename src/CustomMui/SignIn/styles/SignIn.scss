@@ -1,0 +1,14 @@
+.login-sign-up-container {
+  div {
+    min-height: fit-content;
+    .MuiCard-root {
+      margin: 1em 0px 0px 0px;
+    }
+  }
+}
+
+.login-sign-up-container.dark-mode {
+  p.Mui-error {
+    color: $medium-red;
+  }
+}
