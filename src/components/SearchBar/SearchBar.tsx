@@ -70,9 +70,7 @@ export function SearchBar() {
     if (user)
       filteredRoutes = options.filter((option) => option.title !== 'Sign in')
     else filteredRoutes = options.filter((option) => option.title !== 'Profile')
-    const original = options[0].onClick
 
-    // filteredRoutes = filteredRoutes.filter((option)=> option.title)
     setDropdownOptions(filteredRoutes)
   }, [user])
 

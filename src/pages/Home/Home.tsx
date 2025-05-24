@@ -1,60 +1,40 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import Clock from 'react-clock'
 
-import 'react-clock/dist/Clock.css'
 import { RootState } from '../../store/store'
+import { ClockTime } from '../../components/ClockTime/ClockTime'
 
 export function Home() {
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
 
-  const [dateValue, setDateValue] = useState(new Date())
-  const [timeString, setTimeString] = useState(
-    new Date().toLocaleTimeString('he', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })
-  )
-  const [dateString, setDateString] = useState(
-    new Date().toLocaleDateString('eng', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    })
-  )
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const date = new Date()
-      const string = date.toLocaleTimeString('he', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      setTimeString(string)
-      setDateValue(date)
-    }, 1000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [])
+  const buttons = [
+    {
+      label: 'New meeting',
+      action: () => console.log('Button 1 clicked'),
+      id: 'new-meeting-button',
+    },
+    {
+      label: 'Join',
+      action: () => console.log('Button 2 clicked'),
+      id: 'join-button',
+    },
+  ]
 
   return (
     <div className='home-container'>
-      <div className='times-container'>
-        <div className='time-date-container'>
-          <span className='time'>{timeString}</span>
-          <span className='date'>{dateString}</span>
-        </div>
-        <div
-          className={`clock-container ${prefs.isDarkMode ? 'dark-clock' : ''}`}
-        >
-          <Clock value={dateValue} />
-        </div>
+      <ClockTime />
+      <div className='buttons-container'>
+        {buttons.map((button) => (
+          <button
+            key={button.id}
+            className='home-button'
+            onClick={button.action}
+          >
+            {button.label}
+          </button>
+        ))}
       </div>
     </div>
   )

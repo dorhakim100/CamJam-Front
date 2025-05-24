@@ -1,0 +1,60 @@
+.times-container {
+  display: grid;
+  justify-items: center;
+  gap: 2em;
+
+  .time-date-container {
+    display: grid;
+    // gap: 0.5em;
+  }
+  span {
+    &.time {
+      font-weight: 800;
+      font-size: 2em;
+    }
+    &.date {
+      font-weight: 500;
+    }
+  }
+  .clock-container.dark-clock {
+    .react-clock {
+      //   background-color: #1e1e1e;
+      color: #e0e0e0;
+      border: 1px solid #fff;
+      border-radius: 50%;
+    }
+
+    /* clock face (the circle) */
+    .react-clock .react-clock__face {
+      background-color: #2b2b2b;
+    }
+
+    /* hour & minute marks */
+    .react-clock .react-clock__mark {
+      background-color: #555;
+    }
+
+    /* hour/minute hands */
+    .react-clock__hour-mark {
+      div {
+        background-color: #dedede;
+      }
+    }
+    .react-clock__minute-mark {
+      div {
+        background-color: #bababa;
+      }
+    }
+
+    .react-clock__minute-hand,
+    .react-clock__hour-hand {
+      div {
+        background-color: #fff;
+      }
+    }
+    /* (optional) make the second hand pop */
+    .react-clock__hand--second {
+      background-color: #ff4b4b;
+    }
+  }
+}
