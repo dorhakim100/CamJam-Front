@@ -124,7 +124,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       }
       if (user) {
         showSuccessMsg('Login successful!')
-        // navigate('/')
+        navigate('/')
       } else {
         showErrorMsg('Login failed. Please check your credentials.')
       }
@@ -204,8 +204,6 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
   const toggleRememberMe = () => {
     credientials.isRemember = !credientials.isRemember || false
-
-    console.log(credientials.isRemember)
   }
 
   return (

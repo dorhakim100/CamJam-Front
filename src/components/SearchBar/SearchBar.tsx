@@ -50,17 +50,28 @@ export function SearchBar() {
 
   useEffect(() => {
     let filteredRoutes
-    const options = routes.map((route) => {
-      return {
-        title: route.title,
-        onClick: (): void => {
-          navigate(route.path)
-        },
-      }
-    })
+    const options = routes
+      // .filter((route) => {
+      //   const lastIdx = route.path.length
+      //   const startIdx = route.path.length - 4
+      //   const slice = route.path.slice(startIdx, lastIdx)
+      //   return slice !== '/:id'
+      // })
+      .filter((route) => !route.path.endsWith('/:id'))
+      .map((route) => {
+        return {
+          title: route.title,
+          onClick: (): void => {
+            navigate(route.path)
+          },
+        }
+      })
     if (user)
       filteredRoutes = options.filter((option) => option.title !== 'Sign in')
     else filteredRoutes = options.filter((option) => option.title !== 'Profile')
+    const original = options[0].onClick
+
+    // filteredRoutes = filteredRoutes.filter((option)=> option.title)
     setDropdownOptions(filteredRoutes)
   }, [user])
 
