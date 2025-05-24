@@ -32,7 +32,6 @@ export function SearchBar() {
   const user = useSelector(
     (stateSelector: RootState) => stateSelector.userModule.user
   )
-  console.log(user)
 
   const isPrefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.isPrefs
@@ -41,6 +40,8 @@ export function SearchBar() {
   const isHeader = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.isHeader
   )
+
+  const [searchRoom, setSearchRoom] = useState<string>('')
 
   const [dropdownOptions, setDropdownOptions] = useState<DropdownOption[]>([])
 
@@ -89,7 +90,6 @@ export function SearchBar() {
           password: '',
           isRemember: true,
         }
-        console.log('remembered: ', remembered)
 
         await login(cred)
       } catch (err) {
@@ -100,6 +100,38 @@ export function SearchBar() {
     }
     setRememberedUser()
   }, [])
+
+  const onHandleSearchChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    ev.preventDefault()
+    const { value } = ev.target
+    setSearchRoom(value)
+
+    // Navigate to the room list with the search query
+    // if (value) {
+    //   navigate(`/room?search=${value}`)
+    // } else {
+    //   navigate('/room')
+    // }
+  }
+
+  const navigateToRoom = () => {
+    if (!searchRoom) return
+
+    // Navigate to the room list with the search query
+    navigate(`/room/${searchRoom}`)
+
+    // Reset search input
+    setSearchRoom('')
+  }
+
+  const preventSubmit = (ev: React.KeyboardEvent<HTMLFormElement>) => {
+    ev.preventDefault()
+  }
+
+  const handleEnterClick = (ev: React.KeyboardEvent<HTMLFormElement>) => {
+    if (ev.key !== 'Enter') return
+    navigateToRoom()
+  }
 
   return (
     <div className='search-bar-container'>
@@ -117,6 +149,8 @@ export function SearchBar() {
           right: '0',
           backgroundColor: prefs.isDarkMode ? '#333' : '#fff',
         }}
+        onSubmit={preventSubmit}
+        onKeyUp={handleEnterClick}
       >
         <div className='menu-container'>
           <DropdownMenu options={dropdownOptions} />
@@ -137,6 +171,8 @@ export function SearchBar() {
             }}
             placeholder='Search meeting'
             inputProps={{ 'aria-label': 'search google maps' }}
+            onChange={onHandleSearchChange}
+            value={searchRoom}
           />
           <IconButton
             type='button'
@@ -148,6 +184,7 @@ export function SearchBar() {
               },
             }}
             aria-label='search'
+            onClick={navigateToRoom}
           >
             <SearchIcon />
           </IconButton>
