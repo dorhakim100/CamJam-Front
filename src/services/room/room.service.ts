@@ -3,6 +3,7 @@ import { makeId } from '../util.service'
 
 import { Room } from '../../types/room/Room'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
+import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 
 const KEY = 'room'
 
@@ -50,15 +51,17 @@ async function remove(roomId: string) {
     throw err
   }
 }
-async function save(room: Room) {
+async function save(room: Room | RoomToAdd) {
   try {
-    var savedRoom
-    if (room.id) {
-      savedRoom = await httpService.put(`${KEY}/${room.id}`, room)
+    let saved
+
+    if ('id' in room && room.id) {
+      saved = await httpService.put(`${KEY}/${room.id}`, room)
     } else {
-      savedRoom = await httpService.post(KEY, room)
+      saved = await httpService.post(KEY, room)
     }
-    return savedRoom
+
+    return saved
   } catch (err) {
     // // console.log(err)
     throw err

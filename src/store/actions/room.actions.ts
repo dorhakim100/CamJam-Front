@@ -3,6 +3,7 @@ import { store } from '../store'
 import { SET_ROOMS, SET_ROOM, SET_ROOM_FILTER } from '../reducers/room.reducer'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
+import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 
 export async function loadRooms(filterBy: RoomFilter): Promise<any> {
   try {
@@ -20,6 +21,17 @@ export async function loadRooms(filterBy: RoomFilter): Promise<any> {
 export async function loadRoom(roomId: string): Promise<any> {
   try {
     const room = await roomService.getById(roomId)
+    store.dispatch(getCmdSetRoom(room))
+    return room
+  } catch (err) {
+    // console.log('Cannot load room', err)
+    throw err
+  }
+}
+
+export async function saveRoom(roomToSave: Room | RoomToAdd): Promise<any> {
+  try {
+    const room = await roomService.save(roomToSave)
     store.dispatch(getCmdSetRoom(room))
     return room
   } catch (err) {

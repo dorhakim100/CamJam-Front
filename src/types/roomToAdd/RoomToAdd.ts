@@ -1,5 +1,4 @@
-export interface Room {
-  id: string
+export interface RoomToAdd {
   host_id: string
   name?: string
   is_private?: boolean
