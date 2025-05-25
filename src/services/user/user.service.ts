@@ -82,7 +82,6 @@ async function login(userCred: UserCred) {
   try {
     const user = await httpService.post('auth/login', userCred)
     const prefs = getPrefs()
-
     setPrefs({
       ...prefs,
       user: userCred.isRemember ? user.id : null,
@@ -117,6 +116,11 @@ async function signup(userCred: UserCred) {
 async function logout() {
   sessionStorage.removeItem(STORAGE_KEY_LOGGEDIN_USER)
   try {
+    const prefs = getPrefs()
+    setPrefs({
+      ...prefs,
+      user: null,
+    })
     return await httpService.post('auth/logout', null)
   } catch (err) {
     // console.log(err)
