@@ -20,6 +20,8 @@ export async function loadRooms(filterBy: RoomFilter): Promise<any> {
 
 export async function loadRoom(roomId: string): Promise<any> {
   try {
+    console.log(roomId)
+
     const room = await roomService.getById(roomId)
     store.dispatch(getCmdSetRoom(room))
     return room
