@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
+import { socketService } from '../../services/socket.service'
+
 import { loadRoom } from '../../store/actions/room.actions'
 
 import { RootState } from '../../store/store'
@@ -17,7 +19,16 @@ export function RoomPage() {
 
   useEffect(() => {
     if (!id) return
-    loadRoom(id)
+    const handleJoinRoom = async (data: any) => {
+      await loadRoom(id)
+      console.log('Joined room:', data)
+    }
+    handleJoinRoom(id)
+    socketService.joinRoom(id)
+    return () => {
+      socketService.leaveRoom(id)
+      console.log('Left room:', id)
+    }
   }, [id])
 
   return (
