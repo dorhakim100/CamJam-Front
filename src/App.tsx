@@ -14,6 +14,7 @@ import { RootState } from './store/store.ts'
 
 import './App.css'
 import { SearchBar } from './components/SearchBar/SearchBar.tsx'
+import { socketService } from './services/socket.service'
 
 function App() {
   const prefs = useSelector(
@@ -31,6 +32,13 @@ function App() {
       document.body.classList.remove('dark-mode')
     }
   }, [prefs])
+
+  useEffect(() => {
+    socketService.setup()
+    return () => {
+      socketService.terminate()
+    }
+  }, [])
 
   return (
     <>

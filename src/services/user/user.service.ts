@@ -140,10 +140,11 @@ async function getLoggedinUser() {
 
       const retrieved = await getById(logged._id)
 
-      return saveLoggedinUser(retrieved)
-      return
+      saveLoggedinUser(retrieved)
+      return retrieved
     }
-    return saveLoggedinUser(remembered)
+    saveLoggedinUser(remembered)
+    return remembered
   } catch (err) {
     // console.log(err)
     throw err
