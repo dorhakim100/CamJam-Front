@@ -12,6 +12,7 @@ import { loadRoom } from '../../store/actions/room.actions'
 
 import { RootState } from '../../store/store'
 import { User } from '../../types/user/User'
+import { MembersList } from '../../components/MembersList/MembersList'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -77,18 +78,7 @@ export function RoomPage() {
         <p>Host: {room?.host_id || 'Loading...'}</p>
         {/* <p>Created at: {room?.created_at || 'Loading...'}</p> */}
         <p>Members: {currMembers.length || 0}</p>
-        {currMembers.map((member) => {
-          return (
-            <div key={member.id} className='member'>
-              <img
-                src={member.imgUrl || '/assets/img/user.png'}
-                alt={member.fullname}
-                className='member-img'
-              />
-              <span className='member-name'>{member.fullname}</span>
-            </div>
-          )
-        })}
+        <MembersList members={currMembers} />
         {/* <p>Status: {room?.is_private ? 'Private' : 'Public'}</p> */}
       </div>
     </div>
