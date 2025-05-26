@@ -29,7 +29,7 @@ export function RoomPage() {
   useEffect(() => {
     if (!id || !user) return
     socketService.on(SOCKET_EVENT_MEMBER_CHANGE, (members: SocketUser[]) => {
-      console.log('User joined:', members)
+      members = members.filter((member) => member)
       setCurrentMembers(members)
       // e.g. setParticipants(prev => [...prev, userId]);
     })
@@ -77,6 +77,18 @@ export function RoomPage() {
         <p>Host: {room?.host_id || 'Loading...'}</p>
         {/* <p>Created at: {room?.created_at || 'Loading...'}</p> */}
         <p>Members: {currMembers.length || 0}</p>
+        {currMembers.map((member) => {
+          return (
+            <div key={member.id} className='member'>
+              <img
+                src={member.imgUrl || '/assets/img/user.png'}
+                alt={member.fullname}
+                className='member-img'
+              />
+              <span className='member-name'>{member.fullname}</span>
+            </div>
+          )
+        })}
         {/* <p>Status: {room?.is_private ? 'Private' : 'Public'}</p> */}
       </div>
     </div>
