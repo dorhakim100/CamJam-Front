@@ -3,10 +3,12 @@ import { userService } from './user/user.service'
 
 export const SOCKET_EVENT_JOIN_ROOM = 'join-room'
 export const SOCKET_EVENT_USER_JOINED = 'user-joined'
+export const SOCKET_EVENT_SET_USER_SOCKET = 'set-user-socket'
 export const SOCKET_EVENT_USER_LEFT = 'user-left'
 export const SOCKET_EVENT_OFFER = 'offer'
 export const SOCKET_EVENT_ANSWER = 'answer'
 export const SOCKET_EVENT_ICE_CANDIDATE = 'ice-candidate'
+export const SOCKET_EVENT_MEMBER_CHANGE = 'members-change'
 
 const SOCKET_EMIT_LOGIN = 'set-user-socket'
 const SOCKET_EMIT_LOGOUT = 'unset-user-socket'
@@ -24,12 +26,18 @@ if (typeof window !== 'undefined') {
   socketService.setup()
 }
 
+export interface SocketUser {
+  id: string
+  fullname: string
+  imgUrl?: string
+}
+
 interface ISocketService {
   setup(): void
   on(eventName: string, cb: Function): void
   off(eventName: string, cb?: Function): void
   emit(eventName: string, data: any): void
-  login(userId: string): void
+  login(user: SocketUser): void
   logout(): void
   terminate(): void
   joinRoom(roomId: string): void
@@ -82,9 +90,9 @@ function createSocketService(): ISocketService {
       socket.emit(eventName, data)
     },
 
-    login(userId: string) {
+    login(user: SocketUser) {
       if (!socket) return
-      socket.emit(SOCKET_EMIT_LOGIN, userId)
+      socket.emit(SOCKET_EMIT_LOGIN, user)
     },
 
     logout() {
@@ -94,12 +102,12 @@ function createSocketService(): ISocketService {
 
     joinRoom(roomId: string) {
       if (!socket) return
-      socket.emit(SOCKET_EVENT_JOIN_ROOM, { roomId })
+      socket.emit(SOCKET_EVENT_JOIN_ROOM, roomId)
     },
 
     leaveRoom(roomId: string) {
       if (!socket) return
-      socket.emit(SOCKET_EVENT_USER_LEFT, { roomId })
+      socket.emit(SOCKET_EVENT_USER_LEFT, roomId)
     },
 
     terminate() {
