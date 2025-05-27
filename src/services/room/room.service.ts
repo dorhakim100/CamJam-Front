@@ -83,6 +83,7 @@ function getDefaultFilter() {
   return {
     txt: '',
     hostId: '',
+    pageIdx: 0,
   }
 }
 
