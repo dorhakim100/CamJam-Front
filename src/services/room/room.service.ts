@@ -21,6 +21,7 @@ async function query(
   filterBy: RoomFilter = {
     txt: '',
     hostId: '',
+    pageIdx: 0,
   }
 ) {
   try {

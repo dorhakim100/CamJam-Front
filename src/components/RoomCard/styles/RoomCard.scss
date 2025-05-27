@@ -1,0 +1,59 @@
+.room-card-container {
+  margin: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+
+  .room-card {
+    background: $white;
+    border: 1px solid $white-border;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease-in-out;
+
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .room-name {
+      font-size: 1.25rem;
+      margin: 0 0 8px;
+      color: $text-dark-gray;
+    }
+
+    .room-host,
+    .room-created-at {
+      display: block;
+      font-size: 0.875rem;
+      color: $text-medium-gray;
+    }
+
+    .room-host {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .room-created-at {
+      font-style: italic;
+      margin-bottom: 1em;
+    }
+    &.dark-mode {
+      background: $very-dark-gray;
+      border: 1px solid $dark-gray;
+
+      .room-name {
+        color: $white;
+      }
+
+      .room-name,
+      .room-host,
+      .room-created-at {
+        color: $light-gray;
+      }
+    }
+  }
+}

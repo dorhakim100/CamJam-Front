@@ -2,7 +2,7 @@
   max-width: 300px;
   max-height: 400px;
   overflow-y: auto;
-  background: #fff;
+  background: $white;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 8px;
@@ -40,7 +40,7 @@
         margin-left: auto;
         font-size: 10px;
         font-weight: bold;
-        color: #ffffff;
+        color: $white;
         background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
@@ -56,7 +56,7 @@
         margin-left: auto;
         font-size: 10px;
         font-weight: bold;
-        color: #ffffff;
+        color: $white;
         background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
@@ -71,7 +71,7 @@
         margin-left: auto;
         font-size: 10px;
         font-weight: bold;
-        color: #ffffff;
+        color: $white;
         background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
@@ -107,7 +107,7 @@
           background-color: darken($very-dark-gray, 5%);
         }
         &.host {
-          color: #fff;
+          color: $white;
           background: $bold-navy;
           border-color: $bold-navy-lighter;
           &:hover {
@@ -123,7 +123,7 @@
           background: $bold-navy;
         }
         .member-name {
-          color: #fff;
+          color: $white;
         }
       }
     }
