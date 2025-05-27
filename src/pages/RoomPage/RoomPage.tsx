@@ -25,6 +25,10 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.userModule.user
   )
 
+  const prefs = useSelector(
+    (stateSelector: RootState) => stateSelector.systemModule.prefs
+  )
+
   const [currMembers, setCurrentMembers] = React.useState<SocketUser[]>([])
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export function RoomPage() {
   }, [id])
 
   return (
-    <div className='main room-page'>
+    <div className={`main ${prefs.isDarkMode ? 'dark-mode' : ''} room-page`}>
       <div className='video-container'>
         <video
           // ref={videoRef}

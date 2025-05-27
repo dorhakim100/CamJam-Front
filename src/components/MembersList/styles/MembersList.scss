@@ -29,9 +29,11 @@
     }
 
     &.host {
-      background: #f0f7ff;
+      background: $light-blue-white;
       border: 1px solid #91caff;
-
+      &:hover {
+        background-color: darken($light-blue-white, 5%);
+      }
       // add a little host badge
       &::after {
         content: 'Host';
@@ -39,14 +41,14 @@
         font-size: 10px;
         font-weight: bold;
         color: #ffffff;
-        background: #007bff;
+        background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
       }
     }
 
     &.logged-user {
-      background: #fff8e1;
+      background: $creme;
 
       // subtle badge
       &::after {
@@ -55,13 +57,13 @@
         font-size: 10px;
         font-weight: bold;
         color: #ffffff;
-        background: #007bff;
+        background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
       }
     }
     &.logged-user.host {
-      background: #fff8e1;
+      background: $creme;
 
       // subtle badge
       &::after {
@@ -70,7 +72,7 @@
         font-size: 10px;
         font-weight: bold;
         color: #ffffff;
-        background: #007bff;
+        background: $zoom-blue-darker;
         padding: 2px 6px;
         border-radius: 12px;
       }
@@ -93,6 +95,37 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+  &.dark-mode {
+    background: $very-dark-gray;
+    border-color: #333;
+
+    ul {
+      li {
+        &:hover {
+          background-color: darken($very-dark-gray, 5%);
+        }
+        &.host {
+          color: #fff;
+          background: $bold-navy;
+          border-color: $bold-navy-lighter;
+          &:hover {
+            background-color: darken($bold-navy, 5%);
+          }
+        }
+
+        &.logged-user {
+          background: $bold-navy-lighter;
+        }
+
+        &.logged-user.host {
+          background: $bold-navy;
+        }
+        .member-name {
+          color: #fff;
+        }
+      }
     }
   }
 }

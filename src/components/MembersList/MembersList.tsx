@@ -14,8 +14,16 @@ export function MembersList({ members }: { members: SocketUser[] }) {
     (stateSelector: RootState) => stateSelector.userModule.user
   )
 
+  const prefs = useSelector(
+    (stateSelector: RootState) => stateSelector.systemModule.prefs
+  )
+
   return (
-    <div className='members-list-container'>
+    <div
+      className={`members-list-container ${
+        prefs.isDarkMode ? 'dark-mode' : ''
+      }`}
+    >
       <ul>
         {members.map((member) => {
           return (
