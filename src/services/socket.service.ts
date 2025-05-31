@@ -41,7 +41,7 @@ interface ISocketService {
   logout(): void
   terminate(): void
   joinRoom(roomId: string): void
-  leaveRoom(roomId: string): void
+  leaveRoom(roomId: string | undefined): void
 }
 
 function createSocketService(): ISocketService {

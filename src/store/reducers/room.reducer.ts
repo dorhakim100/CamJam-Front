@@ -12,14 +12,14 @@ export const SET_ROOM_FILTER = 'SET_ROOM_FILTER'
 
 export interface RoomState {
   rooms: Room[]
-  room: Room
+  room: Room | null
   filter: RoomFilter
   lastRemovedRoom?: Room
 }
 
 const initialState: RoomState = {
   rooms: [],
-  room: roomService.getEmptyRoom(),
+  room: null,
   filter: roomService.getDefaultFilter(),
 }
 
@@ -28,10 +28,10 @@ export function roomReducer(state = initialState, action: any) {
   // var rooms
   switch (action.type) {
     case SET_ROOMS:
-      newState = { ...state, rooms: action.rooms }
+      newState = { ...state, rooms: [...action.rooms] }
       break
     case SET_ROOM:
-      newState = { ...state, room: action.room }
+      newState = { ...state, room: { ...action.room } }
       break
     //   case REMOVE_ROOM:
     //     const lastRemovedRoom = state.rooms.find(

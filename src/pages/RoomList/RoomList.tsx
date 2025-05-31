@@ -12,10 +12,16 @@ export function RoomList() {
   const rooms = useSelector(
     (stateSelector: RootState) => stateSelector.roomModule.rooms
   )
+  const room = useSelector(
+    (stateSelector: RootState) => stateSelector.roomModule.room
+  )
 
   const [filter, setFilter] = useState(roomService.getDefaultFilter())
 
   useEffect(() => {
+    console.log(room)
+    console.log(rooms)
+
     loadRooms(filter)
   }, [filter])
 

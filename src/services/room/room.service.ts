@@ -74,6 +74,7 @@ function getEmptyRoom() {
     id: makeId(),
     name: '',
     host_id: '',
+    host: { fullname: '' },
     is_private: false,
     max_participants: 10,
     created_at: new Date(),

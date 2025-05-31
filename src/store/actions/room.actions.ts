@@ -18,7 +18,7 @@ export async function loadRooms(filterBy: RoomFilter): Promise<any> {
   }
 }
 
-export async function loadRoom(roomId: string): Promise<any> {
+export async function loadRoom(roomId: string): Promise<Room> {
   try {
     const room = await roomService.getById(roomId)
     store.dispatch(getCmdSetRoom(room))
