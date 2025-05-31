@@ -166,30 +166,36 @@ export function RoomPage() {
           />
 
           {/* 2) Remote previews */}
-          {currRemoteStreams.map((stream, idx) => {
-            console.log('---- Remote stream #', idx, '----')
-            console.log('  videoTracks:', stream.getVideoTracks())
-            console.log('  audioTracks:', stream.getAudioTracks())
-
-            // if (
-            //   JSON.stringify(stream) !== JSON.stringify(localStreamRef.current)
-            // )
-            return (
-              <video
-                key={idx}
-                autoPlay
-                playsInline
-                ref={(el) => {
-                  if (el) el.srcObject = stream
-                }}
-                style={{
-                  width: 200,
-                  border: '1px solid #555',
-                  marginLeft: 12,
-                }}
-              />
+          {currRemoteStreams
+            .filter(
+              (stream, index, self) =>
+                // Filter out duplicate streams based on their ID
+                index === self.findIndex((s) => s.id === stream.id)
             )
-          })}
+            .map((stream, idx) => {
+              console.log('---- Remote stream #', idx, '----')
+              console.log('  videoTracks:', stream.getVideoTracks())
+              console.log('  audioTracks:', stream.getAudioTracks())
+
+              // if (
+              //   JSON.stringify(stream) !== JSON.stringify(localStreamRef.current)
+              // )
+              return (
+                <video
+                  key={idx}
+                  autoPlay
+                  playsInline
+                  ref={(el) => {
+                    if (el) el.srcObject = stream
+                  }}
+                  style={{
+                    width: 200,
+                    border: '1px solid #555',
+                    marginLeft: 12,
+                  }}
+                />
+              )
+            })}
         </div>
 
         <div className='room-info'>
