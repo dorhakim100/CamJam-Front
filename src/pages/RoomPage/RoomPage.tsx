@@ -29,14 +29,27 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
 
+  const localVideoRef = React.useRef<HTMLVideoElement | null>(null)
+  const localStreamRef = React.useRef<MediaStream | null>(null)
+
   const [currMembers, setCurrentMembers] = React.useState<SocketUser[]>([])
 
   useEffect(() => {
     if (!id || !user) return
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        localStreamRef.current = stream
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream
+        }
+      })
+      .catch((error) => {
+        console.error('Error accessing media devices:', error)
+      })
     socketService.on(SOCKET_EVENT_MEMBER_CHANGE, (members: SocketUser[]) => {
       members = members.filter((member) => member)
       setCurrentMembers(members)
-      // e.g. setParticipants(prev => [...prev, userId]);
     })
     const handleJoinRoom = async (data: any) => {
       await loadRoom(id)
@@ -68,12 +81,16 @@ export function RoomPage() {
     <div className={`main ${prefs.isDarkMode ? 'dark-mode' : ''} room-page`}>
       <div className='video-container'>
         <video
-          // ref={videoRef}
+          ref={(e) => {
+            localVideoRef.current = e
+            if (e) {
+              e.srcObject = localStreamRef.current
+            }
+          }}
           className='room-video'
           autoPlay
           playsInline
           muted
-          src='https://www.w3schools.com/html/mov_bbb.mp4' // Placeholder video
         />
       </div>
       <div className='room-info'>

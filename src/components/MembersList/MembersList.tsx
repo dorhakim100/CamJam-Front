@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 
 export function MembersList({ members }: { members: SocketUser[] }) {
-  console.log('members', members)
-
   const room = useSelector(
     (stateSelector: RootState) => stateSelector.roomModule.room
   )

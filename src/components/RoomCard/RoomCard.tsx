@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Room } from '../../types/room/Room'
 import { RootState } from '../../store/store'
@@ -8,6 +9,8 @@ export function RoomCard({ room }: { room: Room }) {
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
+
+  const navigate = useNavigate()
 
   return (
     <div
@@ -20,7 +23,14 @@ export function RoomCard({ room }: { room: Room }) {
         <span className='room-created-at'>
           Created at: {new Date(room.created_at).toLocaleString()}
         </span>
-        <Button variant='contained'>Join</Button>
+        <Button
+          variant='contained'
+          onClick={() => {
+            navigate(`/room/${room.id}`)
+          }}
+        >
+          Join
+        </Button>
       </div>
     </div>
   )
