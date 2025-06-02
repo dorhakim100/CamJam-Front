@@ -10,8 +10,10 @@ import {
 } from '../socket.service'
 import type { SocketUser } from '../socket.service'
 
-// A map from peerId → RTCPeerConnection, so we can look up connections by remote peer’s ID.
+// A map from peerId → RTCPeerConnection, so we can look up connections by remote peer's ID.
 const pcMap: Record<string, RTCPeerConnection> = {}
+// A map to keep track of remote streams by peer ID
+const remoteStreamMap: Record<string, MediaStream> = {}
 
 /**
  * Create a new RTCPeerConnection for a given remote peerId.
@@ -23,7 +25,7 @@ export function createPeerConnection(
   peerId: string,
   localStream: MediaStream,
   roomId: string,
-  onRemoteTrack: (stream: MediaStream) => void
+  onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ): RTCPeerConnection {
   const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS })
   // Whenever WebRTC finds a new ICE candidate, send it to the remote peer.
@@ -44,7 +46,9 @@ export function createPeerConnection(
   pc.ontrack = (event) => {
     // Note: event.streams[0] is the remote MediaStream object
     console.log(event.streams)
-    onRemoteTrack(event.streams[0])
+    const remoteStream = event.streams[0]
+    remoteStreamMap[peerId] = remoteStream
+    onRemoteTrack(remoteStream, peerId)
   }
 
   // Add all local tracks (video + audio) into this connection so they get sent out.
@@ -61,30 +65,24 @@ export function createPeerConnection(
 export function closeAllPeerConnections() {
   Object.values(pcMap).forEach((pc) => pc.close())
   Object.keys(pcMap).forEach((id) => delete pcMap[id])
+  Object.keys(remoteStreamMap).forEach((id) => delete remoteStreamMap[id])
 }
 
 /**
- * Kick off the “offer” process for a newly joined peer:
+ * Kick off the "offer" process for a newly joined peer:
  * 1. Create a PeerConnection (with localStream attached).
  * 2. Generate an SDP offer, set it as local description.
- * 3. Emit “offer” over signaling to the remote peer.
+ * 3. Emit "offer" over signaling to the remote peer.
  */
 export async function sendOffer(
   peerId: string,
   localStream: MediaStream,
-  roomId: string
+  roomId: string,
+  onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ) {
-  const pc = createPeerConnection(
-    peerId,
-    localStream,
-    roomId,
-    (remoteStream) => {
-      // handled by caller; e.g. push into a React hook’s state
-    }
-  )
+  const pc = createPeerConnection(peerId, localStream, roomId, onRemoteTrack)
 
   // Create an SDP offer
-
   const offer = await pc.createOffer()
   await pc.setLocalDescription(offer)
 
@@ -97,28 +95,23 @@ export async function sendOffer(
 }
 
 /**
- * Handle an incoming SDP “offer” from another peer:
+ * Handle an incoming SDP "offer" from another peer:
  * 1. Create a PeerConnection (with localStream attached).
  * 2. Set the remote description to the received offer.
  * 3. Create an answer, set it as local description.
- * 4. Emit “answer” over signaling back to the caller.
+ * 4. Emit "answer" over signaling back to the caller.
  */
 export async function handleReceivedOffer(
   fromPeerId: string,
   offer: RTCSessionDescriptionInit,
   localStream: MediaStream,
   roomId: string,
-  onRemoteTrack: (stream: MediaStream) => void
+  onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ) {
   // If we already have a connection to this peer, skip (unlikely for first offer).
   if (pcMap[fromPeerId]) return
 
-  const pc = createPeerConnection(
-    fromPeerId,
-    localStream,
-    roomId,
-    onRemoteTrack
-  )
+  const pc = createPeerConnection(fromPeerId, localStream, roomId, onRemoteTrack)
 
   await pc.setRemoteDescription(new RTCSessionDescription(offer))
   const answer = await pc.createAnswer()
@@ -133,7 +126,7 @@ export async function handleReceivedOffer(
 }
 
 /**
- * Handle an incoming SDP “answer” from a remote peer.
+ * Handle an incoming SDP "answer" from a remote peer.
  * Sets the remote description on the existing RTCPeerConnection.
  */
 export async function handleReceivedAnswer(
@@ -159,12 +152,25 @@ export function handleReceivedIceCandidate(
 }
 
 /**
+ * Clean up a specific peer connection and its associated stream
+ */
+function cleanupPeerConnection(peerId: string, onRemoteStreamRemoved: (peerId: string) => void) {
+  const pc = pcMap[peerId]
+  if (pc) {
+    pc.close()
+    delete pcMap[peerId]
+  }
+  delete remoteStreamMap[peerId]
+  onRemoteStreamRemoved(peerId)
+}
+
+/**
  * Wire up all socket listeners needed for WebRTC:
- *  - “members-change”: informs us of the current list of peers in the room,
+ *  - "members-change": informs us of the current list of peers in the room,
  *      so we can initiate calls to any new peer IDs.
- *  - “offer”: called when another peer wants to connect; we respond with an answer.
- *  - “answer”: peer’s response to our offer.
- *  - “ice-candidate”: a piece of ICE info from peer; we add it to our PC.
+ *  - "offer": called when another peer wants to connect; we respond with an answer.
+ *  - "answer": peer's response to our offer.
+ *  - "ice-candidate": a piece of ICE info from peer; we add it to our PC.
  *
  *  This function should be called **after** you have acquired your localStream.
  */
@@ -172,7 +178,8 @@ export function registerWebRTCListeners(
   roomId: string,
   userId: string,
   localStream: MediaStream,
-  onRemoteStreamAdded: (stream: MediaStream) => void,
+  onRemoteStreamAdded: (stream: MediaStream, peerId: string) => void,
+  onRemoteStreamRemoved: (peerId: string) => void,
   onMembersUpdate: (members: SocketUser[]) => void
 ) {
   // 1. When the member list changes, connect to any new peer.
@@ -185,10 +192,17 @@ export function registerWebRTCListeners(
     // Let caller see the updated member list if desired
     onMembersUpdate(members)
 
-    // For each peer we haven’t already set up, send an offer
+    // Clean up connections for peers that are no longer in the room
+    Object.keys(pcMap).forEach((peerId) => {
+      if (!otherPeers.includes(peerId)) {
+        cleanupPeerConnection(peerId, onRemoteStreamRemoved)
+      }
+    })
+
+    // For each peer we haven't already set up, send an offer
     otherPeers.forEach((peerId) => {
       if (!pcMap[peerId]) {
-        sendOffer(peerId, localStream, roomId)
+        sendOffer(peerId, localStream, roomId, onRemoteStreamAdded)
       }
     })
   })
@@ -206,9 +220,7 @@ export function registerWebRTCListeners(
       console.log('🔹 Received OFFER in', 'from', from)
       console.log('🔹 Offer details:', offer)
 
-      await handleReceivedOffer(from, offer, localStream, roomId, (remote) => {
-        onRemoteStreamAdded(remote)
-      })
+      await handleReceivedOffer(from, offer, localStream, roomId, onRemoteStreamAdded)
     }
   )
 
@@ -228,7 +240,7 @@ export function registerWebRTCListeners(
     }
   )
 
-  // 4. When a peer’s ICE candidate arrives, add it to our RTCPeerConnection
+  // 4. When a peer's ICE candidate arrives, add it to our RTCPeerConnection
   socketService.on(
     SOCKET_EVENT_ICE_CANDIDATE,
     ({ from, candidate }: { from: string; candidate: RTCIceCandidateInit }) => {

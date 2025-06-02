@@ -20,6 +20,11 @@ import {
 import { showErrorMsg } from '../../services/event-bus.service'
 import { s } from 'framer-motion/client'
 
+interface RemoteStreamInfo {
+  stream: MediaStream
+  peerId: string
+}
+
 export function RoomPage() {
   const { id } = useParams()
 
@@ -43,7 +48,7 @@ export function RoomPage() {
   const localStreamRef = useRef<MediaStream>(null)
 
   const [currMembers, setCurrentMembers] = useState<SocketUser[]>([])
-  const [currRemoteStreams, setCurrRemoteStreams] = useState<MediaStream[]>([])
+  const [remoteStreams, setRemoteStreams] = useState<RemoteStreamInfo[]>([])
 
   useEffect(() => {
     setRoom()
@@ -72,14 +77,14 @@ export function RoomPage() {
 
       // 4) Clear any UI state if desired
       setCurrentMembers([])
-      setCurrRemoteStreams([])
+      setRemoteStreams([])
     }
   }, [id, user])
 
   // Optional: whenever remoteStreams changes, you can log or do additional effects
   useEffect(() => {
-    console.log('Current remote streams:', currRemoteStreams)
-  }, [currRemoteStreams])
+    console.log('Current remote streams:', remoteStreams)
+  }, [remoteStreams])
 
   async function handlePeerConnection() {
     if (!id || !user) {
@@ -112,16 +117,25 @@ export function RoomPage() {
         id,
         user.id,
         stream,
-        (remoteStream) => {
-          console.log('New remote stream added:', remoteStream)
+        (remoteStream, peerId) => {
+          console.log(
+            'New remote stream added:',
+            remoteStream,
+            'from peer:',
+            peerId
+          )
 
           // Called whenever a new remote track arrives
-          setCurrRemoteStreams((prev) => {
-            if (prev.find((s) => s.id === remoteStream.id)) {
+          setRemoteStreams((prev) => {
+            if (prev.find((s) => s.stream.id === remoteStream.id)) {
               return prev
             }
-            return [...prev, remoteStream]
+            return [...prev, { stream: remoteStream, peerId }]
           })
+        },
+        (peerId) => {
+          console.log('Remote stream removed for peer:', peerId)
+          setRemoteStreams((prev) => prev.filter((s) => s.peerId !== peerId))
         },
         (members) => {
           members = members.filter((member) => member)
@@ -173,36 +187,27 @@ export function RoomPage() {
           />
 
           {/* 2) Remote previews */}
-          {currRemoteStreams
+          {remoteStreams
             .filter(
-              (stream, index, self) =>
+              (streamInfo, index, self) =>
                 // Filter out duplicate streams based on their ID
-                index === self.findIndex((s) => s.id === stream.id)
+                index ===
+                self.findIndex((s) => s.stream.id === streamInfo.stream.id)
             )
-            .map((stream, idx) => {
-              console.log('---- Remote stream #', idx, '----')
+            .map(({ stream, peerId }, idx) => {
+              console.log(
+                '---- Remote stream #',
+                idx,
+                'from peer:',
+                peerId,
+                '----'
+              )
               console.log('  videoTracks:', stream.getVideoTracks())
               console.log('  audioTracks:', stream.getAudioTracks())
 
-              // if (
-              //   JSON.stringify(stream) !== JSON.stringify(localStreamRef.current)
-              // )
               return (
-                // <video
-                //   key={idx}
-                //   autoPlay
-                //   playsInline
-                //   ref={(el) => {
-                //     if (el) el.srcObject = stream
-                //   }}
-                //   style={{
-                //     width: 200,
-                //     border: '1px solid #555',
-                //     marginLeft: 12,
-                //   }}
-                // />
                 <MediaStreamVideo
-                  key={idx}
+                  key={peerId}
                   stream={stream}
                   className='room-video'
                   style={{
