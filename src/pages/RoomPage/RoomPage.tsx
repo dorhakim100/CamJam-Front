@@ -98,8 +98,10 @@ export function RoomPage() {
         video: true,
         audio: true,
       })
-      if (isCleanup) return // skip if unmounted already
-
+      if (isCleanup) {
+        stream.getTracks().forEach((t) => t.stop())
+        return
+      }
       localStreamRef.current = stream
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
@@ -114,7 +116,12 @@ export function RoomPage() {
           console.log('New remote stream added:', remoteStream)
 
           // Called whenever a new remote track arrives
-          setCurrRemoteStreams((prev) => [...prev, remoteStream])
+          setCurrRemoteStreams((prev) => {
+            if (prev.find((s) => s.id === remoteStream.id)) {
+              return prev
+            }
+            return [...prev, remoteStream]
+          })
         },
         (members) => {
           members = members.filter((member) => member)
@@ -181,13 +188,23 @@ export function RoomPage() {
               //   JSON.stringify(stream) !== JSON.stringify(localStreamRef.current)
               // )
               return (
-                <video
+                // <video
+                //   key={idx}
+                //   autoPlay
+                //   playsInline
+                //   ref={(el) => {
+                //     if (el) el.srcObject = stream
+                //   }}
+                //   style={{
+                //     width: 200,
+                //     border: '1px solid #555',
+                //     marginLeft: 12,
+                //   }}
+                // />
+                <MediaStreamVideo
                   key={idx}
-                  autoPlay
-                  playsInline
-                  ref={(el) => {
-                    if (el) el.srcObject = stream
-                  }}
+                  stream={stream}
+                  className='room-video'
                   style={{
                     width: 200,
                     border: '1px solid #555',
@@ -209,4 +226,56 @@ export function RoomPage() {
         </div>
       </div>
     )
+}
+
+// MediaStreamVideo.tsx
+import { CSSProperties } from 'react'
+
+interface MediaStreamVideoProps {
+  stream: MediaStream | null
+  muted?: boolean
+  autoPlay?: boolean
+  playsInline?: boolean
+  className?: string
+  style?: CSSProperties
+}
+
+export function MediaStreamVideo({
+  stream,
+  muted = false,
+  autoPlay = true,
+  playsInline = true,
+  className,
+  style,
+}: MediaStreamVideoProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+
+    // Only re-bind if srcObject is not already this exact MediaStream:
+    if (stream && el.srcObject !== stream) {
+      el.srcObject = stream
+      const playPromise = el.play()
+      if (playPromise && playPromise.catch) {
+        playPromise.catch((err) => {
+          console.warn('⏯️ autoplay interrupted:', err)
+        })
+      }
+    } else if (!stream && el.srcObject) {
+      el.srcObject = null
+    }
+  }, [stream])
+
+  return (
+    <video
+      ref={videoRef}
+      muted={muted}
+      autoPlay={autoPlay}
+      playsInline={playsInline}
+      className={className}
+      style={style}
+    />
+  )
 }

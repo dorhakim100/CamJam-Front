@@ -24,21 +24,22 @@ export function MembersList({ members }: { members: SocketUser[] }) {
     >
       <ul>
         {members.map((member) => {
-          return (
-            <li
-              key={member.id}
-              className={`member ${room.host_id === member.id ? 'host' : ''} ${
-                user?.id === member.id ? 'logged-user' : ''
-              }`}
-            >
-              <img
-                src={member.imgUrl || '/assets/img/user.png'}
-                alt={member.fullname}
-                className='member-img'
-              />
-              <span className='member-name'>{member.fullname}</span>
-            </li>
-          )
+          if (room)
+            return (
+              <li
+                key={member.id}
+                className={`member ${
+                  room.host_id === member.id ? 'host' : ''
+                } ${user?.id === member.id ? 'logged-user' : ''}`}
+              >
+                <img
+                  src={member.imgUrl || '/assets/img/user.png'}
+                  alt={member.fullname}
+                  className='member-img'
+                />
+                <span className='member-name'>{member.fullname}</span>
+              </li>
+            )
         })}
       </ul>
     </div>
