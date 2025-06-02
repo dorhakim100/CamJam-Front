@@ -262,7 +262,9 @@ export function MediaStreamVideo({
     // Only re-bind if srcObject is not already this exact MediaStream:
     if (stream && el.srcObject !== stream) {
       el.srcObject = stream
+      console.log('stream:', stream)
       const playPromise = el.play()
+      // debugger
       if (playPromise && playPromise.catch) {
         playPromise.catch((err) => {
           console.warn('⏯️ autoplay interrupted:', err)
