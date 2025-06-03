@@ -49,15 +49,13 @@ export function RoomPage() {
 
   const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
-  const localStreamRef = useRef<MediaStream>(null)
+
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
 
   const connectedPeers = useRef<Set<string>>(new Set())
 
-  let isCleanup = false // a guard to prevent state updates after unmount
-
   const [currMembers, setCurrentMembers] = useState<SocketUser[]>([])
-  const [remoteStreams, setRemoteStreams] = useState<RemoteStreamInfo[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setRoom()
@@ -97,11 +95,28 @@ export function RoomPage() {
     const initializeMedia = async () => {
       try {
         const stream = await webRTCService.getLocalStream()
-        if (localVideoRef.current) {
+        if (localVideoRef.current && stream) {
           localVideoRef.current.srcObject = stream
-          // console.log('Set local video stream')
+          console.log('Setting local video stream')
+
+          // Add event listeners for local video
+          localVideoRef.current.onloadedmetadata = () => {
+            console.log('Local video metadata loaded')
+            console.log(
+              'Local video dimensions:',
+              localVideoRef.current?.videoWidth,
+              'x',
+              localVideoRef.current?.videoHeight
+            )
+            const playPromise = localVideoRef.current?.play()
+            if (playPromise) {
+              playPromise.catch((e) =>
+                console.error('Error playing local video:', e)
+              )
+            }
+          }
         }
-        // console.log('Local stream initialized, joining room...')
+        console.log('Local stream initialized, joining room...')
         socketService.login({
           id: user.id,
           fullname: user.fullname,
@@ -109,44 +124,44 @@ export function RoomPage() {
         })
         socketService.joinRoom(id)
       } catch (error) {
-        // console.error('Error getting local stream:', error)
-        showErrorMsg(
-          'Failed to access camera or microphone. Please check permissions.'
-        )
+        console.error('Error getting local stream:', error)
+        setError('Failed to access camera/microphone')
       }
     }
 
     socket.on(SOCKET_EVENT_MEMBER_CHANGE, (members) => {
       members = members.filter((member: SocketUser) => member)
-      // const filteredUsers = updatedUsers.filter(
-      //   (user) => user.socketId !== socket.id
-      // )
-
       setCurrentMembers(members)
-      // setUsers(filteredUsers)
-
-      // Initiate connections with new users
 
       members.forEach(async (member: any) => {
-        if (!connectedPeers.current.has(member.socketId)) {
+        if (
+          member.socketId !== socket.id &&
+          !connectedPeers.current.has(member.socketId)
+        ) {
           try {
-            // 1) Just createPeerConnection. That immediately adds your transceivers /
-            //    tracks and fires `onnegotiationneeded` exactly once.
+            console.log('Initiating connection with:', member.socketId)
             await webRTCService.createPeerConnection(
               member.socketId,
               (stream) => {
+                console.log('Received remote stream from:', member.socketId)
                 const video = remoteVideosRef.current.get(member.socketId)
                 if (video) {
+                  console.log(
+                    'Setting stream to video element for:',
+                    member.socketId
+                  )
                   video.srcObject = stream
                   video
                     .play()
+                    .then(() =>
+                      console.log('Video playing for:', member.socketId)
+                    )
                     .catch((e) => console.error('Error playing video:', e))
+                } else {
+                  console.warn('No video element found for:', member.socketId)
                 }
               }
             )
-
-            // 2) No manual createOffer() here.
-            //    onnegotiationneeded in WebRTCService will trigger a single createOffer().
             connectedPeers.current.add(member.socketId)
           } catch (error) {
             console.error('Error creating peer connection:', error)
@@ -156,28 +171,34 @@ export function RoomPage() {
     })
 
     socket.on(SOCKET_EVENT_OFFER, async ({ offer, from }) => {
-      // console.log('Received offer from:', from)
-      if (!connectedPeers.current.has(from)) {
-        try {
-          await webRTCService.handleOffer(offer, from, (stream) => {
-            // console.log('Setting remote stream for:', from)
-            const video = remoteVideosRef.current.get(from)
-            if (video) {
-              video.srcObject = stream
-              video
-                .play()
-                .catch((e: string) => console.error('Error playing video:', e))
-            }
-          })
-          connectedPeers.current.add(from)
-        } catch (error) {
-          console.error('Error handling offer:', error)
-        }
+      console.log('Received offer from:', from)
+      console.log('Connected peers:', connectedPeers.current)
+
+      try {
+        await webRTCService.handleOffer(offer, from, (stream) => {
+          console.log('Setting remote stream for:', from)
+          const video = remoteVideosRef.current.get(from)
+          console.log('Remote video element for:', from, video)
+
+          if (video) {
+            console.log('Setting stream to video element')
+            video.srcObject = stream
+            video
+              .play()
+              .then(() => console.log('Video playing for:', from))
+              .catch((e) => console.error('Error playing video:', e))
+          } else {
+            console.warn('No video element found for:', from)
+          }
+        })
+        connectedPeers.current.add(from)
+      } catch (error) {
+        console.error('Error handling offer:', error)
       }
     })
 
     socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
-      // console.log('Received answer from:', from)
+      console.log('Received answer from:', from)
       try {
         await webRTCService.handleAnswer(answer, from)
       } catch (error) {
@@ -186,7 +207,7 @@ export function RoomPage() {
     })
 
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
-      // console.log('Received ICE candidate from:', from)
+      console.log('Received ICE candidate from:', from)
       try {
         await webRTCService.handleIceCandidate(candidate, from)
       } catch (error) {
@@ -195,113 +216,18 @@ export function RoomPage() {
     })
     initializeMedia()
     return () => {
+      console.log('Cleaning up WebRTC connections')
       socket.off(SOCKET_EVENT_MEMBER_CHANGE)
       socket.off(SOCKET_EVENT_OFFER)
       socket.off(SOCKET_EVENT_ANSWER)
       socket.off(SOCKET_EVENT_ICE_CANDIDATE)
+      if (webRTCService) {
+        webRTCService.closeAllConnections()
+      }
       socketService.leaveRoom(id)
+      connectedPeers.current.clear()
     }
-  }, [socket, webRTCService])
-
-  // useEffect(() => {
-  //   // handlePeerConnection()
-
-  //   // CLEANUP: runs when component unmounts or room id/user changes
-  //   return () => {
-  //     isCleanup = true
-
-  //     // 1) Leave the room so server updates other peers
-  //     socketService.leaveRoom(id)
-
-  //     // 2) Unregister all WebRTC listeners and close all connections
-  //     unregisterWebRTCListeners(id)
-
-  //     // 3) If we have a local media stream, stop all its tracks
-  //     if (localStreamRef.current) {
-  //       localStreamRef.current.getTracks().forEach((t) => t.stop())
-  //     }
-
-  //     // 4) Clear any UI state if desired
-  //     setCurrentMembers([])
-  //     setRemoteStreams([])
-  //   }
-  // }, [id, user])
-
-  // Optional: whenever remoteStreams changes, you can log or do additional effects
-  // useEffect(() => {
-  //   console.log('Current remote streams:', remoteStreams)
-  // }, [remoteStreams])
-
-  // async function handlePeerConnection() {
-  //   if (!id || !user) {
-  //     navigate('/')
-  //     return
-  //   }
-
-  //   // This immediately‐invoked async block:
-  //   // 1) gets local media
-  //   // 2) sets up all WebRTC listeners
-  //   // 3) joins the room via socket
-  //   isCleanup = false
-  //   try {
-  //     // 1) Get camera + mic
-  //     const stream = await navigator.mediaDevices.getUserMedia({
-  //       video: true,
-  //       audio: true,
-  //     })
-  //     if (isCleanup) {
-  //       stream.getTracks().forEach((t) => t.stop())
-  //       return
-  //     }
-  //     localStreamRef.current = stream
-  //     if (localVideoRef.current) {
-  //       localVideoRef.current.srcObject = stream
-  //     }
-
-  //     // 2) Register all WebRTC (offer/answer/ice/member‐change) listeners in one place
-  //     registerWebRTCListeners(
-  //       id,
-  //       user.id,
-  //       stream,
-  //       (remoteStream, peerId) => {
-  //         console.log(
-  //           'New remote stream added:',
-  //           remoteStream,
-  //           'from peer:',
-  //           peerId
-  //         )
-
-  //         // Called whenever a new remote track arrives
-  //         setRemoteStreams((prev) => {
-  //           if (prev.find((s) => s.stream.id === remoteStream.id)) {
-  //             return prev
-  //           }
-  //           return [...prev, { stream: remoteStream, peerId }]
-  //         })
-  //       },
-  //       (peerId) => {
-  //         console.log('Remote stream removed for peer:', peerId)
-  //         setRemoteStreams((prev) => prev.filter((s) => s.peerId !== peerId))
-  //       },
-  //       (members) => {
-  //         members = members.filter((member) => member)
-  //         // Called whenever the member list changes
-  //         setCurrentMembers(members)
-  //       }
-  //     )
-
-  //     // 3) Now that listeners are ready, tell the server who we are and join the room
-  //     socketService.login({
-  //       id: user.id,
-  //       fullname: user.fullname,
-  //       imgUrl: user.imgUrl,
-  //     })
-  //     socketService.joinRoom(id)
-  //   } catch (err) {
-  //     console.error('Error during WebRTC initialization:', err)
-  //     // Show an error to the user as needed
-  //   }
-  // }
+  }, [socket, webRTCService, id, user])
 
   async function setRoom() {
     if (!id) return
@@ -315,157 +241,132 @@ export function RoomPage() {
 
   const handleVideoRef = (element: HTMLVideoElement | null, userId: string) => {
     if (element) {
-      // console.log(remoteVideosRef.current, 'remote videos map before set')
-
       remoteVideosRef.current.set(userId, element)
-      // console.log('Remote video element created for:', userId)
+      console.log('Remote video element created for:', userId)
 
-      // If we already have a stream for this user, set it
+      // Ensure the video element has the correct properties
+      element.autoplay = true
+      element.playsInline = true
+
+      // Add event listeners for debugging
+      element.onloadedmetadata = () => {
+        console.log('Remote video metadata loaded for:', userId)
+        console.log(
+          'Video dimensions:',
+          element.videoWidth,
+          'x',
+          element.videoHeight
+        )
+        console.log('Video ready state:', element.readyState)
+        console.log('Video network state:', element.networkState)
+
+        // Force play when metadata is loaded
+        const playPromise = element.play()
+        if (playPromise) {
+          playPromise.catch((e) =>
+            console.error('Error playing video after metadata:', e)
+          )
+        }
+      }
+
+      element.onplay = () => {
+        console.log('Remote video started playing for:', userId)
+        console.log(
+          'Video dimensions:',
+          element.videoWidth,
+          'x',
+          element.videoHeight
+        )
+        console.log('Video ready state:', element.readyState)
+      }
+
+      element.onpause = () => {
+        console.log('Remote video paused for:', userId)
+      }
+
+      element.onerror = (e) => {
+        console.error('Remote video error for:', userId, e)
+      }
+
+      // Check if we already have a stream for this user
       const existingVideo = remoteVideosRef.current.get(userId)
-      // console.log(existingVideo, 'existing video element for:', userId)
-
       if (existingVideo && existingVideo.srcObject) {
         element.srcObject = existingVideo.srcObject
-        // console.log(element.srcObject, 'Setting existing stream for:', userId)
-
-        element.play().catch((e) => console.error('Error playing video:', e))
+        const playPromise = element.play()
+        if (playPromise) {
+          playPromise.catch((e) =>
+            console.error('Error playing existing stream:', e)
+          )
+        }
       }
     }
   }
 
-  if (room && room.host)
-    return (
-      <div className={`main ${prefs.isDarkMode ? 'dark-mode' : ''} room-page`}>
-        <div className='video-container'>
-          {/* 1) Local preview */}
+  return (
+    <div className='video-chat'>
+      {error && (
+        <div
+          className='error-message'
+          style={{
+            backgroundColor: '#ff5555',
+            color: 'white',
+            padding: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '4px',
+          }}
+        >
+          {error}
+        </div>
+      )}
+      <div className='room-info'>
+        {room && (
+          <>
+            <h1>{room.name}</h1>
+            <p>Room ID: {id}</p>
+            {room.host && <p>Host: {room.host.fullname}</p>}
+            <p>Members: {currMembers.length}</p>
+            <MembersList members={currMembers} />
+          </>
+        )}
+      </div>
+      <div className='video-grid'>
+        <div className='video-container local'>
           <video
-            ref={(el) => {
-              localVideoRef.current = el
-              if (el && localStreamRef.current) {
-                el.srcObject = localStreamRef.current
-              }
-            }}
-            className='room-video'
+            ref={localVideoRef}
             autoPlay
             playsInline
             muted
-            style={{ width: 200, border: '1px solid #333', marginBottom: 12 }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: 'scaleX(-1)', // Mirror the local video
+            }}
           />
-
-          {/* 2) Remote previews */}
-          {/* {remoteStreams
-            .filter(
-              (streamInfo, index, self) =>
-                // Filter out duplicate streams based on their ID
-                index ===
-                self.findIndex((s) => s.stream.id === streamInfo.stream.id)
-            )
-            .map(({ stream, peerId }, idx) => {
-              console.log(
-                '---- Remote stream #',
-                idx,
-                'from peer:',
-                peerId,
-                '----'
-              )
-              console.log('  videoTracks:', stream.getVideoTracks())
-              console.log('  audioTracks:', stream.getAudioTracks())
-
-              return (
-                <MediaStreamVideo
-                  key={peerId}
-                  stream={stream}
-                  className='room-video'
-                  style={{
-                    width: 200,
-                    border: '1px solid #555',
-                    marginLeft: 12,
-                  }}
-                />
-              )
-            })} */}
-          {currMembers.map((member) => (
-            <div key={member.id} className='video-container remote'>
+          <div className='label'>You</div>
+        </div>
+        {currMembers
+          .filter((member) => member.socketId !== socket.id && member.socketId)
+          .map((member) => (
+            <div key={member.socketId} className='video-container remote'>
               <video
-                ref={(element) => handleVideoRef(element, member.id)}
-                autoPlay
-                playsInline
-                onPlay={() =>
-                  console.log('Remote video started playing for:', member.id)
-                }
-                onLoadedMetadata={() =>
-                  console.log('Remote video metadata loaded for:', member.id)
-                }
+                ref={(element) => {
+                  if (member.socketId) {
+                    handleVideoRef(element, member.socketId)
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
               />
-              <div className='label'>User {member.id.slice(0, 4)}</div>
+              <div className='label'>
+                {member.fullname || `User ${member.socketId?.slice(0, 4)}`}
+              </div>
             </div>
           ))}
-        </div>
-
-        <div className='room-info'>
-          <h1>{room?.name}</h1>
-          <p>Room ID: {id}</p>
-          <p>Host: {room?.host.fullname}</p>
-          {/* <p>Created at: {room?.created_at || 'Loading...'}</p> */}
-          <p>Members: {currMembers.length}</p>
-          <MembersList members={currMembers} />
-          {/* <p>Status: {room?.is_private ? 'Private' : 'Public'}</p> */}
-        </div>
       </div>
-    )
-}
-
-// MediaStreamVideo.tsx
-import { CSSProperties } from 'react'
-import { io } from 'socket.io-client'
-
-interface MediaStreamVideoProps {
-  stream: MediaStream | null
-  muted?: boolean
-  autoPlay?: boolean
-  playsInline?: boolean
-  className?: string
-  style?: CSSProperties
-}
-
-export function MediaStreamVideo({
-  stream,
-  muted = false,
-  autoPlay = true,
-  playsInline = true,
-  className,
-  style,
-}: MediaStreamVideoProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const el = videoRef.current
-    if (!el) return
-
-    // Only re-bind if srcObject is not already this exact MediaStream:
-    if (stream && el.srcObject !== stream) {
-      el.srcObject = stream
-      console.log('stream:', stream)
-      const playPromise = el.play()
-      // debugger
-      if (playPromise && playPromise.catch) {
-        playPromise.catch((err) => {
-          console.warn('⏯️ autoplay interrupted:', err)
-        })
-      }
-    } else if (!stream && el.srcObject) {
-      el.srcObject = null
-    }
-  }, [stream])
-
-  return (
-    <video
-      ref={videoRef}
-      muted={muted}
-      autoPlay={autoPlay}
-      playsInline={playsInline}
-      className={className}
-      style={style}
-    />
+    </div>
   )
 }

@@ -12,9 +12,6 @@ export class WebRTCService {
   private localStream: MediaStream | null = null
   private remoteStreams: Map<string, MediaStream> = new Map()
 
-  private pendingCandidates: Map<string, RTCIceCandidateInit[]> = new Map()
-  private remoteDescSet: Map<string, boolean> = new Map()
-
   constructor(socket: Socket) {
     this.socket = socket
   }
@@ -61,59 +58,22 @@ export class WebRTCService {
       })
 
       // Add local tracks to the peer connection
-      // if (this.localStream) {
-      //   // console.log('Adding local tracks to peer connection')
-      //   this.localStream.getTracks().forEach((track) => {
-      //     if (this.localStream) {
-      //       const sender = peerConnection.addTrack(track, this.localStream)
-      //       // console.log('Added track:', track.kind, 'to peer connection')
-      //     }
-      //   })
-      // } else {
-      //   console.warn('No local stream available when creating peer connection')
-      // }
-
-      // 1) Create one audio transceiver, then one video transceiver,
-      //    so SDP m-lines always come in the same order (audio first, then video).
       if (this.localStream) {
-        const audioTracks = this.localStream.getAudioTracks()
-        const videoTracks = this.localStream.getVideoTracks()
-
-        // Create an audio transceiver
-        const audioTransceiver = peerConnection.addTransceiver('audio', {
-          direction: 'sendrecv',
+        console.log('Adding local tracks to peer connection')
+        this.localStream.getTracks().forEach((track) => {
+          if (this.localStream) {
+            peerConnection.addTrack(track, this.localStream)
+            console.log('Added track:', track.kind, 'to peer connection')
+          }
         })
-        if (audioTracks.length > 0) {
-          // Replace the “send” slot with our actual audio track
-          audioTransceiver.sender.replaceTrack(audioTracks[0])
-        } else {
-          // If no microphone is available, that track stays inactive
-          audioTransceiver.direction = 'recvonly'
-        }
-
-        // Create a video transceiver
-        const videoTransceiver = peerConnection.addTransceiver('video', {
-          direction: 'sendrecv',
-        })
-        if (videoTracks.length > 0) {
-          videoTransceiver.sender.replaceTrack(videoTracks[0])
-        } else {
-          videoTransceiver.direction = 'recvonly'
-        }
       } else {
         console.warn('No local stream available when creating peer connection')
       }
 
-      this.peerConnections.set(remoteUserId, peerConnection)
-
-      // Initialize the buffer & flag for this peer
-      this.pendingCandidates.set(remoteUserId, [])
-      this.remoteDescSet.set(remoteUserId, false)
-
       // Handle ICE candidates
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          // console.log('Sending ICE candidate to:', remoteUserId)
+          console.log('Sending ICE candidate to:', remoteUserId)
           socketService.emit(SOCKET_EVENT_ICE_CANDIDATE, {
             candidate: event.candidate,
             to: remoteUserId,
@@ -125,10 +85,10 @@ export class WebRTCService {
 
       // Handle connection state changes
       peerConnection.onconnectionstatechange = () => {
-        // console.log(
-        //   `Connection state for ${remoteUserId}:`,
-        //   peerConnection.connectionState
-        // )
+        console.log(
+          `Connection state for ${remoteUserId}:`,
+          peerConnection.connectionState
+        )
         if (peerConnection.connectionState === 'connected') {
           console.log('Peer connection fully established')
         }
@@ -136,10 +96,10 @@ export class WebRTCService {
 
       // Handle ICE connection state changes
       peerConnection.oniceconnectionstatechange = () => {
-        // console.log(
-        //   `ICE connection state for ${remoteUserId}:`,
-        //   peerConnection.iceConnectionState
-        // )
+        console.log(
+          `ICE connection state for ${remoteUserId}:`,
+          peerConnection.iceConnectionState
+        )
         if (peerConnection.iceConnectionState === 'connected') {
           console.log('ICE connection established')
         }
@@ -147,7 +107,7 @@ export class WebRTCService {
 
       // Handle negotiation needed
       peerConnection.onnegotiationneeded = async () => {
-        // console.log('Negotiation needed for:', remoteUserId)
+        console.log('Negotiation needed for:', remoteUserId)
         try {
           await this.createOffer(remoteUserId)
         } catch (error) {
@@ -157,12 +117,12 @@ export class WebRTCService {
 
       // Handle incoming tracks
       peerConnection.ontrack = (event) => {
-        // console.log(
-        //   'Received remote track:',
-        //   event.track.kind,
-        //   'from:',
-        //   remoteUserId
-        // )
+        console.log(
+          'Received remote track:',
+          event.track.kind,
+          'from:',
+          remoteUserId
+        )
 
         // Create a new MediaStream if we don't have one for this peer
         if (!this.remoteStreams.has(remoteUserId)) {
@@ -178,18 +138,23 @@ export class WebRTCService {
           console.log('Added track to remote stream:', event.track.kind)
         }
 
-        // Monitor track ending
-        event.track.onended = () => {
-          // console.log('Remote track ended:', event.track.kind)
+        // Use the streams from the event directly as well
+        if (event.streams && event.streams[0]) {
+          console.log('Using event stream directly')
+          onTrack(event.streams[0])
         }
 
-        // Monitor track muting
+        // Monitor track states
+        event.track.onended = () => {
+          console.log('Remote track ended:', event.track.kind)
+        }
+
         event.track.onmute = () => {
-          // console.log('Remote track muted:', event.track.kind)
+          console.log('Remote track muted:', event.track.kind)
         }
 
         event.track.onunmute = () => {
-          // console.log('Remote track unmuted:', event.track.kind)
+          console.log('Remote track unmuted:', event.track.kind)
         }
       }
 
@@ -205,17 +170,16 @@ export class WebRTCService {
     const peerConnection = this.peerConnections.get(remoteUserId)
     if (peerConnection) {
       try {
-        // console.log('Creating offer for:', remoteUserId)
+        console.log('Creating offer for:', remoteUserId)
         const offer = await peerConnection.createOffer({
           offerToReceiveAudio: true,
           offerToReceiveVideo: true,
-          iceRestart: true,
         })
 
-        // console.log('Setting local description')
+        console.log('Setting local description')
         await peerConnection.setLocalDescription(offer)
 
-        // console.log('Sending offer to:', remoteUserId)
+        console.log('Sending offer to:', remoteUserId)
         socketService.emit(SOCKET_EVENT_OFFER, {
           offer,
           to: remoteUserId,
@@ -233,24 +197,21 @@ export class WebRTCService {
     onTrack: (stream: MediaStream) => void
   ) {
     try {
-      // console.log('Handling offer from:', from)
+      console.log('Handling offer from:', from)
       const peerConnection = await this.createPeerConnection(from, onTrack)
-      // console.log('Setting remote description')
+
+      console.log('Setting remote description')
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(offer)
       )
-      // ── After setting the remote SDP, mark “remoteDescSet” and drain queue ──
-      this.remoteDescSet.set(from, true)
-      const queue = this.pendingCandidates.get(from) || []
-      for (const candInit of queue) {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candInit))
-      }
-      this.pendingCandidates.set(from, []) // clear it
-      // console.log('Creating answer')
+
+      console.log('Creating answer')
       const answer = await peerConnection.createAnswer()
-      // console.log('Setting local description')
+
+      console.log('Setting local description')
       await peerConnection.setLocalDescription(answer)
-      // console.log('Sending answer to:', from)
+
+      console.log('Sending answer to:', from)
       socketService.emit(SOCKET_EVENT_ANSWER, {
         answer,
         to: from,
@@ -265,17 +226,10 @@ export class WebRTCService {
     const peerConnection = this.peerConnections.get(from)
     if (peerConnection) {
       try {
+        console.log('Setting remote description for answer from:', from)
         await peerConnection.setRemoteDescription(
           new RTCSessionDescription(answer)
         )
-
-        // ── Mark remoteDescSet and drain queue ──
-        this.remoteDescSet.set(from, true)
-        const queue = this.pendingCandidates.get(from) || []
-        for (const candInit of queue) {
-          await peerConnection.addIceCandidate(new RTCIceCandidate(candInit))
-        }
-        this.pendingCandidates.set(from, [])
       } catch (error) {
         console.error('Error handling answer:', error)
         throw error
@@ -285,25 +239,14 @@ export class WebRTCService {
 
   async handleIceCandidate(candidate: RTCIceCandidate, from: string) {
     const peerConnection = this.peerConnections.get(from)
-    if (!peerConnection) return
-
-    // const candInit = candidate.toJSON()
-    const candInit = candidate
-    const isRemoteDescSet = this.remoteDescSet.get(from)
-
-    if (isRemoteDescSet) {
-      // If remoteDesc was already set, we can add directly
+    if (peerConnection) {
       try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candInit))
-      } catch (err) {
-        console.error('Error adding ICE candidate immediately:', err)
-        throw err
+        console.log('Adding ICE candidate from:', from)
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+      } catch (error) {
+        console.error('Error handling ICE candidate:', error)
+        throw error
       }
-    } else {
-      // Otherwise, buffer it for later
-      const queue = this.pendingCandidates.get(from) || []
-      queue.push(candInit)
-      this.pendingCandidates.set(from, queue)
     }
   }
 
