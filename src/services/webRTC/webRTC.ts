@@ -27,24 +27,31 @@ export function createPeerConnection(
   roomId: string,
   onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ): RTCPeerConnection {
-  console.log(`Creating new RTCPeerConnection for peer ${peerId}`)
-  const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS })
+  // console.log(`Creating new RTCPeerConnection for peer ${peerId}`)
+  const pc = new RTCPeerConnection({
+    iceServers: ICE_SERVERS,
+    iceCandidatePoolSize: 10,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require',
+  })
+
+  pcMap[peerId] = pc
 
   // Log connection state changes
   pc.onconnectionstatechange = () => {
-    console.log(`Connection state for peer ${peerId}:`, pc.connectionState)
+    // console.log(`Connection state for peer ${peerId}:`, pc.connectionState)
     if (pc.connectionState === 'connected') {
-      console.log(`Peer ${peerId} connection fully established`)
+      // console.log(`Peer ${peerId} connection fully established`)
       // Check if we have video tracks at this point
       const receivers = pc.getReceivers()
       receivers.forEach((receiver) => {
         if (receiver.track.kind === 'video') {
-          console.log(
-            `Video track stats for peer ${peerId}:`,
-            receiver.track.getSettings()
-          )
-          console.log(`Video track enabled:`, receiver.track.enabled)
-          console.log(`Video track muted:`, receiver.track.muted)
+          // console.log(
+          //   `Video track stats for peer ${peerId}:`,
+          //   receiver.track.getSettings()
+          // )
+          // console.log(`Video track enabled:`, receiver.track.enabled)
+          // console.log(`Video track muted:`, receiver.track.muted)
         }
       })
     }
@@ -52,21 +59,21 @@ export function createPeerConnection(
 
   // Log signaling state changes
   pc.onsignalingstatechange = () => {
-    console.log(`Signaling state for peer ${peerId}:`, pc.signalingState)
+    // console.log(`Signaling state for peer ${peerId}:`, pc.signalingState)
   }
 
   // Log ICE connection state changes
   pc.oniceconnectionstatechange = () => {
-    console.log(
-      `ICE connection state for peer ${peerId}:`,
-      pc.iceConnectionState
-    )
+    // console.log(
+    //   `ICE connection state for peer ${peerId}:`,
+    //   pc.iceConnectionState
+    // )
   }
 
   // Whenever WebRTC finds a new ICE candidate, send it to the remote peer.
   pc.onicecandidate = (event) => {
     if (event.candidate) {
-      console.log(`Sending ICE candidate to peer ${peerId}:`, event.candidate)
+      // console.log(`Sending ICE candidate to peer ${peerId}:`, event.candidate)
       socketService.emit(SOCKET_EVENT_ICE_CANDIDATE, {
         to: peerId,
         candidate: event.candidate,
@@ -75,16 +82,15 @@ export function createPeerConnection(
     }
   }
 
-  pcMap[peerId] = pc
-
   // Enhanced ontrack handler
   pc.ontrack = (event) => {
-    console.log(`Received ${event.track.kind} track from peer ${peerId}`)
-    console.log(`Track ID: ${event.track.id}`)
-    console.log(`Track enabled: ${event.track.enabled}`)
-    console.log(`Track muted: ${event.track.muted}`)
-    console.log(`Track settings:`, event.track.getSettings())
-    console.log(`Number of streams:`, event.streams.length)
+    // console.log(`Received ${event.track.kind} track from peer ${peerId}`)
+    // console.log(`Track ID: ${event.track.id}`)
+    // console.log(`Track enabled: ${event.track.enabled}`)
+    // console.log(`Track muted: ${event.track.muted}`)
+    // console.log(`Track settings:`, event.track.getSettings())
+    // console.log(`Number of streams:`, event.streams.length)
+    // console.log(event)
 
     const remoteStream = event.streams[0]
     if (!remoteStream) {
@@ -93,37 +99,37 @@ export function createPeerConnection(
     }
 
     // Log all tracks in the stream
-    console.log(
-      `Stream tracks:`,
-      remoteStream.getTracks().map((t) => ({
-        kind: t.kind,
-        enabled: t.enabled,
-        muted: t.muted,
-        id: t.id,
-      }))
-    )
+    // console.log(
+    //   `Stream tracks:`,
+    //   remoteStream.getTracks().map((t) => ({
+    //     kind: t.kind,
+    //     enabled: t.enabled,
+    //     muted: t.muted,
+    //     id: t.id,
+    //   }))
+    // )
 
     remoteStreamMap[peerId] = remoteStream
 
     // Add track ended handler
     event.track.onended = () => {
-      console.log(
-        `Track ${event.track.id} (${event.track.kind}) ended from peer ${peerId}`
-      )
+      // console.log(
+      //   `Track ${event.track.id} (${event.track.kind}) ended from peer ${peerId}`
+      // )
     }
 
     // Add track mute handler
     event.track.onmute = () => {
-      console.log(
-        `Track ${event.track.id} (${event.track.kind}) muted from peer ${peerId}`
-      )
+      // console.log(
+      //   `Track ${event.track.id} (${event.track.kind}) muted from peer ${peerId}`
+      // )
     }
 
     // Add track unmute handler
     event.track.onunmute = () => {
-      console.log(
-        `Track ${event.track.id} (${event.track.kind}) unmuted from peer ${peerId}`
-      )
+      // console.log(
+      //   `Track ${event.track.id} (${event.track.kind}) unmuted from peer ${peerId}`
+      // )
     }
 
     onRemoteTrack(remoteStream, peerId)
@@ -131,12 +137,12 @@ export function createPeerConnection(
 
   // Add all local tracks (video + audio) into this connection so they get sent out.
   localStream.getTracks().forEach((track) => {
-    console.log(`Adding local ${track.kind} track to peer ${peerId}`, {
-      trackId: track.id,
-      enabled: track.enabled,
-      muted: track.muted,
-      settings: track.getSettings(),
-    })
+    // console.log(`Adding local ${track.kind} track to peer ${peerId}`, {
+    //   trackId: track.id,
+    //   enabled: track.enabled,
+    //   muted: track.muted,
+    //   settings: track.getSettings(),
+    // })
     pc.addTrack(track, localStream)
   })
 
@@ -164,14 +170,14 @@ export async function sendOffer(
   roomId: string,
   onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ) {
-  console.log(`Initiating offer to peer ${peerId}`)
+  // console.log(`Initiating offer to peer ${peerId}`)
   const pc = createPeerConnection(peerId, localStream, roomId, onRemoteTrack)
 
   // Create an SDP offer
   const offer = await pc.createOffer()
-  console.log(`Created offer for peer ${peerId}:`, offer.type)
+  // console.log(`Created offer for peer ${peerId}:`, offer.type)
   await pc.setLocalDescription(offer)
-  console.log(`Set local description for peer ${peerId}`)
+  // console.log(`Set local description for peer ${peerId}`)
 
   // Send the offer to the remote peer via your signaling layer
   socketService.emit(SOCKET_EVENT_OFFER, {
@@ -195,21 +201,21 @@ export async function handleReceivedOffer(
   roomId: string,
   onRemoteTrack: (stream: MediaStream, peerId: string) => void
 ) {
-  console.log(`Handling offer from peer ${fromPeerId}`)
+  // console.log(`Handling offer from peer ${fromPeerId}`)
 
   // If we already have a connection to this peer, we need to handle it carefully
   const existingPc = pcMap[fromPeerId]
   if (existingPc) {
     // If we're in stable state, we can safely close and recreate
     if (existingPc.signalingState === 'stable') {
-      console.log(`Closing existing stable connection to peer ${fromPeerId}`)
+      // console.log(`Closing existing stable connection to peer ${fromPeerId}`)
       existingPc.close()
       delete pcMap[fromPeerId]
     } else {
-      console.log(
-        `Ignoring offer - existing connection in state:`,
-        existingPc.signalingState
-      )
+      // console.log(
+      //   `Ignoring offer - existing connection in state:`,
+      //   existingPc.signalingState
+      // )
       return
     }
   }
@@ -222,11 +228,11 @@ export async function handleReceivedOffer(
   )
 
   try {
-    console.log(`Setting remote description (offer) from peer ${fromPeerId}`)
+    // console.log(`Setting remote description (offer) from peer ${fromPeerId}`)
     await pc.setRemoteDescription(new RTCSessionDescription(offer))
-    console.log(`Creating answer for peer ${fromPeerId}`)
+    // console.log(`Creating answer for peer ${fromPeerId}`)
     const answer = await pc.createAnswer()
-    console.log(`Setting local description (answer) for peer ${fromPeerId}`)
+    // console.log(`Setting local description (answer) for peer ${fromPeerId}`)
     await pc.setLocalDescription(answer)
 
     // Send the answer back to the original caller
@@ -255,13 +261,13 @@ export async function handleReceivedAnswer(
 
   // Only set remote description if we're in the correct state
   if (pc.signalingState === 'have-local-offer') {
-    console.log(`Setting remote description (answer) for peer ${fromPeerId}`)
+    // console.log(`Setting remote description (answer) for peer ${fromPeerId}`)
     await pc.setRemoteDescription(new RTCSessionDescription(answer))
   } else {
-    console.log(
-      `Ignoring answer from ${fromPeerId} - wrong signaling state:`,
-      pc.signalingState
-    )
+    // console.log(
+    //   `Ignoring answer from ${fromPeerId} - wrong signaling state:`,
+    //   pc.signalingState
+    // )
   }
 }
 
@@ -351,8 +357,8 @@ export function registerWebRTCListeners(
       from: string
       offer: RTCSessionDescriptionInit
     }) => {
-      console.log('🔹 Received OFFER in', 'from', from)
-      console.log('🔹 Offer details:', offer)
+      // console.log('🔹 Received OFFER in', 'from', from)
+      // console.log('🔹 Offer details:', offer)
 
       await handleReceivedOffer(
         from,
@@ -374,7 +380,7 @@ export function registerWebRTCListeners(
       from: string
       answer: RTCSessionDescriptionInit
     }) => {
-      console.log('🔹 Received ANSWER in', 'from', from)
+      // console.log('🔹 Received ANSWER in', 'from', from)
 
       await handleReceivedAnswer(from, answer)
     }
@@ -384,7 +390,7 @@ export function registerWebRTCListeners(
   socketService.on(
     SOCKET_EVENT_ICE_CANDIDATE,
     ({ from, candidate }: { from: string; candidate: RTCIceCandidateInit }) => {
-      console.log('🔹 Received ICE candidate in', 'from', from)
+      // console.log('🔹 Received ICE candidate in', 'from', from)
       handleReceivedIceCandidate(from, candidate)
     }
   )

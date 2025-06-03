@@ -19,6 +19,7 @@ const SOCKET_EMIT_LOGOUT = 'unset-user-socket'
 const baseUrl = 'http://localhost:3030'
 console.log('Socket service base URL:', baseUrl)
 
+export let socket: Socket
 export const socketService = createSocketService()
 
 if (typeof window !== 'undefined') {
@@ -30,6 +31,7 @@ export interface SocketUser {
   id: string
   fullname: string
   imgUrl?: string
+  socketId?: string
 }
 
 interface ISocketService {
@@ -45,13 +47,15 @@ interface ISocketService {
 }
 
 function createSocketService(): ISocketService {
-  let socket: Socket | null = null
-
   const socketService: ISocketService = {
     setup() {
       socket = io(
-        baseUrl
-        //    {
+        baseUrl,
+        {
+          transports: ['websocket'],
+          upgrade: false,
+        }
+        //   {
         //   transports: ['websocket'],
         //   reconnection: true,
         //   reconnectionDelay: 1000,
@@ -113,7 +117,7 @@ function createSocketService(): ISocketService {
     terminate() {
       if (socket) {
         socket.disconnect()
-        socket = null
+        // socket = null
       }
     },
   }
