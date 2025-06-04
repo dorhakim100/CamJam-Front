@@ -140,7 +140,7 @@ export function SearchBar() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          zIndex: 1,
+          zIndex: 100,
           position: 'fixed',
           top: '0',
           left: '0',
