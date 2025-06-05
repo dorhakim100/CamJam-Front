@@ -100,6 +100,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    event.stopPropagation()
     const isValid = validateInputs()
     if (!isValid) {
       showErrorMsg('Please fill in all required fields correctly.')
@@ -114,7 +115,6 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     if (isSignup) {
       credientials.fullname = data.get('fullname')
     }
-
     try {
       let user
       if (isSignup) {
@@ -122,6 +122,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       } else {
         user = await login(credientials)
       }
+
       if (user) {
         showSuccessMsg('Login successful!')
         navigate('/')

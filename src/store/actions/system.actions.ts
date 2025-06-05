@@ -12,6 +12,7 @@ import {
   SET_IS_MODAL,
   SET_MODAL_MESSAGE,
   SET_SHOWED_UPDATE_MESSAGE,
+  SET_IS_FIRST_RENDER_FALSE,
 } from '../reducers/system.reducer'
 
 export function setIsLoading(stateToSet: boolean) {
@@ -42,6 +43,9 @@ export function setIsModal(stateToSet: boolean) {
 }
 export function setModalMessage(messageToSet: string) {
   store.dispatch({ type: SET_MODAL_MESSAGE, modalMessage: messageToSet })
+}
+export function setIsFirstRender(stateToSet: boolean) {
+  store.dispatch({ type: SET_IS_FIRST_RENDER_FALSE, isFirstRender: stateToSet })
 }
 
 export function onClosePrefsHeader() {

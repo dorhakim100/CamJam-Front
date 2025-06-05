@@ -11,6 +11,7 @@ export const SET_PREFS = 'SET_PREFS'
 export const SET_IS_MODAL = 'SET_IS_MODAL'
 export const SET_MODAL_MESSAGE = 'SET_MODAL_MESSAGE'
 export const SET_SHOWED_UPDATE_MESSAGE = 'SET_SHOWED_UPDATE_MESSAGE'
+export const SET_IS_FIRST_RENDER_FALSE = 'SET_IS_FIRST_RENDER_FALSE'
 
 export interface SystemState {
   isLoading: boolean
@@ -21,6 +22,7 @@ export interface SystemState {
   isPrefs: boolean
   isModal: boolean
   modalMessage: string
+  isFirstRender: boolean
 }
 
 const initialState: SystemState = {
@@ -32,6 +34,7 @@ const initialState: SystemState = {
 
   isModal: false,
   modalMessage: '',
+  isFirstRender: true,
 }
 
 export function systemReducer(state = initialState, action: any = {}) {
@@ -54,6 +57,8 @@ export function systemReducer(state = initialState, action: any = {}) {
       return { ...state, modalMessage: action.modalMessage }
     case SET_SHOWED_UPDATE_MESSAGE:
       return { ...state, showedUpdateMessage: action.showedUpdateMessage }
+    case SET_IS_FIRST_RENDER_FALSE:
+      return { ...state, isFirstRender: action.isFirstRender }
     default:
       return state
   }

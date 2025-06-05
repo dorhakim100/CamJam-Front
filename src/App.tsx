@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Routes, Route } from 'react-router'
 
@@ -24,6 +24,8 @@ function App() {
   const user = useSelector(
     (stateSelector: RootState) => stateSelector.userModule.user
   )
+
+  // const isFirstRender = useRef(true)
 
   useEffect(() => {
     if (prefs.isDarkMode) {

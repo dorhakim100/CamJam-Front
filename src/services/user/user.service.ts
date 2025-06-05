@@ -81,11 +81,13 @@ async function update(user: User) {
 async function login(userCred: UserCred) {
   try {
     const user = await httpService.post('auth/login', userCred)
+
     const prefs = getPrefs()
     setPrefs({
       ...prefs,
       user: userCred.isRemember ? user.id : null,
     })
+
     // console.log(user)
     if (user) {
       const saved = saveLoggedinUser(user)

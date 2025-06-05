@@ -21,6 +21,7 @@ import { showErrorMsg } from '../../services/event-bus.service'
 import { Button, IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { setIsFirstRender } from '../../store/actions/system.actions'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -30,12 +31,20 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.roomModule.room
   )
 
+  const currRoomId = useSelector(
+    (stateSelector: RootState) => stateSelector.roomModule.currRoomId
+  )
+
   const user = useSelector(
     (stateSelector: RootState) => stateSelector.userModule.user
   )
 
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
+  )
+
+  const isFirstRender = useSelector(
+    (stateSelector: RootState) => stateSelector.systemModule.isFirstRender
   )
 
   const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
@@ -93,6 +102,7 @@ export function RoomPage() {
                   video.srcObject = stream
                   video.play().catch((e) => {
                     console.log(e)
+                    video.play()
                   })
                 }
               }
@@ -114,21 +124,23 @@ export function RoomPage() {
             video.play().catch((e) => {
               console.log(e)
               // throw new Error('Failed to play video')
-              setErrorBanner('Failed to connect to peer')
+              // setErrorBanner('Failed to connect to peer')
             })
           }
         })
         connectedPeers.current.add(from)
       } catch (error) {
         console.log(error)
-        setErrorBanner('Failed to connect to peer')
+        // setErrorBanner('Failed to connect to peer')
       }
     })
 
     socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
       try {
         await webRTCService.handleAnswer(answer, from)
-      } catch (error) {}
+      } catch (error) {
+        console.log(error)
+      }
     })
 
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
@@ -152,12 +164,33 @@ export function RoomPage() {
       socketService.leaveRoom(id)
       connectedPeers.current.clear()
     }
-  }, [socket, webRTCService, id, user])
+  }, [socket, webRTCService, user, id])
+
+  useEffect(() => {
+    if (!isFirstRender || !webRTCService || !currMembers.length) return
+    currMembers.forEach((member: SocketUser) => {
+      if (!member.socketId) return
+      webRTCService.createPeerConnection(member.socketId, (stream) => {
+        if (!member.socketId) return
+        const video = remoteVideosRef.current.get(member.socketId)
+        if (video) {
+          video.srcObject = stream
+          video.play().catch((e) => {
+            console.log(e)
+            video.play()
+          })
+        }
+      })
+      connectedPeers.current.add(member.socketId)
+      setIsFirstRender(false)
+    })
+  }, [currMembers])
 
   async function setRoom() {
     if (!id) return
     try {
-      await loadRoom(id)
+      const roomToSet = await loadRoom(id)
+      if (roomToSet.id !== currRoomId) setIsFirstRender(true)
     } catch (error) {
       showErrorMsg('Failed to set room details')
     }
@@ -172,7 +205,9 @@ export function RoomPage() {
       element.onloadedmetadata = () => {
         const playPromise = element.play()
         if (playPromise) {
-          playPromise.catch((e) => {})
+          playPromise.catch((e) => {
+            console.log(e)
+          })
         }
       }
 
@@ -181,7 +216,9 @@ export function RoomPage() {
         element.srcObject = existingVideo.srcObject
         const playPromise = element.play()
         if (playPromise) {
-          playPromise.catch((e) => {})
+          playPromise.catch((e) => {
+            console.log(e)
+          })
         }
       }
     }
