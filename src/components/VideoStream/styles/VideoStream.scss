@@ -1,0 +1,72 @@
+.video-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  // background-color: #2a2b2e;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  max-width: 1200px;
+  &:hover {
+    //   transform: translateY(-1px);
+  }
+
+  // Maintain 16:9 aspect ratio
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 56.25%;
+  }
+
+  video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #000000;
+  }
+
+  .label {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    //   background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+    z-index: 1;
+  }
+
+  &.remote {
+    border: 2px solid $dark-gray;
+
+    &.dark-mode {
+      border: 2px solid $white;
+    }
+
+    .label {
+      background: linear-gradient(90deg, $dark-gray, $very-dark-gray);
+    }
+  }
+  &.local {
+    border: 2px solid $teal;
+
+    .label {
+      background: linear-gradient(90deg, $teal, $sky);
+    }
+  }
+  &.host {
+    border: 2px solid $deep-purple;
+
+    video {
+      transform: scaleX(-1);
+    }
+
+    .label {
+      background: linear-gradient(90deg, $deep-purple, $indigo);
+    }
+  }
+}

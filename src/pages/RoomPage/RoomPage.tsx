@@ -22,6 +22,7 @@ import { Button, IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { setIsFirstRender } from '../../store/actions/system.actions'
+import { VideoStream } from '../../components/VideoStream/VideoStream'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -255,36 +256,31 @@ export function RoomPage() {
         </div>
       )}
       <div className='video-grid'>
-        <div
-          className={`video-container local ${
-            prefs.isDarkMode ? 'dark-mode' : ''
-          } ${room?.host_id === user?.id ? 'host' : ''}`}
-        >
-          <video ref={localVideoRef} autoPlay playsInline muted />
-          <div className='label'>
-            You{user?.id === room?.host_id ? ' (Host)' : ''}
-          </div>
-        </div>
+        <VideoStream
+          member={{
+            socketId: socket.id,
+            id: user?.id || '',
+            fullname: user?.fullname || '',
+            imgUrl: user?.imgUrl || '',
+          }}
+          remoteVideosRef={remoteVideosRef}
+          localVideoRef={localVideoRef}
+          isRemote={false}
+          isHost={user?.id === room?.host_id}
+          label={` You${user?.id === room?.host_id ? ' (Host)' : ''}`}
+        />
         {currMembers
           .filter((member) => member.socketId !== socket.id && member.socketId)
           .map((member) => (
-            <div
-              key={member.socketId}
-              className={`video-container ${
-                room?.host_id === member?.id ? 'host' : ''
-              } remote ${prefs.isDarkMode ? 'dark-mode' : ''}`}
-            >
-              <video
-                ref={(element) => {
-                  if (member.socketId) {
-                    handleVideoRef(element, member.socketId)
-                  }
-                }}
-              />
-              <div className='label'>{`${member.fullname}${
+            <VideoStream
+              member={member}
+              remoteVideosRef={remoteVideosRef}
+              isRemote={true}
+              isHost={member.id === room?.host_id}
+              label={`${member.fullname}${
                 member?.id === room?.host_id ? ' (Host)' : ''
-              }`}</div>
-            </div>
+              }`}
+            />
           ))}
       </div>
       <div className={`room-info ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
