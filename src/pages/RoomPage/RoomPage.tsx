@@ -85,6 +85,124 @@ export function RoomPage() {
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
 
+    // socket.on(SOCKET_EVENT_MEMBER_CHANGE, (members) => {
+    //   members = members.filter((member: SocketUser) => member)
+    //   setCurrentMembers(members)
+
+    //   members.forEach(async (member: any) => {
+    //     if (
+    //       member.socketId !== socket.id &&
+    //       !connectedPeers.current.has(member.socketId)
+    //     ) {
+    //       try {
+    //         await webRTCService.createPeerConnection(
+    //           member.socketId,
+    //           (stream) => {
+    //             const video = remoteVideosRef.current.get(member.socketId)
+    //             if (video) {
+    //               video.srcObject = stream
+    //               video.play().catch((e) => {
+    //                 console.log(e)
+    //                 video.play()
+    //               })
+    //             }
+    //           }
+    //         )
+    //         connectedPeers.current.add(member.socketId)
+    //       } catch (error) {
+    //         // console.log(error)
+    //       }
+    //     }
+    //   })
+    // })
+
+    // socket.on(SOCKET_EVENT_OFFER, async ({ offer, from }) => {
+    //   try {
+    //     await webRTCService.handleOffer(offer, from, (stream) => {
+    //       const video = remoteVideosRef.current.get(from)
+    //       if (video) {
+    //         video.srcObject = stream
+    //         video.play().catch((e) => {
+    //           console.log(e)
+    //           // throw new Error('Failed to play video')
+    //           // setErrorBanner('Failed to connect to peer')
+    //         })
+    //       }
+    //     })
+    //     connectedPeers.current.add(from)
+    //   } catch (error) {
+    //     console.log(error)
+    //     // setErrorBanner('Failed to connect to peer')
+    //   }
+    // })
+
+    // socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
+    //   try {
+    //     await webRTCService.handleAnswer(answer, from)
+    //   } catch (error) {
+    //     console.log(error)
+    //     setErrorBanner('Failed to connect to peer')
+    //   }
+    // })
+
+    // socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
+    //   try {
+    //     await webRTCService.handleIceCandidate(candidate, from)
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // })
+
+    initializeMedia()
+    addListeners()
+
+    return () => {
+      // socket.off(SOCKET_EVENT_MEMBER_CHANGE)
+      // socket.off(SOCKET_EVENT_OFFER)
+      // socket.off(SOCKET_EVENT_ANSWER)
+      // socket.off(SOCKET_EVENT_ICE_CANDIDATE)
+      // if (webRTCService) {
+      //   webRTCService.closeAllConnections()
+      // }
+      // socketService.leaveRoom(id)
+      // connectedPeers.current.clear()
+      clearAllConnections()
+    }
+  }, [socket, webRTCService, user, id])
+
+  useEffect(() => {
+    if (!isFirstRender || !webRTCService || !currMembers.length) return
+    currMembers.forEach((member: SocketUser) => {
+      if (!member.socketId) return
+      webRTCService.createPeerConnection(member.socketId, (stream) => {
+        if (!member.socketId) return
+        const video = remoteVideosRef.current.get(member.socketId)
+        if (video) {
+          video.srcObject = stream
+          video.play().catch((e) => {
+            console.log(e)
+            video.play()
+          })
+        }
+      })
+      connectedPeers.current.add(member.socketId)
+      setIsFirstRender(false)
+    })
+  }, [currMembers])
+
+  async function setRoom() {
+    if (!id) return
+    try {
+      const roomToSet = await loadRoom(id)
+      if (roomToSet.id !== currRoomId) setIsFirstRender(true)
+    } catch (error) {
+      showErrorMsg('Failed to set room details')
+    }
+  }
+
+  async function addListeners() {
+    if (!socketService || !webRTCService || !id || !user) return
+
     socket.on(SOCKET_EVENT_MEMBER_CHANGE, (members) => {
       members = members.filter((member: SocketUser) => member)
       setCurrentMembers(members)
@@ -141,6 +259,7 @@ export function RoomPage() {
         await webRTCService.handleAnswer(answer, from)
       } catch (error) {
         console.log(error)
+        setErrorBanner('Failed to connect to peer')
       }
     })
 
@@ -151,78 +270,6 @@ export function RoomPage() {
         console.log(error)
       }
     })
-
-    initializeMedia()
-
-    return () => {
-      socket.off(SOCKET_EVENT_MEMBER_CHANGE)
-      socket.off(SOCKET_EVENT_OFFER)
-      socket.off(SOCKET_EVENT_ANSWER)
-      socket.off(SOCKET_EVENT_ICE_CANDIDATE)
-      if (webRTCService) {
-        webRTCService.closeAllConnections()
-      }
-      socketService.leaveRoom(id)
-      connectedPeers.current.clear()
-    }
-  }, [socket, webRTCService, user, id])
-
-  useEffect(() => {
-    if (!isFirstRender || !webRTCService || !currMembers.length) return
-    currMembers.forEach((member: SocketUser) => {
-      if (!member.socketId) return
-      webRTCService.createPeerConnection(member.socketId, (stream) => {
-        if (!member.socketId) return
-        const video = remoteVideosRef.current.get(member.socketId)
-        if (video) {
-          video.srcObject = stream
-          video.play().catch((e) => {
-            console.log(e)
-            video.play()
-          })
-        }
-      })
-      connectedPeers.current.add(member.socketId)
-      setIsFirstRender(false)
-    })
-  }, [currMembers])
-
-  async function setRoom() {
-    if (!id) return
-    try {
-      const roomToSet = await loadRoom(id)
-      if (roomToSet.id !== currRoomId) setIsFirstRender(true)
-    } catch (error) {
-      showErrorMsg('Failed to set room details')
-    }
-  }
-
-  const handleVideoRef = (element: HTMLVideoElement | null, userId: string) => {
-    if (element) {
-      remoteVideosRef.current.set(userId, element)
-      element.autoplay = true
-      element.playsInline = true
-
-      element.onloadedmetadata = () => {
-        const playPromise = element.play()
-        if (playPromise) {
-          playPromise.catch((e) => {
-            console.log(e)
-          })
-        }
-      }
-
-      const existingVideo = remoteVideosRef.current.get(userId)
-      if (existingVideo && existingVideo.srcObject) {
-        element.srcObject = existingVideo.srcObject
-        const playPromise = element.play()
-        if (playPromise) {
-          playPromise.catch((e) => {
-            console.log(e)
-          })
-        }
-      }
-    }
   }
 
   async function initializeMedia() {
@@ -245,12 +292,30 @@ export function RoomPage() {
     }
   }
 
+  function clearAllConnections() {
+    socket.off(SOCKET_EVENT_MEMBER_CHANGE)
+    socket.off(SOCKET_EVENT_OFFER)
+    socket.off(SOCKET_EVENT_ANSWER)
+    socket.off(SOCKET_EVENT_ICE_CANDIDATE)
+    if (webRTCService) {
+      webRTCService.closeAllConnections()
+    }
+    socketService.leaveRoom(id)
+    connectedPeers.current.clear()
+  }
+
   return (
     <div className='room-page'>
       {errorBanner && (
         <div className='error-message'>
           <span>{errorBanner}</span>
-          <IconButton onClick={initializeMedia}>
+          <IconButton
+            onClick={() => {
+              clearAllConnections()
+              initializeMedia()
+              addListeners()
+            }}
+          >
             <RestartAltIcon htmlColor='#fff' />
           </IconButton>
         </div>
