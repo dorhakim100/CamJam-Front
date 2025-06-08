@@ -29,6 +29,39 @@ export class WebRTCService {
     }
   }
 
+  async disableLocalStream(type: string) {
+    try {
+      let optionsObject
+      optionsObject =
+        type === 'video'
+          ? {
+              video: false,
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+              },
+            }
+          : {
+              video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              },
+              audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+              },
+            }
+
+      this.localStream = await navigator.mediaDevices.getUserMedia(
+        optionsObject
+      )
+      return this.localStream
+    } catch (error) {
+      // console.error('Error disabling local stream:', error)
+      throw error
+    }
+  }
+
   async createPeerConnection(
     remoteUserId: string,
     onTrack: (stream: MediaStream) => void

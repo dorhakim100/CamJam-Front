@@ -32,6 +32,8 @@ export interface SocketUser {
   fullname: string
   imgUrl?: string
   socketId?: string
+  isVideoOn: boolean
+  isAudioOn: boolean
 }
 
 interface ISocketService {

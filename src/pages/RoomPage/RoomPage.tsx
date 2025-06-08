@@ -23,6 +23,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { setIsFirstRender } from '../../store/actions/system.actions'
 import { VideoStream } from '../../components/VideoStream/VideoStream'
+import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -51,7 +52,12 @@ export function RoomPage() {
   const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
+
   const connectedPeers = useRef<Set<string>>(new Set())
+  const [localTracks, setLocalTracks] = useState<LocalTracks>({
+    video: null,
+    audio: null,
+  })
 
   const [currMembers, setCurrentMembers] = useState<SocketUser[]>([])
   const [errorBanner, setErrorBanner] = useState<string | null>(null)
@@ -85,87 +91,10 @@ export function RoomPage() {
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
 
-    // socket.on(SOCKET_EVENT_MEMBER_CHANGE, (members) => {
-    //   members = members.filter((member: SocketUser) => member)
-    //   setCurrentMembers(members)
-
-    //   members.forEach(async (member: any) => {
-    //     if (
-    //       member.socketId !== socket.id &&
-    //       !connectedPeers.current.has(member.socketId)
-    //     ) {
-    //       try {
-    //         await webRTCService.createPeerConnection(
-    //           member.socketId,
-    //           (stream) => {
-    //             const video = remoteVideosRef.current.get(member.socketId)
-    //             if (video) {
-    //               video.srcObject = stream
-    //               video.play().catch((e) => {
-    //                 console.log(e)
-    //                 video.play()
-    //               })
-    //             }
-    //           }
-    //         )
-    //         connectedPeers.current.add(member.socketId)
-    //       } catch (error) {
-    //         // console.log(error)
-    //       }
-    //     }
-    //   })
-    // })
-
-    // socket.on(SOCKET_EVENT_OFFER, async ({ offer, from }) => {
-    //   try {
-    //     await webRTCService.handleOffer(offer, from, (stream) => {
-    //       const video = remoteVideosRef.current.get(from)
-    //       if (video) {
-    //         video.srcObject = stream
-    //         video.play().catch((e) => {
-    //           console.log(e)
-    //           // throw new Error('Failed to play video')
-    //           // setErrorBanner('Failed to connect to peer')
-    //         })
-    //       }
-    //     })
-    //     connectedPeers.current.add(from)
-    //   } catch (error) {
-    //     console.log(error)
-    //     // setErrorBanner('Failed to connect to peer')
-    //   }
-    // })
-
-    // socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
-    //   try {
-    //     await webRTCService.handleAnswer(answer, from)
-    //   } catch (error) {
-    //     console.log(error)
-    //     setErrorBanner('Failed to connect to peer')
-    //   }
-    // })
-
-    // socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
-    //   try {
-    //     await webRTCService.handleIceCandidate(candidate, from)
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // })
-
     initializeMedia()
     addListeners()
 
     return () => {
-      // socket.off(SOCKET_EVENT_MEMBER_CHANGE)
-      // socket.off(SOCKET_EVENT_OFFER)
-      // socket.off(SOCKET_EVENT_ANSWER)
-      // socket.off(SOCKET_EVENT_ICE_CANDIDATE)
-      // if (webRTCService) {
-      //   webRTCService.closeAllConnections()
-      // }
-      // socketService.leaveRoom(id)
-      // connectedPeers.current.clear()
       clearAllConnections()
     }
   }, [socket, webRTCService, user, id])
@@ -227,6 +156,7 @@ export function RoomPage() {
               }
             )
             connectedPeers.current.add(member.socketId)
+            setErrorBanner('')
           } catch (error) {
             // console.log(error)
           }
@@ -248,6 +178,7 @@ export function RoomPage() {
           }
         })
         connectedPeers.current.add(from)
+        setErrorBanner('')
       } catch (error) {
         console.log(error)
         // setErrorBanner('Failed to connect to peer')
@@ -257,6 +188,7 @@ export function RoomPage() {
     socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
       try {
         await webRTCService.handleAnswer(answer, from)
+        setErrorBanner('')
       } catch (error) {
         console.log(error)
         setErrorBanner('Failed to connect to peer')
@@ -266,29 +198,89 @@ export function RoomPage() {
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
       try {
         await webRTCService.handleIceCandidate(candidate, from)
+        setErrorBanner('')
       } catch (error) {
-        console.log(error)
+        // console.log(error)
+        // setErrorBanner('Failed to connect to peer')
       }
     })
   }
 
-  async function initializeMedia() {
+  async function initializeMedia(isRestart: boolean = false) {
     try {
       if (!socketService || !webRTCService || !id || !user) return
+      // socketService.leaveRoom(id)
+      // socketService.logout()
+      if (isRestart) {
+        clearAllConnections()
+      }
 
       const stream = await webRTCService.getLocalStream()
+      // console.log('stream', stream)
+
+      const videoTrack = stream.getVideoTracks()[0] || null
+      const audioTrack = stream.getAudioTracks()[0] || null
+      // console.log(localVideoRef, videoTrack, audioTrack)
+
       if (localVideoRef.current && stream) {
         localVideoRef.current.srcObject = stream
+        setLocalTracks({
+          video: videoTrack,
+          audio: audioTrack,
+        })
       }
       socketService.login({
         id: user.id,
         fullname: user.fullname,
         imgUrl: user.imgUrl,
+        isVideoOn: videoTrack ? true : false,
+        isAudioOn: audioTrack ? true : false,
       })
       socketService.joinRoom(id)
+      if (isRestart) addListeners()
       setErrorBanner('')
     } catch (error) {
       setErrorBanner('Failed to access camera/microphone')
+    }
+  }
+
+  async function disableMedia(type: string): Promise<void> {
+    try {
+      if (
+        !localTracks ||
+        !localVideoRef.current ||
+        !webRTCService ||
+        !user ||
+        !id
+      )
+        return
+      socketService.leaveRoom(id)
+      socketService.logout()
+      // clearAllConnections()
+
+      const stream = await webRTCService.disableLocalStream(type)
+      const videoTrack = stream.getVideoTracks()[0] || null
+      const audioTrack = stream.getAudioTracks()[0] || null
+
+      if (localVideoRef.current && stream) {
+        localVideoRef.current.srcObject = stream
+        setLocalTracks({
+          video: videoTrack,
+          audio: audioTrack,
+        })
+      }
+      socketService.login({
+        id: user.id,
+        fullname: user.fullname,
+        imgUrl: user.imgUrl,
+        isVideoOn: videoTrack ? true : false,
+        isAudioOn: audioTrack ? true : false,
+      })
+      socketService.joinRoom(id)
+      // addListeners()
+    } catch (error) {
+      console.error('Error disabling media:', error)
+      setErrorBanner('Failed to disable media')
     }
   }
 
@@ -327,12 +319,17 @@ export function RoomPage() {
             id: user?.id || '',
             fullname: user?.fullname || '',
             imgUrl: user?.imgUrl || '',
+            isVideoOn: localTracks.video ? true : false,
+            isAudioOn: localTracks.audio ? true : false,
           }}
           remoteVideosRef={remoteVideosRef}
           localVideoRef={localVideoRef}
           isRemote={false}
           isHost={user?.id === room?.host_id}
           label={` You${user?.id === room?.host_id ? ' (Host)' : ''}`}
+          localTracks={localTracks}
+          disableMedia={disableMedia}
+          initializeMedia={initializeMedia}
         />
         {currMembers
           .filter((member) => member.socketId !== socket.id && member.socketId)

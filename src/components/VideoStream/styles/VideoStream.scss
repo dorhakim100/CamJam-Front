@@ -6,6 +6,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   max-width: 1200px;
+
   &:hover {
     //   transform: translateY(-1px);
   }
@@ -27,6 +28,30 @@
     background-color: #000000;
   }
 
+  .video-off {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    // height: calc(100% - 4rem);
+    height: 100%;
+    display: grid;
+
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 1;
+
+    img {
+      width: 30%;
+    }
+  }
+
   .label {
     position: absolute;
     bottom: 1rem;
@@ -34,10 +59,15 @@
     //   background-color: rgba(0, 0, 0, 0.6);
     color: white;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    padding: 1% 4%;
+    max-width: 180px;
+    @media (max-width: 600px) {
+      padding: 0.25rem 0.5rem;
+    }
+    border-radius: 35px;
     font-size: 0.9rem;
     backdrop-filter: blur(4px);
-    z-index: 1;
+    z-index: 2;
   }
 
   &.remote {
@@ -67,6 +97,57 @@
 
     .label {
       background: linear-gradient(90deg, $deep-purple, $indigo);
+    }
+  }
+
+  .buttons-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: end;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    padding: 0.8rem 1rem 0.5rem;
+
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    font-size: 0.9rem;
+    z-index: 1;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    opacity: 0;
+
+    button {
+      background: $btn-bg;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      color: #fff;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+
+      &:hover {
+        background: $btn-hover;
+      }
+      &:active {
+        background: $btn-active;
+        transform: scale(0.96);
+      }
+
+      .icon {
+        font-size: 1.2rem;
+      }
+    }
+  }
+  &.self:hover {
+    .buttons-container {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 }
