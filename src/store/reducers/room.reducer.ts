@@ -9,6 +9,7 @@ export const SET_ROOM = 'SET_ROOM'
 // export const ADD_ROOM = 'ADD_ROOM'
 // export const UPDATE_ROOM = 'UPDATE_ROOM'
 export const SET_ROOM_FILTER = 'SET_ROOM_FILTER'
+export const SET_IS_NEW_ROOM_MODAL_OPEN = 'SET_IS_NEW_ROOM_MODAL_OPEN'
 
 export interface RoomState {
   rooms: Room[]
@@ -16,6 +17,7 @@ export interface RoomState {
   filter: RoomFilter
   lastRemovedRoom?: Room
   currRoomId: string
+  isNewRoomModalOpen?: boolean
 }
 
 const initialState: RoomState = {
@@ -23,6 +25,7 @@ const initialState: RoomState = {
   room: null,
   filter: roomService.getDefaultFilter(),
   currRoomId: '',
+  isNewRoomModalOpen: false,
 }
 
 export function roomReducer(state = initialState, action: any) {
@@ -58,6 +61,12 @@ export function roomReducer(state = initialState, action: any) {
 
     case SET_ROOM_FILTER:
       newState = { ...state, filter: action.filter }
+      break
+    case SET_IS_NEW_ROOM_MODAL_OPEN:
+      newState = {
+        ...state,
+        isNewRoomModalOpen: action.isOpen,
+      }
       break
     default:
   }

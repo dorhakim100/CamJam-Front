@@ -15,6 +15,7 @@ import { RootState } from './store/store.ts'
 import './App.css'
 import { SearchBar } from './components/SearchBar/SearchBar.tsx'
 import { socketService } from './services/socket.service'
+import { NewRoomModal } from './components/NewRoomModal/NewRoomModal.tsx'
 
 function App() {
   const prefs = useSelector(
@@ -48,6 +49,7 @@ function App() {
       <Prefs />
       {/* <PrefsButton /> */}
       <UserMsg />
+      <NewRoomModal />
       <main className={`main ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
         <SearchBar />
         <Routes>

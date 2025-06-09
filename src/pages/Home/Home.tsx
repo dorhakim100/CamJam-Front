@@ -9,7 +9,7 @@ import { BsPlusSquareFill } from 'react-icons/bs'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { s } from 'framer-motion/client'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
-import { saveRoom } from '../../store/actions/room.actions'
+import { saveRoom, setNewRoomModal } from '../../store/actions/room.actions'
 
 export function Home() {
   const prefs = useSelector(
@@ -23,7 +23,8 @@ export function Home() {
   const buttons = [
     {
       label: 'New meeting',
-      action: () => createRoom(),
+      // action: () => createRoom(),
+      action: () => setNewRoomModal(true),
       id: 'new-meeting-button',
       icon: <BsFillCameraVideoFill className='icon' />,
       color: '#F26D21',

@@ -1,6 +1,11 @@
 import { roomService } from '../../services/room/room.service'
 import { store } from '../store'
-import { SET_ROOMS, SET_ROOM, SET_ROOM_FILTER } from '../reducers/room.reducer'
+import {
+  SET_ROOMS,
+  SET_ROOM,
+  SET_ROOM_FILTER,
+  SET_IS_NEW_ROOM_MODAL_OPEN,
+} from '../reducers/room.reducer'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
@@ -38,6 +43,13 @@ export async function saveRoom(roomToSave: Room | RoomToAdd): Promise<any> {
     // console.log('Cannot load room', err)
     throw err
   }
+}
+
+export function setNewRoomModal(stateToSet: boolean) {
+  store.dispatch({
+    type: SET_IS_NEW_ROOM_MODAL_OPEN,
+    isOpen: stateToSet,
+  })
 }
 
 function getCmdSetRooms(rooms: Room[]) {
