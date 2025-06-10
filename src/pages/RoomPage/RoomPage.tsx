@@ -171,8 +171,8 @@ export function RoomPage() {
           if (video) {
             video.srcObject = stream
             video.play().catch((e) => {
-              console.log(e)
-              // throw new Error('Failed to play video')
+              // console.log(e)
+              throw new Error('Failed to play video')
               // setErrorBanner('Failed to connect to peer')
             })
           }
@@ -180,17 +180,17 @@ export function RoomPage() {
         connectedPeers.current.add(from)
         setErrorBanner('')
       } catch (error) {
-        console.log(error)
-        // setErrorBanner('Failed to connect to peer')
+        // console.log(error)
+        setErrorBanner('Failed to connect to peer')
       }
     })
 
     socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
       try {
         await webRTCService.handleAnswer(answer, from)
-        setErrorBanner('')
+        // setErrorBanner('')
       } catch (error) {
-        console.log(error)
+        // console.log(error)
         setErrorBanner('Failed to connect to peer')
       }
     })
@@ -198,7 +198,7 @@ export function RoomPage() {
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
       try {
         await webRTCService.handleIceCandidate(candidate, from)
-        setErrorBanner('')
+        // setErrorBanner('')
       } catch (error) {
         // console.log(error)
         // setErrorBanner('Failed to connect to peer')

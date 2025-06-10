@@ -95,7 +95,7 @@ async function login(userCred: UserCred) {
       return saved
     }
   } catch (err) {
-    // console.log(err)
+    console.log(err)
     throw err
   }
 }
