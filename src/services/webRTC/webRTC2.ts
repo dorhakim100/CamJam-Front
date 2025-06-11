@@ -225,6 +225,7 @@ export class WebRTCService {
     try {
       // console.log('Handling offer from:', from)
       let peerConnection = this.peerConnections.get(from)
+      let isConnection = true
 
       // Ensure socket and its ID are available for glare resolution.
       if (!this.socket || typeof this.socket.id === 'undefined') {
@@ -257,7 +258,8 @@ export class WebRTCService {
           await peerConnection.setLocalDescription({ type: 'rollback' })
           // After rollback, aggressively close the existing problematic connection.
           this.closeConnection(from) // Ensure old PC is completely removed.
-          peerConnection = null // Set to null to trigger new creation below.
+          // peerConnection = null // Set to null to trigger new creation below.
+          isConnection = false
         }
       } else if (peerConnection) {
         // If peerConnection exists but NOT in 'have-local-offer' state
@@ -268,25 +270,26 @@ export class WebRTCService {
         //   `Existing peer connection for ${from} detected (not glare). Closing and recreating for clean negotiation.`
         // )
         this.closeConnection(from)
-        peerConnection = null // Set to null to trigger new creation below.
+        // peerConnection = null // Set to null to trigger new creation below.
+        isConnection = false
       }
 
       // At this point, peerConnection should be null if it was closed or didn't exist,
       // or it's the winning peer's already established connection.
       // If it's null, create a new one to handle this incoming offer.
-      if (!peerConnection) {
+      if (!isConnection) {
         peerConnection = await this.createPeerConnection(from, onTrack)
       }
 
       // console.log('Setting remote description')
-      await peerConnection.setRemoteDescription(
+      await peerConnection?.setRemoteDescription(
         new RTCSessionDescription(offer)
       )
 
       // console.log('Creating answer')
-      const answer = await peerConnection.createAnswer()
+      const answer = await peerConnection?.createAnswer()
       // console.log('Setting local description')
-      await peerConnection.setLocalDescription(answer)
+      await peerConnection?.setLocalDescription(answer)
       // console.log('Sending answer to:', from)
       this.socket.emit('answer', {
         answer,

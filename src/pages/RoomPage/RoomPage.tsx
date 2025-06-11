@@ -259,6 +259,7 @@ export function RoomPage() {
       // clearAllConnections()
 
       const stream = await webRTCService.disableLocalStream(type)
+
       const videoTrack = stream.getVideoTracks()[0] || null
       const audioTrack = stream.getAudioTracks()[0] || null
 
@@ -342,6 +343,10 @@ export function RoomPage() {
               label={`${member.fullname}${
                 member?.id === room?.host_id ? ' (Host)' : ''
               }`}
+              tracksState={{
+                video: member.isVideoOn,
+                audio: member.isAudioOn,
+              }}
             />
           ))}
       </div>

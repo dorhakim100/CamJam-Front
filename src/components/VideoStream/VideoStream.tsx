@@ -9,6 +9,7 @@ import { CiMicrophoneOn } from 'react-icons/ci'
 import { CiMicrophoneOff } from 'react-icons/ci'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { showErrorMsg } from '../../services/event-bus.service'
+import { TracksState } from '../../types/TracksState/TracksState'
 
 export function VideoStream({
   member,
@@ -20,6 +21,7 @@ export function VideoStream({
   localTracks,
   disableMedia,
   initializeMedia,
+  tracksState,
 }: {
   member: SocketUser
   label: string
@@ -30,6 +32,7 @@ export function VideoStream({
   localTracks?: LocalTracks
   disableMedia?: (type: string) => Promise<void>
   initializeMedia?: (isRestart: boolean) => Promise<void>
+  tracksState?: TracksState
 }) {
   const room = useSelector(
     (stateSelector: RootState) => stateSelector.roomModule.room
@@ -172,9 +175,9 @@ export function VideoStream({
         />
         <div className='label'>{label}</div>
         <div className='buttons-container'>
-          {buttons.map((button) => {
+          {buttons.map((button, idx) => {
             return (
-              <button onClick={button.action}>
+              <button onClick={button.action} key={button.label + idx}>
                 <span className='icon'>{button.icon}</span>
                 {/* <span>{button.label}</span> */}
               </button>
