@@ -31,30 +31,45 @@ export class WebRTCService {
 
   async disableLocalStream(type: string) {
     try {
-      let optionsObject
-      optionsObject =
-        type === 'video'
-          ? {
-              video: false,
-              audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-              },
-            }
-          : {
-              video: {
+      // let optionsObject
+      // optionsObject =
+      //   type === 'video'
+      //     ? {
+      //         video: false,
+      //         audio: {
+      //           echoCancellation: true,
+      //           noiseSuppression: true,
+      //         },
+      //       }
+      //     : {
+      //         video: {
+      //           width: { ideal: 640 },
+      //           height: { ideal: 480 },
+      //         },
+      //         audio: {
+      //           echoCancellation: true,
+      //           noiseSuppression: true,
+      //         },
+      //       }
+
+      // console.log(optionsObject)
+
+      // this.localStream = await navigator.mediaDevices.getUserMedia(
+      //   optionsObject
+      // )
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video:
+          type === 'video'
+            ? false
+            : {
                 width: { ideal: 640 },
                 height: { ideal: 480 },
               },
-              audio: {
-                echoCancellation: false,
-                noiseSuppression: false,
-              },
-            }
-
-      this.localStream = await navigator.mediaDevices.getUserMedia(
-        optionsObject
-      )
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      })
       return this.localStream
     } catch (error) {
       // console.error('Error disabling local stream:', error)
@@ -80,9 +95,58 @@ export class WebRTCService {
           },
         ],
         iceCandidatePoolSize: 10,
+        // iceCandidatePoolSize: 2,
         bundlePolicy: 'max-bundle',
         rtcpMuxPolicy: 'require',
       })
+
+      // const peerConnection = new RTCPeerConnection({
+      //   iceServers: [
+      //     // Google STUNs for cheap, global STUN coverage
+      //     { urls: [ 'stun:stun.l.google.com:19302',
+      //               'stun:stun1.l.google.com:19302',
+      //               'stun:stun2.l.google.com:19302' ] },
+
+      //     // Your own Coturn server (UDP + TCP)
+      //     {
+      //       urls: [
+      //         'turn:turn.yourdomain.com:3478?transport=udp',
+      //         'turn:turn.yourdomain.com:3478?transport=tcp'
+      //       ],
+      //       username: 'YOUR_TURN_USER',
+      //       credential: 'YOUR_TURN_PASS'
+      //     },
+
+      //     // Secure TLS fallback on default HTTPS port
+      //     {
+      //       urls: [ 'turns:turn.yourdomain.com:443?transport=tcp' ],
+      //       username: 'YOUR_TURN_USER',
+      //       credential: 'YOUR_TURN_PASS'
+      //     },
+
+      //     // Public TURN as last resort
+      //     {
+      //       urls: [
+      //         'turn:numb.viagenie.ca:3478?transport=udp',
+      //         'turn:numb.viagenie.ca:3478?transport=tcp'
+      //       ],
+      //       username: 'webrtc@live.com',
+      //       credential: 'muazkh'
+      //     }
+      //   ],
+
+      //   // Pre-gather a small pool of candidates to speed up negotiation
+      //   iceCandidatePoolSize: 1,
+
+      //   // Allow both direct & relay (default), you could force 'relay' if you want TURN-only
+      //   iceTransportPolicy: 'all',
+
+      //   // Bundle all m-lines over a single 5-tuple
+      //   bundlePolicy: 'max-bundle',
+
+      //   // RTP + RTCP on same port
+      //   rtcpMuxPolicy: 'require',
+      // });
 
       // Add local tracks to the peer connection
       if (this.localStream) {

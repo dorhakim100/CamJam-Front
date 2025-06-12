@@ -24,6 +24,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { setIsFirstRender } from '../../store/actions/system.actions'
 import { VideoStream } from '../../components/VideoStream/VideoStream'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
+import { TracksState } from '../../types/TracksState/TracksState'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -136,21 +137,29 @@ export function RoomPage() {
       members = members.filter((member: SocketUser) => member)
       setCurrentMembers(members)
 
+      console.log('bla')
+
       members.forEach(async (member: any) => {
         if (
-          member.socketId !== socket.id &&
-          !connectedPeers.current.has(member.socketId)
+          member.socketId !== socket.id
+          //  && !connectedPeers.current.has(member.socketId)
         ) {
+          if (connectedPeers.current.has(member.socketId)) {
+            connectedPeers.current.delete(member.socketId)
+          }
           try {
             await webRTCService.createPeerConnection(
               member.socketId,
               (stream) => {
+                const videoTrack = stream.getVideoTracks()[0] || null
+                const audioTrack = stream.getAudioTracks()[0] || null
+                console.log(videoTrack, audioTrack)
                 const video = remoteVideosRef.current.get(member.socketId)
                 if (video) {
                   video.srcObject = stream
                   video.play().catch((e) => {
-                    console.log(e)
-                    video.play()
+                    // console.log(e)
+                    // video.play()
                   })
                 }
               }
@@ -168,6 +177,7 @@ export function RoomPage() {
       try {
         await webRTCService.handleOffer(offer, from, (stream) => {
           const video = remoteVideosRef.current.get(from)
+
           if (video) {
             video.srcObject = stream
             video.play().catch((e) => {
@@ -206,7 +216,10 @@ export function RoomPage() {
     })
   }
 
-  async function initializeMedia(isRestart: boolean = false) {
+  async function initializeMedia(
+    isRestart: boolean = false,
+    isMuted: boolean = false
+  ) {
     try {
       if (!socketService || !webRTCService || !id || !user) return
       // socketService.leaveRoom(id)
@@ -234,7 +247,7 @@ export function RoomPage() {
         fullname: user.fullname,
         imgUrl: user.imgUrl,
         isVideoOn: videoTrack ? true : false,
-        isAudioOn: audioTrack ? true : false,
+        isAudioOn: !isMuted || audioTrack ? true : false,
       })
       socketService.joinRoom(id)
       if (isRestart) addListeners()
@@ -244,7 +257,7 @@ export function RoomPage() {
     }
   }
 
-  async function disableMedia(type: string): Promise<void> {
+  async function toggleMedia(stateToSet: TracksState): Promise<void> {
     try {
       if (
         !localTracks ||
@@ -258,10 +271,17 @@ export function RoomPage() {
       socketService.logout()
       // clearAllConnections()
 
+      let type = ''
+
+      if (!stateToSet.video) {
+        type = 'video'
+      } else type = 'audio'
+
       const stream = await webRTCService.disableLocalStream(type)
 
       const videoTrack = stream.getVideoTracks()[0] || null
       const audioTrack = stream.getAudioTracks()[0] || null
+      console.log(videoTrack, audioTrack)
 
       if (localVideoRef.current && stream) {
         localVideoRef.current.srcObject = stream
@@ -270,12 +290,14 @@ export function RoomPage() {
           audio: audioTrack,
         })
       }
+
       socketService.login({
         id: user.id,
         fullname: user.fullname,
         imgUrl: user.imgUrl,
         isVideoOn: videoTrack ? true : false,
-        isAudioOn: audioTrack ? true : false,
+        // isAudioOn: audioTrack ? true : false,
+        isAudioOn: stateToSet.audio ? true : false,
       })
       socketService.joinRoom(id)
       // addListeners()
@@ -329,7 +351,7 @@ export function RoomPage() {
           isHost={user?.id === room?.host_id}
           label={` You${user?.id === room?.host_id ? ' (Host)' : ''}`}
           localTracks={localTracks}
-          disableMedia={disableMedia}
+          toggleMedia={toggleMedia}
           initializeMedia={initializeMedia}
         />
         {currMembers

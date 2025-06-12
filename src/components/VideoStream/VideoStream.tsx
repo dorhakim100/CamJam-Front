@@ -10,6 +10,7 @@ import { CiMicrophoneOff } from 'react-icons/ci'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { showErrorMsg } from '../../services/event-bus.service'
 import { TracksState } from '../../types/TracksState/TracksState'
+import { BsMicMuteFill } from 'react-icons/bs'
 
 export function VideoStream({
   member,
@@ -19,7 +20,7 @@ export function VideoStream({
   remoteVideosRef,
   localVideoRef,
   localTracks,
-  disableMedia,
+  toggleMedia,
   initializeMedia,
   tracksState,
 }: {
@@ -30,7 +31,7 @@ export function VideoStream({
   remoteVideosRef: React.MutableRefObject<Map<string, HTMLVideoElement>>
   localVideoRef?: React.MutableRefObject<HTMLVideoElement | null>
   localTracks?: LocalTracks
-  disableMedia?: (type: string) => Promise<void>
+  toggleMedia?: (stateToSet: TracksState) => Promise<void>
   initializeMedia?: (isRestart: boolean) => Promise<void>
   tracksState?: TracksState
 }) {
@@ -53,13 +54,19 @@ export function VideoStream({
     {
       label: 'Mute',
       action: () => {
-        if (!disableMedia || !initializeMedia) return
+        if (!toggleMedia || !initializeMedia) return
 
-        const stateToSet = localTracks?.audio ? false : true
+        // const stateToSet = localTracks?.audio ? false : true
+        const stateToSet = isAudio ? false : true
+        const state = {
+          audio: stateToSet,
+          video: localTracks?.video ? true : false,
+        }
         try {
-          if (!stateToSet) {
-            disableMedia('audio')
-          } else initializeMedia(true)
+          // if (!stateToSet) {
+          //   toggleMedia('audio')
+          // } else initializeMedia(true)
+          toggleMedia(state)
           setIsAudio(stateToSet)
         } catch (error) {
           // console.error('Error toggling video:', error)
@@ -77,12 +84,16 @@ export function VideoStream({
     {
       label: 'Camera',
       action: () => {
-        if (!disableMedia || !initializeMedia) return
+        if (!toggleMedia || !initializeMedia) return
 
         const stateToSet = localTracks?.video ? false : true
+        const state = {
+          video: stateToSet,
+          audio: localTracks?.audio ? true : false,
+        }
         try {
           if (!stateToSet) {
-            disableMedia('video')
+            toggleMedia(state)
           } else initializeMedia(true)
           setIsVisible(stateToSet)
         } catch (error) {
@@ -146,6 +157,8 @@ export function VideoStream({
     })
   }, [remoteVideosRef.current])
 
+  console.log(member)
+
   if (member)
     return (
       <div
@@ -156,6 +169,12 @@ export function VideoStream({
           user?.id === member.id ? 'self' : ''
         }`}
       >
+        {(!member.isAudioOn || !isAudio) && (
+          <div className='mute-container'>
+            <BsMicMuteFill />
+          </div>
+        )}
+
         {!isRemote && localTracks && !isVisble && (
           <div className='video-off'>
             <img src={member.imgUrl} alt='' />
@@ -171,7 +190,8 @@ export function VideoStream({
 
         <video
           ref={handleVideoRef}
-          muted={!isRemote} // Mute local video
+          // muted={!isRemote} // Mute local video
+          muted={!isRemote || !tracksState?.audio ? true : false} // Mute local video
         />
         <div className='label'>{label}</div>
         <div className='buttons-container'>
