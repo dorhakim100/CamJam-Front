@@ -4,6 +4,22 @@
   //   background-color: #1a1b1e;
   //   color: #ffffff;
 
+  .close-button{
+    position: absolute;
+    top: calc(1rem + 80px);
+    left: 1rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: $dark-gray;
+    cursor: pointer;
+
+
+    &:hover {
+      color: $deep-purple;
+    }
+  }
+
   .error-message {
     background-color: $error-red;
     color: white;
@@ -93,4 +109,59 @@
       }
     }
   }
+}
+
+
+.password-modal-container{
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: grid;
+  place-items: center;
+  background-color: $white;
+  padding: 3rem 2rem;
+  border-radius: 0.5rem;
+
+  &.dark-mode {
+    background-color: $very-dark-gray;
+    color: $light-gray;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+
+    cursor: pointer;
+
+    &:hover {
+      color: $deep-purple;
+    }
+  }
+
+  &.dark-mode {
+    background-color: $very-dark-gray;
+    color: $light-gray;
+    outline: 2px solid $deep-purple;
+
+    label,
+    button,
+    h2 {
+      color: $light-gray;
+    }
+  }
+
+  h2{
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+
+  }
+
+
+
 }

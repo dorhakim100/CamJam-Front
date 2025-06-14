@@ -25,6 +25,8 @@ import { setIsFirstRender } from '../../store/actions/system.actions'
 import { VideoStream } from '../../components/VideoStream/VideoStream'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { TracksState } from '../../types/TracksState/TracksState'
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import { Room } from '../../types/room/Room'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -50,9 +52,13 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.systemModule.isFirstRender
   )
 
+
+
   const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
+
+  const [isPasswordModal, setIsPasswordModal] = useState<boolean>(false)
 
   const connectedPeers = useRef<Set<string>>(new Set())
   const [localTracks, setLocalTracks] = useState<LocalTracks>({
@@ -85,9 +91,10 @@ export function RoomPage() {
   }, [])
 
   useEffect(() => {
+    if (isPasswordModal) return
     const newWebRTCService = new WebRTCService(socket)
     setWebRTCService(newWebRTCService)
-  }, [])
+  }, [isPasswordModal])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
@@ -124,7 +131,12 @@ export function RoomPage() {
     if (!id) return
     try {
       const roomToSet = await loadRoom(id)
-      if (roomToSet.id !== currRoomId) setIsFirstRender(true)
+      // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
+      if(roomToSet.password ) {
+           setIsPasswordModal(true)
+      }
+      // const newWebRTCService = new WebRTCService(socket)
+      // setWebRTCService(newWebRTCService)
     } catch (error) {
       showErrorMsg('Failed to set room details')
     }
@@ -137,7 +149,7 @@ export function RoomPage() {
       members = members.filter((member: SocketUser) => member)
       setCurrentMembers(members)
 
-      console.log('bla')
+      // console.log('bla')
 
       members.forEach(async (member: any) => {
         if (
@@ -319,8 +331,20 @@ export function RoomPage() {
     connectedPeers.current.clear()
   }
 
+
+
+  if(isPasswordModal && room) return <PasswordModal room={room} setIsPasswordModal={setIsPasswordModal}/>
   return (
     <div className='room-page'>
+        <IconButton
+      className='close-button'
+      onClick={() => {
+
+        navigate('/room')
+      }}
+    >
+      <KeyboardReturnIcon />
+    </IconButton>
       {errorBanner && (
         <div className='error-message'>
           <span>{errorBanner}</span>
@@ -393,3 +417,52 @@ export function RoomPage() {
     </div>
   )
 }
+
+function PasswordModal({room,setIsPasswordModal}: {room:Room,setIsPasswordModal: (isOpen: boolean) => void}) {
+
+  const prefs = useSelector((stateSelector: RootState) => stateSelector.systemModule.prefs)
+  const navigate = useNavigate()
+
+  const [password, setPassword] = useState<string>('')
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
+  }
+  const checkPassword = ()=>{
+    if (room.password && room.password !== password) {
+      showErrorMsg('Incorrect password')
+      return
+    }
+    setIsPasswordModal(false)
+    // navigate(`/room/${room.id}`)
+
+  }
+  return <div className="overlay">
+
+  
+  <div className={`password-modal-container ${prefs.isDarkMode ? 'dark-mode':''}`}>
+    <IconButton
+      className='close-button'
+      onClick={() => {
+        setIsPasswordModal(false)
+        navigate('/room')
+      }}
+    >
+      <KeyboardReturnIcon />
+    </IconButton>
+    <h2>Room Password Required</h2>
+    <p>Please enter the password to join this room.</p>
+    <input type="search" name="" id="" value={password} onChange={handlePasswordChange} />
+    <button
+    className='primary-button'
+      disabled={!password}
+      onClick={checkPassword}
+      >
+      Enter Password
+    </button>
+  </div>
+
+      </div>
+}
+
+

@@ -23,14 +23,14 @@ export function RoomCard({ room }: { room: Room }) {
         <span className='room-created-at'>
           Created at: {new Date(room.created_at).toLocaleString()}
         </span>
-        <Button
-          variant='contained'
+        <button
+          className='primary-button'
           onClick={() => {
             navigate(`/room/${room.id}`)
           }}
         >
           Join
-        </Button>
+        </button>
       </div>
     </div>
   )

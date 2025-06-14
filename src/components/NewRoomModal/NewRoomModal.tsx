@@ -220,7 +220,7 @@ export function NewRoomModal() {
                   )
                 })}
 
-                <button type='submit'>Create Room</button>
+                <button type='submit' className='primaty-button'>Create Room</button>
               </form>{' '}
             </>
           )}

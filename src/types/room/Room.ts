@@ -6,6 +6,7 @@ export interface Room {
   is_private?: boolean
   max_participants?: number
   created_at: Date
+  password?: string
 }
 
 interface RoomHost {
