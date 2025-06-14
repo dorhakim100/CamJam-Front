@@ -152,7 +152,7 @@ export function NewRoomModal() {
                 You can now join the room with ID: <br />
                 <span>{lastCreatedRoomId || 'N/A'}</span>
               </p>
-              <button onClick={handleNavigateToRoom}>Enter Room</button>
+              <button className='primary-button' onClick={handleNavigateToRoom}>Enter Room</button>
             </div>
           ) : (
             <>
@@ -220,7 +220,7 @@ export function NewRoomModal() {
                   )
                 })}
 
-                <button type='submit' className='primaty-button'>Create Room</button>
+                <button type='submit' className='primary-button'>Create Room</button>
               </form>{' '}
             </>
           )}

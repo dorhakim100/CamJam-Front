@@ -58,7 +58,6 @@ export function RoomPage() {
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
 
-  const [isPasswordModal, setIsPasswordModal] = useState<boolean>(false)
 
   const connectedPeers = useRef<Set<string>>(new Set())
   const [localTracks, setLocalTracks] = useState<LocalTracks>({
@@ -90,22 +89,26 @@ export function RoomPage() {
     testCamera()
   }, [])
 
+
+
   useEffect(() => {
-    if (isPasswordModal) return
+
     const newWebRTCService = new WebRTCService(socket)
     setWebRTCService(newWebRTCService)
-  }, [isPasswordModal])
+  }, [])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
-
+    
     initializeMedia()
     addListeners()
-
+    
     return () => {
       clearAllConnections()
     }
   }, [socket, webRTCService, user, id])
+  
+
 
   useEffect(() => {
     if (!isFirstRender || !webRTCService || !currMembers.length) return
@@ -132,11 +135,8 @@ export function RoomPage() {
     try {
       const roomToSet = await loadRoom(id)
       // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
-      if(roomToSet.password ) {
-           setIsPasswordModal(true)
-      }
-      // const newWebRTCService = new WebRTCService(socket)
-      // setWebRTCService(newWebRTCService)
+   
+
     } catch (error) {
       showErrorMsg('Failed to set room details')
     }
@@ -333,7 +333,7 @@ export function RoomPage() {
 
 
 
-  if(isPasswordModal && room) return <PasswordModal room={room} setIsPasswordModal={setIsPasswordModal}/>
+  // if(isPasswordModal && room) return <PasswordModal room={room} setIsPasswordModal={setIsPasswordModal}/>
   return (
     <div className='room-page'>
         <IconButton
@@ -418,51 +418,51 @@ export function RoomPage() {
   )
 }
 
-function PasswordModal({room,setIsPasswordModal}: {room:Room,setIsPasswordModal: (isOpen: boolean) => void}) {
+// function PasswordModal({room,setIsPasswordModal}: {room:Room,setIsPasswordModal: (isOpen: boolean) => void}) {
 
-  const prefs = useSelector((stateSelector: RootState) => stateSelector.systemModule.prefs)
-  const navigate = useNavigate()
+//   const prefs = useSelector((stateSelector: RootState) => stateSelector.systemModule.prefs)
+//   const navigate = useNavigate()
 
-  const [password, setPassword] = useState<string>('')
+//   const [password, setPassword] = useState<string>('')
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value)
-  }
-  const checkPassword = ()=>{
-    if (room.password && room.password !== password) {
-      showErrorMsg('Incorrect password')
-      return
-    }
-    setIsPasswordModal(false)
-    // navigate(`/room/${room.id}`)
+//   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setPassword(e.target.value)
+//   }
+//   const checkPassword = ()=>{
+//     if (room.password && room.password !== password) {
+//       showErrorMsg('Incorrect password')
+//       return
+//     }
+//     setIsPasswordModal(false)
+//     // navigate(`/room/${room.id}`)
 
-  }
-  return <div className="overlay">
+//   }
+//   return <div className="overlay">
 
   
-  <div className={`password-modal-container ${prefs.isDarkMode ? 'dark-mode':''}`}>
-    <IconButton
-      className='close-button'
-      onClick={() => {
-        setIsPasswordModal(false)
-        navigate('/room')
-      }}
-    >
-      <KeyboardReturnIcon />
-    </IconButton>
-    <h2>Room Password Required</h2>
-    <p>Please enter the password to join this room.</p>
-    <input type="search" name="" id="" value={password} onChange={handlePasswordChange} />
-    <button
-    className='primary-button'
-      disabled={!password}
-      onClick={checkPassword}
-      >
-      Enter Password
-    </button>
-  </div>
+//   <div className={`password-modal-container ${prefs.isDarkMode ? 'dark-mode':''}`}>
+//     <IconButton
+//       className='close-button'
+//       onClick={() => {
+//         setIsPasswordModal(false)
+//         navigate('/room')
+//       }}
+//     >
+//       <KeyboardReturnIcon />
+//     </IconButton>
+//     <h2>Room Password Required</h2>
+//     <p>Please enter the password to join this room.</p>
+//     <input type="search" name="" id="" value={password} onChange={handlePasswordChange} />
+//     <button
+//     className='primary-button'
+//       disabled={!password}
+//       onClick={checkPassword}
+//       >
+//       Enter Password
+//     </button>
+//   </div>
 
-      </div>
-}
+//       </div>
+// }
 
 
