@@ -10,6 +10,7 @@ import { RootState } from '../../store/store'
 import { RoomPasswordModal } from '../../components/RoomPasswordModal/RoomPasswordModal'
 import { showErrorMsg } from '../../services/event-bus.service'
 import { Room } from '../../types/room/Room'
+import { PasswordRoom } from '../../types/PasswordRoom/PasswordRoom'
 
 export function RoomList() {
   const rooms = useSelector(
@@ -22,8 +23,7 @@ export function RoomList() {
   const [filter, setFilter] = useState(roomService.getDefaultFilter())
 
   const [isPasswordModal, setIsPasswordModal] = useState(false)
-  const passwordModals = useRef<Set<{roomId: string,password:string}>>(new Set())
-  const [currPasswordModal, setCurrPasswordModal] = useState<{roomId: string,password:string} | null>(null)
+  const [currPasswordModal, setCurrPasswordModal] = useState<PasswordRoom | null>(null)
 
   useEffect(() => {
     setRooms(filter)
@@ -34,15 +34,7 @@ export function RoomList() {
     try {
       const rooms = await loadRooms(filterBy)
 
-      rooms.forEach((room: Room)=>{
-        if(!room) return
-
-        if (room.password) {
-          const roomWithPassword = {roomId: room.id, password: room.password}
-          passwordModals.current.add(roomWithPassword)
-        } 
-
-      })
+   
       
     } catch (err) {
       // console.error('Error setting rooms:', err)

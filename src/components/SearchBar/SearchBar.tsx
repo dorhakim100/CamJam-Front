@@ -23,6 +23,9 @@ import PersonIcon from '@mui/icons-material/Person'
 import { userService } from '../../services/user/user.service.ts'
 import { login, setRemembered } from '../../store/actions/user.actios.ts'
 import { showErrorMsg } from '../../services/event-bus.service.ts'
+import { loadRoom } from '../../store/actions/room.actions.ts'
+import { PasswordRoom } from '../../types/PasswordRoom/PasswordRoom.ts'
+import { RoomPasswordModal } from '../RoomPasswordModal/RoomPasswordModal.tsx'
 
 export function SearchBar() {
   const navigate = useNavigate()
@@ -44,6 +47,9 @@ export function SearchBar() {
   const [searchRoom, setSearchRoom] = useState<string>('')
 
   const [dropdownOptions, setDropdownOptions] = useState<DropdownOption[]>([])
+
+  const [isPasswordModal, setIsPasswordModal] = useState(false)
+  const [currPasswordModal, setCurrPasswordModal] = useState<PasswordRoom | null>(null)
 
   const onToggleMenu = () => {
     setIsHeader(!isHeader)
@@ -112,16 +118,47 @@ export function SearchBar() {
     // }
   }
 
-  const navigateToRoom = () => {
-    if (!searchRoom) return
-
-    // Navigate to the room list with the search query
-    navigate(`/room/${searchRoom}`)
-
-    // Reset search input
-    setSearchRoom('')
-  }
-
+  const navigateToRoom = async () => {
+    try {
+      
+      if (!searchRoom){
+        showErrorMsg('Please enter a room id')
+        return
+      } 
+      if(!user) {
+        showErrorMsg('Please sign in to search for rooms')
+        return
+      }
+      
+      // Navigate to the room list with the search query
+      
+      const roomToSearch = await loadRoom(searchRoom)
+      if (!roomToSearch) {
+        showErrorMsg('Room not found')
+        return
+      } 
+      
+      if(roomToSearch.is_private && roomToSearch.password) {
+        setCurrPasswordModal({roomId: roomToSearch.id, password: roomToSearch.password || ''})
+        setIsPasswordModal(true)
+        setSearchRoom('')
+        return
+        
+        
+      } else {
+        navigate(`/room/${roomToSearch.id}`)
+        setSearchRoom('')
+        
+      }
+      
+      
+    } catch (error) {
+      // console.error('Error navigating to room:', error)
+      showErrorMsg('Error navigating to room')
+      
+    }
+    }
+    
   const preventSubmit = (ev: React.KeyboardEvent<HTMLFormElement>) => {
     ev.preventDefault()
   }
@@ -132,6 +169,8 @@ export function SearchBar() {
   }
 
   return (
+    <>
+    {isPasswordModal && currPasswordModal && <RoomPasswordModal roomData={currPasswordModal} setIsPasswordModal={setIsPasswordModal} />}
     <div className='search-bar-container'>
       <Paper
         component='form'
@@ -171,6 +210,7 @@ export function SearchBar() {
             inputProps={{ 'aria-label': 'search google maps' }}
             onChange={onHandleSearchChange}
             value={searchRoom}
+            // type='search'
           />
           <IconButton
             type='button'
@@ -226,5 +266,6 @@ export function SearchBar() {
         </div>
       </Paper>
     </div>
+    </>
   )
 }
