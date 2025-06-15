@@ -343,7 +343,7 @@ export function RoomPage() {
         navigate('/room')
       }}
     >
-      <KeyboardReturnIcon />
+      <KeyboardReturnIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
     </IconButton>
       {errorBanner && (
         <div className='error-message'>
