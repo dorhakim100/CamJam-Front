@@ -1,0 +1,131 @@
+.message-container {
+  justify-self: start;
+
+  &.me {
+    justify-self: end;
+  }
+  position: relative;
+
+  margin: 0 0.8em;
+
+  //   display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: repeat(2, auto);
+  align-items: center;
+  gap: 0.5em;
+  //   padding: 1rem 0.5em;
+  padding: 0.8em;
+
+  width: fit-content;
+  max-width: 80%;
+  // border-radius: 50px;
+  border-top-left-radius: 0px;
+  &.me {
+    border-top-right-radius: 0px;
+    border-top-left-radius: 20px;
+  }
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+
+  text-align: start;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: $white-message;
+
+  &.dark-mode {
+    background-color: $very-dark-gray;
+    color: $white;
+  }
+
+  &.me {
+    background-color: $light-deep-purple;
+
+    &.dark-mode {
+      background-color: $deep-purple;
+      color: $white;
+    }
+  }
+
+  &:before {
+    content: '';
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 15px solid transparent;
+    border-right: 5px solid $very-dark-gray;
+    border-top: 15px solid $very-dark-gray;
+    border-bottom: 15px solid transparent;
+    left: -15px;
+    top: -3px;
+    transform: rotate(20deg);
+  }
+
+  // Incoming messages (default)
+  &:before {
+    content: '';
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid transparent;
+    border-right: 5px solid $very-dark-gray;
+    border-top: 10px solid $very-dark-gray;
+    border-bottom: 15px solid transparent;
+    left: -10px;
+    top: -3px;
+    transform: rotate(20deg);
+  }
+
+  // Incoming light mode (optional fallback)
+  &:not(.dark-mode):before {
+    border-right-color: $white-message;
+    border-top-color: $white-message;
+  }
+
+  // Outgoing messages (me)
+  &.me:after {
+    content: '';
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-right: 15px solid transparent;
+    border-left: 5px solid $light-deep-purple;
+    border-top: 15px solid $light-deep-purple;
+    border-bottom: 15px solid transparent;
+    right: -10px;
+    top: -3px;
+    transform: rotate(-20deg);
+  }
+
+  // Outgoing messages (me, dark mode)
+  &.me.dark-mode:after {
+    border-left-color: $deep-purple;
+    border-top-color: $deep-purple;
+  }
+
+  &.me::before {
+    content: none;
+  }
+
+  span.user-name {
+    grid-column: 1/-1;
+    font-weight: bold;
+    color: $text-dark-gray;
+    font-size: 0.8rem;
+    // margin-inline-start: 0.5rem;
+  }
+  &.dark-mode {
+    span {
+      color: $white;
+    }
+  }
+
+  .user-image {
+    grid-column: 1/2;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
