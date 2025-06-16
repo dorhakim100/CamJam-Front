@@ -1,6 +1,10 @@
 .messages-list {
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
 
   //   justify-items: center;
+  padding: 1rem 0.5em;
+  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

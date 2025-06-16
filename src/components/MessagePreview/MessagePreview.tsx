@@ -8,17 +8,26 @@ export function MessagePreview({ message }: { message: any }) {
   )
 
   return (
-    <li
-      key={message.id}
-      className={`message-container ${message.isMe ? 'me' : ''} ${
-        prefs.isDarkMode ? 'dark-mode' : ''
-      }`}
-    >
-      <span className='user-name'>
-        {message.isMe ? 'You' : message.userName || 'Unknown User'}
+    <>
+      <span
+        className={`user-name ${message.isMe ? 'me' : ''} ${
+          prefs.isDarkMode ? 'dark-mode' : ''
+        }`}
+      >
+        {message.isMe ? 'You' : message.username || 'Unknown User'}
       </span>
-      <img className='user-image' src={message.userImg} alt='user' />
-      <span className='message-text'>{message.text}</span>
-    </li>
+      <li
+        key={message.id}
+        className={`message-container ${message.isMe ? 'me' : ''} ${
+          prefs.isDarkMode ? 'dark-mode' : ''
+        }`}
+      >
+        {/* <span className='user-name'>
+          {message.isMe ? 'You' : message.username || 'Unknown User'}
+        </span> */}
+        <img className='user-image' src={message.userImg} alt='user' />
+        <span className='message-text'>{message.text}</span>
+      </li>
+    </>
   )
 }
