@@ -73,6 +73,12 @@
       color: $white;
       background-color: $text-dark-gray;
     }
+
+    @media (max-width: 700px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr;
+    }
+
     h1 {
       font-size: 2.5rem;
       margin-bottom: 1rem;
