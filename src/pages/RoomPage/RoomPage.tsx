@@ -25,8 +25,9 @@ import { setIsFirstRender } from '../../store/actions/system.actions'
 import { VideoStream } from '../../components/VideoStream/VideoStream'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { TracksState } from '../../types/TracksState/TracksState'
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
 import { Room } from '../../types/room/Room'
+import { RoomChat } from '../../components/RoomChat/RoomChat'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -52,12 +53,9 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.systemModule.isFirstRender
   )
 
-
-
   const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
-
 
   const connectedPeers = useRef<Set<string>>(new Set())
   const [localTracks, setLocalTracks] = useState<LocalTracks>({
@@ -86,29 +84,24 @@ export function RoomPage() {
         )
       }
     }
-    testCamera()
+    // testCamera()
   }, [])
 
-
-
   useEffect(() => {
-
-    const newWebRTCService = new WebRTCService(socket)
-    setWebRTCService(newWebRTCService)
+    // const newWebRTCService = new WebRTCService(socket)
+    // setWebRTCService(newWebRTCService)
   }, [])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
-    
-    initializeMedia()
-    addListeners()
-    
-    return () => {
-      clearAllConnections()
-    }
-  }, [socket, webRTCService, user, id])
-  
 
+    // initializeMedia()
+    // addListeners()
+
+    // return () => {
+    //   clearAllConnections()
+    // }
+  }, [socket, webRTCService, user, id])
 
   useEffect(() => {
     if (!isFirstRender || !webRTCService || !currMembers.length) return
@@ -135,8 +128,6 @@ export function RoomPage() {
     try {
       const roomToSet = await loadRoom(id)
       // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
-   
-
     } catch (error) {
       showErrorMsg('Failed to set room details')
     }
@@ -331,20 +322,17 @@ export function RoomPage() {
     connectedPeers.current.clear()
   }
 
-
-
   // if(isPasswordModal && room) return <PasswordModal room={room} setIsPasswordModal={setIsPasswordModal}/>
   return (
     <div className='room-page'>
-        <IconButton
-      className='close-button'
-      onClick={() => {
-
-        navigate('/room')
-      }}
-    >
-      <KeyboardReturnIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
-    </IconButton>
+      <IconButton
+        className='close-button'
+        onClick={() => {
+          navigate('/room')
+        }}
+      >
+        <KeyboardReturnIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
+      </IconButton>
       {errorBanner && (
         <div className='error-message'>
           <span>{errorBanner}</span>
@@ -396,21 +384,28 @@ export function RoomPage() {
             />
           ))}
       </div>
-      <div className={`room-info ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
+      <div
+        className={`room-info-chat-container ${
+          prefs.isDarkMode ? 'dark-mode' : ''
+        }`}
+      >
+        <h1>{room?.name}</h1>
         {room && (
           <>
-            <h1>{room.name}</h1>
-            {room.host && (
-              <p className='room-host'>Host: {room.host.fullname}</p>
-            )}
-            <p className='room-id'>
-              Room ID: <span>{id}</span>
-              <IconButton>
-                <ContentCopyIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
-              </IconButton>
-            </p>
-            <p>Members: {currMembers.length}</p>
-            <MembersList members={currMembers} />
+            <div className={`room-info ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
+              {room.host && (
+                <p className='room-host'>Host: {room.host.fullname}</p>
+              )}
+              <p className='room-id'>
+                Room ID: <span>{id}</span>
+                <IconButton>
+                  <ContentCopyIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
+                </IconButton>
+              </p>
+              <p>Members: {currMembers.length}</p>
+              <MembersList members={currMembers} />
+            </div>
+            <RoomChat />
           </>
         )}
       </div>
@@ -439,7 +434,6 @@ export function RoomPage() {
 //   }
 //   return <div className="overlay">
 
-  
 //   <div className={`password-modal-container ${prefs.isDarkMode ? 'dark-mode':''}`}>
 //     <IconButton
 //       className='close-button'
@@ -464,5 +458,3 @@ export function RoomPage() {
 
 //       </div>
 // }
-
-
