@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { Routes, Route } from 'react-router'
+import { Routes, Route, useLocation } from 'react-router'
 
 import { routes } from './assets/routes/routes'
 
@@ -26,6 +26,8 @@ function App() {
     (stateSelector: RootState) => stateSelector.userModule.user
   )
 
+  const location = useLocation()
+
   // const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -42,6 +44,13 @@ function App() {
       socketService.terminate()
     }
   }, [])
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }, [location])
 
   return (
     <>

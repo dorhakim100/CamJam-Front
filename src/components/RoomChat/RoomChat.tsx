@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import SendIcon from '@mui/icons-material/Send'
@@ -10,16 +10,71 @@ export function RoomChat() {
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
 
+  const room = useSelector(
+    (stateSelector: RootState) => stateSelector.roomModule.room
+  )
+
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const messagesListRef = useRef<HTMLUListElement | null>(null)
+
+  useEffect(() => {
+    smoothScrollToBottom()
+  }, [room?.id])
+
+  const handleInputChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const elMessagesList = messagesListRef.current
+    const textarea = textAreaRef.current
+    if (!textarea) return
+
+    const maxHeight = 115
+
+    textarea.style.height = 'auto'
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight)
+    textarea.style.height = `${newHeight}px`
+
+    if (!elMessagesList) return
+
+    let newMessageListPadding
+
+    textarea.scrollHeight < 66
+      ? (newMessageListPadding = '5em')
+      : (newMessageListPadding = `calc(${newHeight}px + 2em)`)
+
+    elMessagesList.style.paddingBottom = newMessageListPadding
+    // elMessagesList?.scrollTo({
+    //   top: elMessagesList.scrollHeight,
+    //   behavior: 'smooth',
+    // })
+    // smoothScrollToBottom()
+  }
+
+  function smoothScrollToBottom() {
+    const elMessagesList = messagesListRef.current
+    if (elMessagesList) {
+      elMessagesList.scrollTo({
+        top: elMessagesList.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+  }
+
   return (
     <div className={`chat-container ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
-      <MessagesList messages={messages} />
+      <MessagesList messages={messages} messagesListRef={messagesListRef} />
 
       <div className='input-container'>
-        <input
+        <textarea
+          placeholder='Type a message...'
+          className='chat-input'
+          rows={1}
+          ref={textAreaRef}
+          onInput={handleInputChange}
+        />
+        {/* <input
           type='text'
           placeholder='Type a message...'
           className='chat-input'
-        />
+        /> */}
         <IconButton>
           <SendIcon />
         </IconButton>
