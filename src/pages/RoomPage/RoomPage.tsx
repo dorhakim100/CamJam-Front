@@ -17,7 +17,7 @@ import { RootState } from '../../store/store'
 import { User } from '../../types/user/User'
 import { MembersList } from '../../components/MembersList/MembersList'
 import { WebRTCService } from '../../services/webRTC/webRTC2'
-import { showErrorMsg } from '../../services/event-bus.service'
+import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { Button, IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -88,19 +88,19 @@ export function RoomPage() {
   }, [])
 
   useEffect(() => {
-    // const newWebRTCService = new WebRTCService(socket)
-    // setWebRTCService(newWebRTCService)
+    const newWebRTCService = new WebRTCService(socket)
+    setWebRTCService(newWebRTCService)
   }, [])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
 
-    // initializeMedia()
-    // addListeners()
+    initializeMedia()
+    addListeners()
 
-    // return () => {
-    //   clearAllConnections()
-    // }
+    return () => {
+      clearAllConnections()
+    }
   }, [socket, webRTCService, user, id])
 
   useEffect(() => {
@@ -391,70 +391,39 @@ export function RoomPage() {
       >
         <h1>{room?.name}</h1>
         {room && (
-          <>
+          <div className='room-interface'>
             <div className={`room-info ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
               {room.host && (
                 <p className='room-host'>Host: {room.host.fullname}</p>
               )}
-              <p className='room-id'>
-                Room ID: <span>{id}</span>
-                <IconButton>
+              <div className='room-id'>
+                <p>Room ID</p>
+                <IconButton
+                  onClick={() => {
+                    navigator.clipboard
+                      .writeText(room.id)
+                      .then(() => {
+                        showSuccessMsg('ID copied successfully')
+                      })
+                      .catch((err) => {
+                        // console.log(err);
+
+                        showErrorMsg(`Couldn't copy id`)
+                      })
+                  }}
+                >
                   <ContentCopyIcon htmlColor={prefs.isDarkMode ? '#fff' : ''} />
                 </IconButton>
-              </p>
+
+                <span>{id}</span>
+              </div>
               <p>Members: {currMembers.length}</p>
-              <MembersList members={currMembers} />
             </div>
+            <MembersList members={currMembers} />
             <RoomChat />
-          </>
+          </div>
         )}
       </div>
     </div>
   )
 }
-
-// function PasswordModal({room,setIsPasswordModal}: {room:Room,setIsPasswordModal: (isOpen: boolean) => void}) {
-
-//   const prefs = useSelector((stateSelector: RootState) => stateSelector.systemModule.prefs)
-//   const navigate = useNavigate()
-
-//   const [password, setPassword] = useState<string>('')
-
-//   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setPassword(e.target.value)
-//   }
-//   const checkPassword = ()=>{
-//     if (room.password && room.password !== password) {
-//       showErrorMsg('Incorrect password')
-//       return
-//     }
-//     setIsPasswordModal(false)
-//     // navigate(`/room/${room.id}`)
-
-//   }
-//   return <div className="overlay">
-
-//   <div className={`password-modal-container ${prefs.isDarkMode ? 'dark-mode':''}`}>
-//     <IconButton
-//       className='close-button'
-//       onClick={() => {
-//         setIsPasswordModal(false)
-//         navigate('/room')
-//       }}
-//     >
-//       <KeyboardReturnIcon />
-//     </IconButton>
-//     <h2>Room Password Required</h2>
-//     <p>Please enter the password to join this room.</p>
-//     <input type="search" name="" id="" value={password} onChange={handlePasswordChange} />
-//     <button
-//     className='primary-button'
-//       disabled={!password}
-//       onClick={checkPassword}
-//       >
-//       Enter Password
-//     </button>
-//   </div>
-
-//       </div>
-// }

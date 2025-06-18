@@ -22,7 +22,7 @@ export function MembersList({ members }: { members: SocketUser[] }) {
         prefs.isDarkMode ? 'dark-mode' : ''
       }`}
     >
-      <ul>
+      <ul className={`${prefs.isDarkMode ? 'dark-mode' : ''}`}>
         {members.map((member) => {
           if (room)
             return (

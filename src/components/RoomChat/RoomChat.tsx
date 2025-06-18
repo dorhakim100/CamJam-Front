@@ -30,6 +30,8 @@ export function RoomChat() {
 
     textarea.style.height = 'auto'
     const newHeight = Math.min(textarea.scrollHeight, maxHeight)
+    console.log(newHeight)
+
     textarea.style.height = `${newHeight}px`
 
     if (!elMessagesList) return

@@ -56,6 +56,40 @@
     }
   }
 
+  .room-interface {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 330px minmax(250px, 300px) minmax(400px, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+
+      .room-info {
+        grid-column: 1/-1;
+        grid-row: 1/2;
+      }
+
+      .member-list-container {
+        grid-column: 1/2;
+        grid-row: 2/3;
+      }
+    }
+
+    @media (max-width: 700px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 1rem;
+
+      .room-info {
+        grid-column: 1/-1;
+        grid-row: 1/2;
+      }
+    }
+  }
+
   .room-info-chat-container {
     display: grid;
     grid-template-rows: auto 1fr;
@@ -92,7 +126,7 @@
 
   .room-info {
     display: grid;
-
+    gap: 0.5em;
     text-align: center;
     grid-template-columns: 1/2;
     grid-template-rows: 2/3;
@@ -108,31 +142,42 @@
     //   background-color: $text-dark-gray;
     // }
 
-    p {
-      margin: 0.5rem 0;
+    .room-id {
+      display: grid;
+      grid-template-columns: 1fr auto;
 
-      &.room-host {
-        font-weight: bold;
+      span {
+        //   font-weight: bold;
+
+        color: $sky;
       }
-
-      &.room-id {
-        font-weight: bold;
+      @media (max-width: 1200px) {
         display: flex;
         align-items: center;
-        // justify-content: space-between;
-        gap: 0.5em;
+        gap: 1em;
+      }
+      @media (max-width: 700px) {
+        button {
+          height: 24px;
+          width: 20px;
+        }
+      }
+      margin: 0px;
 
-        @media (max-width: 700px) {
-          button {
-            height: 24px;
-            width: 20px;
-          }
+      p {
+        margin: 0.5rem 0;
+        margin: 0px;
+
+        &.room-host {
+          font-weight: bold;
         }
 
-        span {
-          //   font-weight: bold;
-
-          color: $sky;
+        &.room-id {
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          // justify-content: space-between;
+          gap: 0.5em;
         }
       }
     }

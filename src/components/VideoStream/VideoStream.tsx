@@ -157,8 +157,6 @@ export function VideoStream({
     })
   }, [remoteVideosRef.current])
 
-  console.log(member)
-
   if (member)
     return (
       <div
