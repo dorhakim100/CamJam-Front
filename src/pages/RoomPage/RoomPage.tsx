@@ -310,7 +310,7 @@ export function RoomPage() {
 
       const videoTrack = stream.getVideoTracks()[0] || null
       const audioTrack = stream.getAudioTracks()[0] || null
-      console.log(videoTrack, audioTrack)
+      // console.log(videoTrack, audioTrack)
 
       if (localVideoRef.current && stream) {
         localVideoRef.current.srcObject = stream

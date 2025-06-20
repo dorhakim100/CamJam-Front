@@ -60,12 +60,12 @@ export function RoomCard({
         </button>
         {user && user.id === room.host_id && (
           <button
-            className='primary-button'
+            className='primary-button remove-button'
             onClick={() => {
               removeRoom(room, user)
             }}
           >
-            End Meeting
+            End
           </button>
         )}
       </div>

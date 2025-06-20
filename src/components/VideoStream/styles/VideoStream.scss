@@ -6,6 +6,8 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   max-width: 1200px;
+  width: 100%;
+  justify-self: center;
 
   &:hover {
     //   transform: translateY(-1px);
@@ -77,9 +79,20 @@
 
     img {
       width: 30%;
+      border-radius: 15px;
+
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); // glow effect
+      // border: 2px solid rgba(255, 255, 255, 0.8); // subtle white border
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
     }
   }
-
+  &:hover {
+    img {
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+      transform: scale(1.025); // zoom on hover
+    }
+  }
   .label {
     position: absolute;
     bottom: 1rem;

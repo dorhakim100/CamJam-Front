@@ -59,6 +59,13 @@ textarea {
   }
 }
 
+.remove-button {
+  background-color: $medium-red;
+  &:hover {
+    background-color: $dark-red;
+  }
+}
+
 .dark-mode {
   ::-webkit-scrollbar {
     width: 8px;

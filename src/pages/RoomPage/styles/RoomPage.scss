@@ -37,8 +37,12 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     padding: 2rem;
-    max-width: 1200px;
+    // max-width: 1200px;
+    max-width: calc(100% - 2em);
     margin: 0 auto;
+
+    .video-container {
+    }
   }
 
   // Responsive adjustments
