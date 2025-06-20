@@ -17,6 +17,7 @@ import { RootState } from '../../store/store'
 import { User } from '../../types/user/User'
 import { MembersList } from '../../components/MembersList/MembersList'
 import { WebRTCService } from '../../services/webRTC/webRTC2'
+import { createWebRTCService } from '../../services/webRTC/webRTC3'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { Button, IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
@@ -53,7 +54,8 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.systemModule.isFirstRender
   )
 
-  const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
+  // const [webRTCService, setWebRTCService] = useState<WebRTCService | null>(null)
+  const [webRTCService, setWebRTCService] = useState<any>(null)
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map())
 
@@ -88,7 +90,8 @@ export function RoomPage() {
   }, [])
 
   useEffect(() => {
-    const newWebRTCService = new WebRTCService(socket)
+    // const newWebRTCService = new WebRTCService(socket)
+    const newWebRTCService = createWebRTCService(socket)
     setWebRTCService(newWebRTCService)
   }, [])
 
@@ -107,17 +110,20 @@ export function RoomPage() {
     if (!isFirstRender || !webRTCService || !currMembers.length) return
     currMembers.forEach((member: SocketUser) => {
       if (!member.socketId) return
-      webRTCService.createPeerConnection(member.socketId, (stream) => {
-        if (!member.socketId) return
-        const video = remoteVideosRef.current.get(member.socketId)
-        if (video) {
-          video.srcObject = stream
-          video.play().catch((e) => {
-            console.log(e)
-            video.play()
-          })
+      webRTCService.createPeerConnection(
+        member.socketId,
+        (stream: MediaStream) => {
+          if (!member.socketId) return
+          const video = remoteVideosRef.current.get(member.socketId)
+          if (video) {
+            video.srcObject = stream
+            video.play().catch((e) => {
+              console.log(e)
+              video.play()
+            })
+          }
         }
-      })
+      )
       connectedPeers.current.add(member.socketId)
       setIsFirstRender(false)
     })
@@ -153,7 +159,7 @@ export function RoomPage() {
           try {
             await webRTCService.createPeerConnection(
               member.socketId,
-              (stream) => {
+              (stream: MediaStream) => {
                 const videoTrack = stream.getVideoTracks()[0] || null
                 const audioTrack = stream.getAudioTracks()[0] || null
                 console.log(videoTrack, audioTrack)
@@ -178,7 +184,7 @@ export function RoomPage() {
 
     socket.on(SOCKET_EVENT_OFFER, async ({ offer, from }) => {
       try {
-        await webRTCService.handleOffer(offer, from, (stream) => {
+        await webRTCService.handleOffer(offer, from, (stream: MediaStream) => {
           const video = remoteVideosRef.current.get(from)
 
           if (video) {
