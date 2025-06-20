@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { SocketUser } from '../../services/socket.service'
+import { useNavigate } from 'react-router-dom'
 
 import { BsFillCameraVideoFill } from 'react-icons/bs'
 import { BsFillCameraVideoOffFill } from 'react-icons/bs'
@@ -49,6 +50,8 @@ export function VideoStream({
     (stateSelector: RootState) => stateSelector.systemModule.prefs
   )
 
+  const navigate = useNavigate()
+
   const [isVisble, setIsVisible] = useState(true)
   const [isAudio, setIsAudio] = useState(true)
 
@@ -81,7 +84,7 @@ export function VideoStream({
       ) : (
         <CiMicrophoneOff className='icon' />
       ),
-      color: '#2D8CFF',
+      // color: '#2D8CFF',
     },
     {
       label: 'Camera',
@@ -109,7 +112,7 @@ export function VideoStream({
       ) : (
         <BsFillCameraVideoOffFill className='icon' />
       ),
-      color: '#F26D21',
+      // color: '#F26D21',
     },
     {
       label: 'End',
@@ -119,6 +122,8 @@ export function VideoStream({
           return
         }
         removeRoom(room, user)
+        navigate('/')
+        showSuccessMsg('Meeting ended')
       },
       statement: user && user.id === room?.host_id,
       id: 'end-meeting-button',
@@ -214,7 +219,14 @@ export function VideoStream({
             if (button.statement ?? true)
               return (
                 <button onClick={button.action} key={button.label + idx}>
-                  <span className='icon'>{button.icon}</span>
+                  <span
+                    className='icon'
+                    style={
+                      { '--hover-color': button.color } as React.CSSProperties
+                    }
+                  >
+                    {button.icon}
+                  </span>
                   {/* <span>{button.label}</span> */}
                 </button>
               )

@@ -10,6 +10,7 @@ import {
   SOCKET_EVENT_OFFER,
   SOCKET_EVENT_ANSWER,
   SOCKET_EVENT_ICE_CANDIDATE,
+  SOCKET_EVENT_END_MEETING,
 } from '../../services/socket.service'
 
 import { loadRoom } from '../../store/actions/room.actions'
@@ -225,6 +226,17 @@ export function RoomPage() {
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
       try {
         await webRTCService.handleIceCandidate(candidate, from)
+        // setErrorBanner('')
+      } catch (error) {
+        // console.log(error)
+        // setErrorBanner('Failed to connect to peer')
+      }
+    })
+    socket.on(SOCKET_EVENT_END_MEETING, async () => {
+      try {
+        clearAllConnections()
+        navigate('/room')
+        showSuccessMsg('Meeting ended')
         // setErrorBanner('')
       } catch (error) {
         // console.log(error)

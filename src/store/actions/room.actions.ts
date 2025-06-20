@@ -11,6 +11,7 @@ import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 import { User } from '../../types/user/User'
+import { SOCKET_EVENT_END_MEETING, socket } from '../../services/socket.service'
 
 export async function loadRooms(filterBy: RoomFilter): Promise<any> {
   try {
@@ -56,6 +57,7 @@ export async function removeRoom(room: Room, user: User): Promise<any> {
     }
     store.dispatch({ type: REMOVE_ROOM, roomId })
     await roomService.remove(roomId, body)
+    socket.emit(SOCKET_EVENT_END_MEETING, roomId)
   } catch (err) {
     // console.log('Cannot remove room', err)
     throw err
