@@ -104,6 +104,20 @@ export function RoomPage() {
   }, [socket, webRTCService, user, id])
 
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      socketService.leaveRoom(id)
+      socketService.logout()
+      if (webRTCService) webRTCService.closeAllConnections()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [id, webRTCService])
+
+  useEffect(() => {
     if (!isFirstRender || !webRTCService || !currMembers.length) return
     currMembers.forEach((member: SocketUser) => {
       if (!member.socketId) return
