@@ -8,9 +8,11 @@ import { BsFillCameraVideoOffFill } from 'react-icons/bs'
 import { CiMicrophoneOn } from 'react-icons/ci'
 import { CiMicrophoneOff } from 'react-icons/ci'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
-import { showErrorMsg } from '../../services/event-bus.service'
+import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { TracksState } from '../../types/TracksState/TracksState'
 import { BsMicMuteFill } from 'react-icons/bs'
+import { PiPhoneDisconnectBold } from 'react-icons/pi'
+import { removeRoom } from '../../store/actions/room.actions'
 
 export function VideoStream({
   member,
@@ -109,6 +111,20 @@ export function VideoStream({
       ),
       color: '#F26D21',
     },
+    {
+      label: 'End',
+      action: () => {
+        if (!room || !user) {
+          showErrorMsg(`Couldn't end meeting`)
+          return
+        }
+        removeRoom(room, user)
+      },
+      statement: user && user.id === room?.host_id,
+      id: 'end-meeting-button',
+      icon: <PiPhoneDisconnectBold />,
+      color: '#e53935',
+    },
   ]
 
   const handleVideoRef = (element: HTMLVideoElement | null) => {
@@ -194,12 +210,14 @@ export function VideoStream({
         <div className='label'>{label}</div>
         <div className='buttons-container'>
           {buttons.map((button, idx) => {
-            return (
-              <button onClick={button.action} key={button.label + idx}>
-                <span className='icon'>{button.icon}</span>
-                {/* <span>{button.label}</span> */}
-              </button>
-            )
+            // renders the button if statement is undefuend, or if the statement is true
+            if (button.statement ?? true)
+              return (
+                <button onClick={button.action} key={button.label + idx}>
+                  <span className='icon'>{button.icon}</span>
+                  {/* <span>{button.label}</span> */}
+                </button>
+              )
           })}
         </div>
       </div>

@@ -4,6 +4,7 @@ import { makeId } from '../util.service'
 import { Room } from '../../types/room/Room'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
+import { AuthBody } from '../../types/AuthBody/AuthBody'
 
 const KEY = 'room'
 
@@ -44,9 +45,9 @@ async function getById(roomId: string, filter: RoomFilter | null = null) {
   }
 }
 
-async function remove(roomId: string) {
+async function remove(roomId: string, body: AuthBody) {
   try {
-    return await httpService.delete(`${KEY}/${roomId}`, null)
+    return await httpService.delete(`${KEY}/${roomId}`, body)
   } catch (err) {
     // // console.log(err)
     throw err

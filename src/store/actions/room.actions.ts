@@ -4,11 +4,13 @@ import {
   SET_ROOMS,
   SET_ROOM,
   SET_ROOM_FILTER,
+  REMOVE_ROOM,
   SET_IS_NEW_ROOM_MODAL_OPEN,
 } from '../reducers/room.reducer'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
+import { User } from '../../types/user/User'
 
 export async function loadRooms(filterBy: RoomFilter): Promise<any> {
   try {
@@ -41,6 +43,21 @@ export async function saveRoom(roomToSave: Room | RoomToAdd): Promise<any> {
     return room
   } catch (err) {
     // console.log('Cannot load room', err)
+    throw err
+  }
+}
+
+export async function removeRoom(room: Room, user: User): Promise<any> {
+  try {
+    const roomId = room.id
+    const body = {
+      userId: user.id,
+      id: room.host_id,
+    }
+    store.dispatch({ type: REMOVE_ROOM, roomId })
+    await roomService.remove(roomId, body)
+  } catch (err) {
+    // console.log('Cannot remove room', err)
     throw err
   }
 }

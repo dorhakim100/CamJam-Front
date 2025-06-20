@@ -4,11 +4,26 @@ import { useSelector } from 'react-redux'
 import { Room } from '../../types/room/Room'
 import { RootState } from '../../store/store'
 import { Button } from '@mui/material'
-import HttpsIcon from '@mui/icons-material/Https';
+import HttpsIcon from '@mui/icons-material/Https'
+import { removeRoom } from '../../store/actions/room.actions'
 
-export function RoomCard({ room, setIsPasswordModal, setCurrPasswordModal }: { room: Room, setIsPasswordModal: (isOpen: boolean) => void, setCurrPasswordModal: (currPasswordModal: {roomId: string, password: string} | null) => void }) {
+export function RoomCard({
+  room,
+  setIsPasswordModal,
+  setCurrPasswordModal,
+}: {
+  room: Room
+  setIsPasswordModal: (isOpen: boolean) => void
+  setCurrPasswordModal: (
+    currPasswordModal: { roomId: string; password: string } | null
+  ) => void
+}) {
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
+  )
+
+  const user = useSelector(
+    (stateSelector: RootState) => stateSelector.userModule.user
   )
 
   const navigate = useNavigate()
@@ -18,9 +33,9 @@ export function RoomCard({ room, setIsPasswordModal, setCurrPasswordModal }: { r
       className={`room-card-container ${prefs.isDarkMode ? 'dark-mode' : ''}`}
     >
       <div className={`room-card ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
-      {room.is_private && room.password && (
-        <HttpsIcon className='private-icon' />
-      )}
+        {room.is_private && room.password && (
+          <HttpsIcon className='private-icon' />
+        )}
         <h3 className='room-name'>{room.name}</h3>
 
         <span className='room-host'>Host: {room.host.fullname}</span>
@@ -30,16 +45,29 @@ export function RoomCard({ room, setIsPasswordModal, setCurrPasswordModal }: { r
         <button
           className='primary-button'
           onClick={() => {
-            if(!room.is_private && !room.password) navigate(`/room/${room.id}`)
+            if (!room.is_private && !room.password) navigate(`/room/${room.id}`)
             else {
               setIsPasswordModal(true)
 
-              setCurrPasswordModal({roomId: room.id, password: room.password || ''})
-            } 
+              setCurrPasswordModal({
+                roomId: room.id,
+                password: room.password || '',
+              })
+            }
           }}
         >
           Join
         </button>
+        {user && user.id === room.host_id && (
+          <button
+            className='primary-button'
+            onClick={() => {
+              removeRoom(room, user)
+            }}
+          >
+            End Meeting
+          </button>
+        )}
       </div>
     </div>
   )
