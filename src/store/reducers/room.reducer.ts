@@ -10,6 +10,7 @@ export const REMOVE_ROOM = 'REMOVE_ROOM'
 // export const UPDATE_ROOM = 'UPDATE_ROOM'
 export const SET_ROOM_FILTER = 'SET_ROOM_FILTER'
 export const SET_IS_NEW_ROOM_MODAL_OPEN = 'SET_IS_NEW_ROOM_MODAL_OPEN'
+export const ADD_MESSAGE = 'ADD_MESSAGE'
 
 export interface RoomState {
   rooms: Room[]
@@ -58,6 +59,13 @@ export function roomReducer(state = initialState, action: any) {
     //     )
     //     newState = { ...state, rooms }
     //     break
+
+    case ADD_MESSAGE:
+      rooms = state.rooms.map((room: Room) =>
+        room.id === action.room.id ? action.room : room
+      )
+      newState = { ...state, rooms }
+      break
 
     case SET_ROOM_FILTER:
       newState = { ...state, filter: action.filter }

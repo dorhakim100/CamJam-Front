@@ -1,7 +1,7 @@
 export interface Message {
   _id: string
   fromId: string
-  roomId: string
+  roomId?: string
   content: string
-  createdAt: Date
+  sentAt: Date
 }

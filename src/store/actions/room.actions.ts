@@ -6,12 +6,16 @@ import {
   SET_ROOM_FILTER,
   REMOVE_ROOM,
   SET_IS_NEW_ROOM_MODAL_OPEN,
+  ADD_MESSAGE,
 } from '../reducers/room.reducer'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 import { User } from '../../types/user/User'
 import { SOCKET_EVENT_END_MEETING, socket } from '../../services/socket.service'
+import { Message } from '../../types/Message/Message'
+import { chatService } from '../../services/chat/chat.service'
+import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
 
 export async function loadRooms(filterBy: RoomFilter): Promise<any> {
   try {
@@ -60,6 +64,29 @@ export async function removeRoom(room: Room, user: User): Promise<any> {
     socket.emit(SOCKET_EVENT_END_MEETING, roomId)
   } catch (err) {
     // console.log('Cannot remove room', err)
+    throw err
+  }
+}
+
+export async function sendMessage(
+  messageToSend: Message | MessageToAdd,
+  roomToSave: Room
+) {
+  try {
+    if (!roomToSave.chat) throw new Error(`Couldn't send message`)
+
+    const savedMessage = await chatService.saveMessage(messageToSend)
+    const updatedRoom: Room = {
+      ...roomToSave,
+      chat: {
+        ...roomToSave.chat,
+        messages: [...roomToSave.chat.messages, savedMessage],
+      },
+    }
+    store.dispatch(getCmdSetRoom(updatedRoom))
+    return savedMessage
+  } catch (err) {
+    // console.log(err);
     throw err
   }
 }

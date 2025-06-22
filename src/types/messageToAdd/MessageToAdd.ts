@@ -1,6 +1,7 @@
 export interface MessageToAdd {
   fromId: string
-  roomId: string
+  roomId?: string
   content: string
-  createdAt: Date
+  sentAt: Date
+  chatId?: string
 }

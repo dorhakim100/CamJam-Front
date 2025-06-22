@@ -1,3 +1,5 @@
+import { Chat } from '../chat/Chat'
+
 export interface Room {
   id: string
   host_id: string
@@ -7,6 +9,7 @@ export interface Room {
   max_participants?: number
   created_at: Date
   password?: string
+  chat?: Chat
 }
 
 interface RoomHost {

@@ -4,6 +4,10 @@ import { RootState } from '../../store/store'
 import SendIcon from '@mui/icons-material/Send'
 import { IconButton } from '@mui/material'
 import { MessagesList } from '../MessagesList/MessagesList'
+import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
+import { Message } from '../../types/Message/Message'
+import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
+import { sendMessage } from '../../store/actions/room.actions'
 
 export function RoomChat() {
   const prefs = useSelector(
@@ -12,6 +16,10 @@ export function RoomChat() {
 
   const room = useSelector(
     (stateSelector: RootState) => stateSelector.roomModule.room
+  )
+
+  const user = useSelector(
+    (stateSelector: RootState) => stateSelector.userModule.user
   )
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -60,6 +68,36 @@ export function RoomChat() {
     }
   }
 
+  const handleSend = async () => {
+    try {
+      if (
+        !textAreaRef.current ||
+        textAreaRef.current.value === '' ||
+        !user ||
+        !room
+      ) {
+        showErrorMsg(`Couldn't send message`)
+        return
+      }
+      const messageToSend: MessageToAdd = {
+        fromId: user.id,
+        content: textAreaRef.current.value,
+        sentAt: new Date(),
+        roomId: room.id,
+        chatId: room.chat._id,
+      }
+
+      const savedMessage = await sendMessage(messageToSend, room)
+      console.log(savedMessage)
+
+      textAreaRef.current.value = ''
+      showSuccessMsg('Message sent')
+    } catch (err) {
+      console.log(err)
+      showErrorMsg(`Couldn't send message`)
+    }
+  }
+
   return (
     <div className={`chat-container ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
       <MessagesList messages={messages} messagesListRef={messagesListRef} />
@@ -77,7 +115,7 @@ export function RoomChat() {
           placeholder='Type a message...'
           className='chat-input'
         /> */}
-        <IconButton>
+        <IconButton onClick={handleSend}>
           <SendIcon />
         </IconButton>
       </div>

@@ -44,9 +44,9 @@ async function saveMessage(message: Message | MessageToAdd) {
     let saved
 
     if ('_id' in message && message._id) {
-      saved = await httpService.put(`${KEY}/${message._id}`, message)
+      saved = await httpService.put(`${KEY}/message/${message._id}`, message)
     } else {
-      saved = await httpService.post(KEY, message)
+      saved = await httpService.post(`${KEY}/message`, message)
     }
 
     return saved

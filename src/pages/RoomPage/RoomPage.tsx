@@ -89,15 +89,15 @@ export function RoomPage() {
   }, [])
 
   useEffect(() => {
-    const newWebRTCService = new WebRTCService(socket)
-    setWebRTCService(newWebRTCService)
+    // const newWebRTCService = new WebRTCService(socket)
+    // setWebRTCService(newWebRTCService)
   }, [])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
 
-    initializeMedia()
-    addListeners()
+    // initializeMedia()
+    // addListeners()
 
     return () => {
       clearAllConnections()
@@ -142,6 +142,8 @@ export function RoomPage() {
     if (!id) return
     try {
       const roomToSet = await loadRoom(id)
+      console.log(roomToSet)
+
       // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
     } catch (error) {
       showErrorMsg('Failed to set room details')
