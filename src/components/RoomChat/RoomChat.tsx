@@ -7,7 +7,7 @@ import { MessagesList } from '../MessagesList/MessagesList'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { Message } from '../../types/Message/Message'
 import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
-import { sendMessage } from '../../store/actions/room.actions'
+import { loadRoom, sendMessage } from '../../store/actions/room.actions'
 import { userService } from '../../services/user/user.service'
 import { Chat } from '../../types/chat/Chat'
 
@@ -32,12 +32,12 @@ export function RoomChat() {
   useEffect(() => {
     if (!room?.chat) return
 
-    const modifiedMessages = _modifyIsMe(room.chat.messages)
-
-    setMessages(modifiedMessages)
-    // setMessages(room.chat.messages)
-    smoothScrollToBottom()
+    loadMessages()
   }, [room?.id])
+
+  useEffect(() => {
+    smoothScrollToBottom()
+  }, [messages])
 
   const handleInputChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const elMessagesList = messagesListRef.current
@@ -60,6 +60,7 @@ export function RoomChat() {
       : (newMessageListPadding = `calc(${newHeight}px + 2em)`)
 
     elMessagesList.style.paddingBottom = newMessageListPadding
+
     // elMessagesList?.scrollTo({
     //   top: elMessagesList.scrollHeight,
     //   behavior: 'smooth',
@@ -69,11 +70,14 @@ export function RoomChat() {
 
   function smoothScrollToBottom() {
     const elMessagesList = messagesListRef.current
+
     if (elMessagesList) {
       elMessagesList.scrollTo({
-        top: elMessagesList.scrollHeight,
+        top: elMessagesList.scrollHeight + 200,
+
         behavior: 'smooth',
       })
+      // elMessagesList.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -98,10 +102,13 @@ export function RoomChat() {
       }
 
       const savedMessage = await sendMessage(messageToSend, room)
-      console.log(savedMessage)
+      // console.log(savedMessage)
+      const updatedRoom = await loadRoom(room.id)
+
+      loadMessages(updatedRoom)
 
       textAreaRef.current.value = ''
-      showSuccessMsg('Message sent')
+      // showSuccessMsg('Message sent')
     } catch (err) {
       console.log(err)
       showErrorMsg(`Couldn't send message`)
@@ -124,6 +131,13 @@ export function RoomChat() {
           user: { ...userService.getEmptyUser(), isMe: false },
         }
     })
+  }
+
+  function loadMessages(roomToSet = room) {
+    if (!roomToSet?.chat) return
+    const modifiedMessages = _modifyIsMe([...roomToSet.chat.messages])
+
+    setMessages(modifiedMessages)
   }
 
   return (
