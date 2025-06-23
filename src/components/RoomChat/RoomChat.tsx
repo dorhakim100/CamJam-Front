@@ -8,6 +8,8 @@ import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { Message } from '../../types/Message/Message'
 import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
 import { sendMessage } from '../../store/actions/room.actions'
+import { userService } from '../../services/user/user.service'
+import { Chat } from '../../types/chat/Chat'
 
 export function RoomChat() {
   const prefs = useSelector(
@@ -25,7 +27,15 @@ export function RoomChat() {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const messagesListRef = useRef<HTMLUListElement | null>(null)
 
+  const [messages, setMessages] = useState<Message[]>([])
+
   useEffect(() => {
+    if (!room?.chat) return
+
+    const modifiedMessages = _modifyIsMe(room.chat.messages)
+
+    setMessages(modifiedMessages)
+    // setMessages(room.chat.messages)
     smoothScrollToBottom()
   }, [room?.id])
 
@@ -38,7 +48,6 @@ export function RoomChat() {
 
     textarea.style.height = 'auto'
     const newHeight = Math.min(textarea.scrollHeight, maxHeight)
-    console.log(newHeight)
 
     textarea.style.height = `${newHeight}px`
 
@@ -74,7 +83,8 @@ export function RoomChat() {
         !textAreaRef.current ||
         textAreaRef.current.value === '' ||
         !user ||
-        !room
+        !room ||
+        !room.chat
       ) {
         showErrorMsg(`Couldn't send message`)
         return
@@ -96,6 +106,24 @@ export function RoomChat() {
       console.log(err)
       showErrorMsg(`Couldn't send message`)
     }
+  }
+
+  function _modifyIsMe(messages: Message[]) {
+    return messages.map((message: Message) => {
+      if (message.user)
+        return {
+          ...message,
+          user: {
+            ...message.user,
+            isMe: message.user.id === user?.id ? true : false,
+          },
+        }
+      else
+        return {
+          ...message,
+          user: { ...userService.getEmptyUser(), isMe: false },
+        }
+    })
   }
 
   return (
@@ -124,96 +152,96 @@ export function RoomChat() {
 }
 
 //  later be replaced with actual chat messages
-const messages = [
-  {
-    id: 1,
-    text: 'Hey! How’s it going?',
-    userImg: 'https://i.pravatar.cc/40?img=1',
-    username: 'Alice',
-    isMe: false,
-  },
-  {
-    id: 2,
-    text: 'All good, just working on a chat feature.',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 3,
-    text: 'Nice! Let me know if you need help.',
-    userImg: 'https://i.pravatar.cc/40?img=1',
-    username: 'Alice',
-    isMe: false,
-  },
-  {
-    id: 4,
-    text: 'Actually yeah — do you know how to style message tails in SASS?',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 5,
-    text: 'Definitely! Want a triangle or something more like Telegram?',
-    userImg: 'https://i.pravatar.cc/40?img=1',
-    username: 'Alice',
-    isMe: false,
-  },
-  {
-    id: 6,
-    text: 'More like Telegram. Smooth and modern.',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 7,
-    text: 'Got it. Let me find a sample snippet for you.',
-    userImg: 'https://i.pravatar.cc/40?img=1',
-    username: 'Alice',
-    isMe: false,
-  },
-  {
-    id: 8,
-    text: 'Thanks! I’ll adapt it to my dark mode setup too.',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 9,
-    text: 'You’re building this whole chat from scratch?',
-    userImg: 'https://i.pravatar.cc/40?img=3',
-    username: 'Ben',
-    isMe: false,
-  },
-  {
-    id: 10,
-    text: 'Yeah, front and back. I like having full control.',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 11,
-    text: 'Respect. Are you deploying it too?',
-    userImg: 'https://i.pravatar.cc/40?img=3',
-    username: 'Ben',
-    isMe: false,
-  },
-  {
-    id: 12,
-    text: 'Eventually yeah — Socket.IO on the backend, MongoDB for storage.',
-    userImg: 'https://i.pravatar.cc/40?img=2',
-    username: 'You',
-    isMe: true,
-  },
-  {
-    id: 13,
-    text: 'I’m following this thread and learning a lot, thanks!',
-    userImg: 'https://i.pravatar.cc/40?img=4',
-    username: 'Dana',
-    isMe: false,
-  },
-]
+// const messages = [
+//   {
+//     id: 1,
+//     text: 'Hey! How’s it going?',
+//     userImg: 'https://i.pravatar.cc/40?img=1',
+//     username: 'Alice',
+//     isMe: false,
+//   },
+//   {
+//     id: 2,
+//     text: 'All good, just working on a chat feature.',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 3,
+//     text: 'Nice! Let me know if you need help.',
+//     userImg: 'https://i.pravatar.cc/40?img=1',
+//     username: 'Alice',
+//     isMe: false,
+//   },
+//   {
+//     id: 4,
+//     text: 'Actually yeah — do you know how to style message tails in SASS?',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 5,
+//     text: 'Definitely! Want a triangle or something more like Telegram?',
+//     userImg: 'https://i.pravatar.cc/40?img=1',
+//     username: 'Alice',
+//     isMe: false,
+//   },
+//   {
+//     id: 6,
+//     text: 'More like Telegram. Smooth and modern.',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 7,
+//     text: 'Got it. Let me find a sample snippet for you.',
+//     userImg: 'https://i.pravatar.cc/40?img=1',
+//     username: 'Alice',
+//     isMe: false,
+//   },
+//   {
+//     id: 8,
+//     text: 'Thanks! I’ll adapt it to my dark mode setup too.',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 9,
+//     text: 'You’re building this whole chat from scratch?',
+//     userImg: 'https://i.pravatar.cc/40?img=3',
+//     username: 'Ben',
+//     isMe: false,
+//   },
+//   {
+//     id: 10,
+//     text: 'Yeah, front and back. I like having full control.',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 11,
+//     text: 'Respect. Are you deploying it too?',
+//     userImg: 'https://i.pravatar.cc/40?img=3',
+//     username: 'Ben',
+//     isMe: false,
+//   },
+//   {
+//     id: 12,
+//     text: 'Eventually yeah — Socket.IO on the backend, MongoDB for storage.',
+//     userImg: 'https://i.pravatar.cc/40?img=2',
+//     username: 'You',
+//     isMe: true,
+//   },
+//   {
+//     id: 13,
+//     text: 'I’m following this thread and learning a lot, thanks!',
+//     userImg: 'https://i.pravatar.cc/40?img=4',
+//     username: 'Dana',
+//     isMe: false,
+//   },
+// ]

@@ -10,23 +10,23 @@ export function MessagePreview({ message }: { message: any }) {
   return (
     <>
       <span
-        className={`user-name ${message.isMe ? 'me' : ''} ${
+        className={`user-name ${message.user.isMe ? 'me' : ''} ${
           prefs.isDarkMode ? 'dark-mode' : ''
         }`}
       >
-        {message.isMe ? 'You' : message.username || 'Unknown User'}
+        {message.user.isMe ? 'You' : message.user.username || 'Unknown User'}
       </span>
       <li
-        key={message.id}
-        className={`message-container ${message.isMe ? 'me' : ''} ${
+        key={message._id}
+        className={`message-container ${message.user.isMe ? 'me' : ''} ${
           prefs.isDarkMode ? 'dark-mode' : ''
         }`}
       >
         {/* <span className='user-name'>
           {message.isMe ? 'You' : message.username || 'Unknown User'}
         </span> */}
-        <img className='user-image' src={message.userImg} alt='user' />
-        <span className='message-text'>{message.text}</span>
+        <img className='user-image' src={message.user.imgUrl} alt='user' />
+        <span className='message-text'>{message.content}</span>
       </li>
     </>
   )
