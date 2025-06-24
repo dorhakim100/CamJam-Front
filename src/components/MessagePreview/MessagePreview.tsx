@@ -2,6 +2,11 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 
+import { IconButton } from '@mui/material'
+
+import ModeEditIcon from '@mui/icons-material/ModeEdit'
+import DeleteIcon from '@mui/icons-material/Delete'
+
 export function MessagePreview({ message }: { message: any }) {
   const prefs = useSelector(
     (stateSelector: RootState) => stateSelector.systemModule.prefs
@@ -37,7 +42,38 @@ export function MessagePreview({ message }: { message: any }) {
             hour12: false,
           })}
         </span>
+        {/* {message.user.isMe && ( in the future add edit and delete
+          <MessageOptions
+            onEdit={() => {
+              console.log('edit')
+            }}
+            onDelete={() => {
+              console.log('delete')
+            }}
+          />
+        )} */}
       </li>
     </>
   )
 }
+
+// interface MessageOptionsProps {
+//   onEdit: () => void
+//   onDelete: () => void
+// }
+
+// export const MessageOptions: React.FC<MessageOptionsProps> = ({
+//   onEdit,
+//   onDelete,
+// }) => {
+//   return (
+//     <div className='message-options'>
+//       <IconButton>
+//         <ModeEditIcon />
+//       </IconButton>
+//       <IconButton>
+//         <DeleteIcon />
+//       </IconButton>
+//     </div>
+//   )
+// }

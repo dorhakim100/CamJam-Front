@@ -49,6 +49,7 @@ export async function loadRoom(roomId: string): Promise<Room> {
 export async function saveRoom(roomToSave: Room | RoomToAdd): Promise<any> {
   try {
     const room = await roomService.save(roomToSave)
+
     store.dispatch(getCmdSetRoom(room))
     return room
   } catch (err) {

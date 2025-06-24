@@ -10,6 +10,7 @@ import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { s } from 'framer-motion/client'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 import { saveRoom, setNewRoomModal } from '../../store/actions/room.actions'
+import { handleGuestMode } from '../../store/actions/user.actios'
 
 export function Home() {
   const prefs = useSelector(
@@ -37,6 +38,10 @@ export function Home() {
       color: '#2D8CFF',
     },
   ]
+
+  useEffect(() => {
+    if (!user) handleGuestMode()
+  }, [])
 
   const createRoom = async () => {
     if (!user) {

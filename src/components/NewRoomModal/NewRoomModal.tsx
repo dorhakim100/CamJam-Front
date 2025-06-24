@@ -91,7 +91,11 @@ export function NewRoomModal() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!user) return
+    if (!user || user.isGuest) {
+      showErrorMsg('Must login before creating a room')
+
+      return
+    }
     try {
       const roomToSave = {
         ...formData,
@@ -152,7 +156,9 @@ export function NewRoomModal() {
                 You can now join the room with ID: <br />
                 <span>{lastCreatedRoomId || 'N/A'}</span>
               </p>
-              <button className='primary-button' onClick={handleNavigateToRoom}>Enter Room</button>
+              <button className='primary-button' onClick={handleNavigateToRoom}>
+                Enter Room
+              </button>
             </div>
           ) : (
             <>
@@ -220,7 +226,9 @@ export function NewRoomModal() {
                   )
                 })}
 
-                <button type='submit' className='primary-button'>Create Room</button>
+                <button type='submit' className='primary-button'>
+                  Create Room
+                </button>
               </form>{' '}
             </>
           )}

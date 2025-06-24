@@ -14,6 +14,7 @@ import {
 import { UserFilter } from '../../types/userFilter/UserFilter'
 import { UserCred } from '../../types/userCred/UserCred'
 import { User } from '../../types/user/User'
+import { makeId } from '../../services/util.service'
 
 export async function loadUsers(filter: UserFilter) {
   try {
@@ -40,6 +41,39 @@ export async function removeUser(userId: string) {
 export async function login(credentials: UserCred) {
   try {
     const user = await userService.login(credentials)
+
+    store.dispatch({
+      type: SET_USER,
+      user: user,
+    })
+    // socketService.login(user._id)
+    return user
+  } catch (err) {
+    // console.log('Cannot login', err)
+    throw err
+  }
+}
+
+export async function handleGuestMode() {
+  try {
+    await _loginWithGuest()
+  } catch (err) {
+    throw err
+    // console.log(err);
+    // showErrorMsg(`Couldn't use guest mode`)
+  }
+}
+
+async function _loginWithGuest() {
+  try {
+    const credentials = {
+      // id: makeId(),
+      fullname: 'Guest',
+      password: 'Guest',
+      email: 'Guest@guest.com',
+      isGuest: true,
+    }
+    const user = await userService.signup(credentials)
 
     store.dispatch({
       type: SET_USER,

@@ -16,6 +16,7 @@ import './App.css'
 import { SearchBar } from './components/SearchBar/SearchBar.tsx'
 import { socketService } from './services/socket.service'
 import { NewRoomModal } from './components/NewRoomModal/NewRoomModal.tsx'
+import { handleGuestMode } from './store/actions/user.actios.ts'
 
 function App() {
   const prefs = useSelector(
@@ -52,6 +53,10 @@ function App() {
     })
   }, [location])
 
+  // useEffect(() => {
+  //   if (!user) handleGuestMode()
+  // }, [])
+
   return (
     <>
       <AppHeader routes={routes} />
@@ -63,7 +68,7 @@ function App() {
         <SearchBar />
         <Routes>
           {routes.map((route, index) => {
-            if (user && route.path === '/signin') return
+            if (user && !user.isGuest && route.path === '/signin') return
 
             return (
               <Route

@@ -29,6 +29,7 @@ import { TracksState } from '../../types/TracksState/TracksState'
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
 import { Room } from '../../types/room/Room'
 import { RoomChat } from '../../components/RoomChat/RoomChat'
+import { handleGuestMode } from '../../store/actions/user.actios'
 
 export function RoomPage() {
   const { id } = useParams()
@@ -91,7 +92,7 @@ export function RoomPage() {
   useEffect(() => {
     const newWebRTCService = new WebRTCService(socket)
     setWebRTCService(newWebRTCService)
-  }, [])
+  }, [user])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
@@ -141,6 +142,9 @@ export function RoomPage() {
   async function setRoom() {
     if (!id) return
     try {
+      if (!user) {
+        handleGuestMode()
+      }
       const roomToSet = await loadRoom(id)
       console.log(roomToSet)
 

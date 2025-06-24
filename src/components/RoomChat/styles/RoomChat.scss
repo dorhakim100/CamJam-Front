@@ -16,12 +16,19 @@ $input-height: 78px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 
+  button {
+    color: $deep-purple;
+  }
+
   &.dark-mode {
     background-color: $mid-dark-gray;
     // color: $white;
     border: 1px solid $very-dark-gray;
     // border: none;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    button {
+      color: $light-deep-purple;
+    }
   }
 
   @media (max-width: 768px) {

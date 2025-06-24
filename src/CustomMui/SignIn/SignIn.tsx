@@ -346,14 +346,14 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
             </Box>
             <Divider>or</Divider>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Button
+              {/* <Button
                 fullWidth
                 variant='outlined'
                 onClick={() => alert('Sign in with Google')}
                 startIcon={<GoogleIcon />}
               >
                 Sign in with Google
-              </Button>
+              </Button> */}
               {/* <Button
               fullWidth
               variant='outlined'

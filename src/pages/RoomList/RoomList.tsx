@@ -20,26 +20,26 @@ export function RoomList() {
     (stateSelector: RootState) => stateSelector.roomModule.room
   )
 
+  const user = useSelector(
+    (stateSelector: RootState) => stateSelector.userModule.user
+  )
+
   const [filter, setFilter] = useState(roomService.getDefaultFilter())
 
   const [isPasswordModal, setIsPasswordModal] = useState(false)
-  const [currPasswordModal, setCurrPasswordModal] = useState<PasswordRoom | null>(null)
+  const [currPasswordModal, setCurrPasswordModal] =
+    useState<PasswordRoom | null>(null)
 
   useEffect(() => {
     setRooms(filter)
-
   }, [filter])
-  
+
   async function setRooms(filterBy: RoomFilter) {
     try {
       const rooms = await loadRooms(filterBy)
-
-   
-      
     } catch (err) {
       // console.error('Error setting rooms:', err)
       showErrorMsg('Failed to load rooms. Please try again later.')
-      
     }
   }
 
@@ -48,12 +48,20 @@ export function RoomList() {
       <div className='room-list-container'>
         {rooms.map((room) => (
           <>
-          <RoomCard key={room.id} room={room} setIsPasswordModal={setIsPasswordModal} setCurrPasswordModal={setCurrPasswordModal} />
+            <RoomCard
+              key={room.id}
+              room={room}
+              setIsPasswordModal={setIsPasswordModal}
+              setCurrPasswordModal={setCurrPasswordModal}
+            />
           </>
         ))}
-        {isPasswordModal && currPasswordModal &&
-        
-        <RoomPasswordModal roomData={currPasswordModal}  setIsPasswordModal={setIsPasswordModal} />}
+        {isPasswordModal && currPasswordModal && (
+          <RoomPasswordModal
+            roomData={currPasswordModal}
+            setIsPasswordModal={setIsPasswordModal}
+          />
+        )}
       </div>
     </div>
   )

@@ -1,3 +1,7 @@
+.full-message-container {
+  position: relative;
+}
+
 span.user-name {
   grid-column: 1/-1;
   font-weight: bold;
@@ -181,4 +185,42 @@ span.user-name {
   .time {
     font-size: 0.6rem;
   }
+}
+
+.message-container {
+  &.me {
+    .message-options {
+      position: absolute;
+      top: -2em;
+      left: -2em;
+      opacity: 0;
+      transition: opacity 0.2s;
+      background-color: $light-gray;
+      border-radius: 5px;
+      padding: 0.4rem;
+    }
+    &:hover {
+      .message-options {
+        opacity: 1;
+      }
+      // box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    &.dark-mode {
+      .message-options {
+        background-color: $dark-gray;
+        svg {
+          color: $white;
+        }
+      }
+      &:hover {
+        // box-shadow: 0 6px 16px rgba(27, 27, 27, 0.9);
+      }
+    }
+  }
+
+  transition: box-shadow 0.2s ease;
+
+  // &:hover {
+  // }
 }

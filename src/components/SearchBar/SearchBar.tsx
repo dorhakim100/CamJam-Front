@@ -49,7 +49,8 @@ export function SearchBar() {
   const [dropdownOptions, setDropdownOptions] = useState<DropdownOption[]>([])
 
   const [isPasswordModal, setIsPasswordModal] = useState(false)
-  const [currPasswordModal, setCurrPasswordModal] = useState<PasswordRoom | null>(null)
+  const [currPasswordModal, setCurrPasswordModal] =
+    useState<PasswordRoom | null>(null)
 
   const onToggleMenu = () => {
     setIsHeader(!isHeader)
@@ -73,7 +74,7 @@ export function SearchBar() {
           },
         }
       })
-    if (user)
+    if (user && !user.isGuest)
       filteredRoutes = options.filter((option) => option.title !== 'Sign in')
     else filteredRoutes = options.filter((option) => option.title !== 'Profile')
 
@@ -120,45 +121,41 @@ export function SearchBar() {
 
   const navigateToRoom = async () => {
     try {
-      
-      if (!searchRoom){
+      if (!searchRoom) {
         showErrorMsg('Please enter a room id')
         return
-      } 
-      if(!user) {
+      }
+      if (!user) {
         showErrorMsg('Please sign in to search for rooms')
         return
       }
-      
+
       // Navigate to the room list with the search query
-      
+
       const roomToSearch = await loadRoom(searchRoom)
       if (!roomToSearch) {
         showErrorMsg('Room not found')
         return
-      } 
-      
-      if(roomToSearch.is_private && roomToSearch.password) {
-        setCurrPasswordModal({roomId: roomToSearch.id, password: roomToSearch.password || ''})
+      }
+
+      if (roomToSearch.is_private && roomToSearch.password) {
+        setCurrPasswordModal({
+          roomId: roomToSearch.id,
+          password: roomToSearch.password || '',
+        })
         setIsPasswordModal(true)
         setSearchRoom('')
         return
-        
-        
       } else {
         navigate(`/room/${roomToSearch.id}`)
         setSearchRoom('')
-        
       }
-      
-      
     } catch (error) {
       // console.error('Error navigating to room:', error)
       showErrorMsg('Error navigating to room')
-      
     }
-    }
-    
+  }
+
   const preventSubmit = (ev: React.KeyboardEvent<HTMLFormElement>) => {
     ev.preventDefault()
   }
@@ -170,102 +167,109 @@ export function SearchBar() {
 
   return (
     <>
-    {isPasswordModal && currPasswordModal && <RoomPasswordModal roomData={currPasswordModal} setIsPasswordModal={setIsPasswordModal} />}
-    <div className='search-bar-container'>
-      <Paper
-        component='form'
-        sx={{
-          p: '2px 4px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          zIndex: 100,
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          backgroundColor: prefs.isDarkMode ? '#333' : '#fff',
-        }}
-        onSubmit={preventSubmit}
-        onKeyUp={handleEnterClick}
-      >
-        <div className='menu-container'>
-          <DropdownMenu options={dropdownOptions} />
-        </div>
-        <div
-          className={`search-container ${prefs.isDarkMode ? 'dark-mode' : ''}`}
+      {isPasswordModal && currPasswordModal && (
+        <RoomPasswordModal
+          roomData={currPasswordModal}
+          setIsPasswordModal={setIsPasswordModal}
+        />
+      )}
+      <div className='search-bar-container'>
+        <Paper
+          component='form'
+          sx={{
+            p: '2px 4px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            zIndex: 100,
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            backgroundColor: prefs.isDarkMode ? '#333' : '#fff',
+          }}
+          onSubmit={preventSubmit}
+          onKeyUp={handleEnterClick}
         >
-          <InputBase
-            sx={{
-              ml: 1,
-              flex: 1,
-              p: '10px',
-              color: prefs.isDarkMode ? '#fff' : '#000',
-
-              '&:focus': {
-                // outline: 'none',
-              },
-            }}
-            placeholder='Search meeting'
-            inputProps={{ 'aria-label': 'search google maps' }}
-            onChange={onHandleSearchChange}
-            value={searchRoom}
-            // type='search'
-          />
-          <IconButton
-            type='button'
-            sx={{
-              p: '10px',
-              color: prefs.isDarkMode ? '#fff' : '#000',
-              '&:focus': {
-                outline: 'none',
-              },
-            }}
-            aria-label='search'
-            onClick={navigateToRoom}
+          <div className='menu-container'>
+            <DropdownMenu options={dropdownOptions} />
+          </div>
+          <div
+            className={`search-container ${
+              prefs.isDarkMode ? 'dark-mode' : ''
+            }`}
           >
-            <SearchIcon />
-          </IconButton>
-        </div>
-        <div className='buttons-container'>
-          {user && (
-            <div className='profile-container'>
-              <IconButton
-                color='primary'
-                sx={{
-                  p: '10px',
-                  color: prefs.isDarkMode ? '#fff' : '#000',
-                  '&:focus': {
-                    outline: 'none',
-                  },
-                }}
-              >
-                <PersonIcon />
-              </IconButton>
-            </div>
-          )}
-          <div className='settings-container'>
-            <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
+            <InputBase
+              sx={{
+                ml: 1,
+                flex: 1,
+                p: '10px',
+                color: prefs.isDarkMode ? '#fff' : '#000',
+
+                '&:focus': {
+                  // outline: 'none',
+                },
+              }}
+              placeholder='Search meeting'
+              inputProps={{ 'aria-label': 'search google maps' }}
+              onChange={onHandleSearchChange}
+              value={searchRoom}
+              // type='search'
+            />
             <IconButton
-              color='primary'
-              className='prefs-button'
+              type='button'
               sx={{
                 p: '10px',
+                color: prefs.isDarkMode ? '#fff' : '#000',
                 '&:focus': {
                   outline: 'none',
                 },
               }}
-              aria-label='directions'
-              onClick={() => {
-                setIsPrefs(!isPrefs)
-              }}
+              aria-label='search'
+              onClick={navigateToRoom}
             >
-              <SettingsIcon className='settings-btn' />
+              <SearchIcon />
             </IconButton>
           </div>
-        </div>
-      </Paper>
-    </div>
+          <div className='buttons-container'>
+            {user && !user.isGuest && (
+              <div className='profile-container'>
+                <IconButton
+                  color='primary'
+                  sx={{
+                    p: '10px',
+                    color: prefs.isDarkMode ? '#fff' : '#000',
+                    '&:focus': {
+                      outline: 'none',
+                    },
+                  }}
+                >
+                  <PersonIcon />
+                </IconButton>
+              </div>
+            )}
+            <div className='settings-container'>
+              <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
+              <IconButton
+                color='primary'
+                className='prefs-button'
+                sx={{
+                  p: '10px',
+                  '&:focus': {
+                    outline: 'none',
+                  },
+                }}
+                aria-label='directions'
+                onClick={() => {
+                  setIsPrefs(!isPrefs)
+                }}
+              >
+                <SettingsIcon className='settings-btn' />
+              </IconButton>
+            </div>
+          </div>
+        </Paper>
+      </div>
     </>
   )
 }
