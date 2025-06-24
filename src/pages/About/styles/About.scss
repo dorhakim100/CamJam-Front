@@ -1,0 +1,112 @@
+.about-container {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  background: none;
+  padding: 2em 0;
+}
+
+.about-card {
+  background: $white;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.1);
+  padding: 2.5em 2em 2em 2em;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid $white-border;
+  transition: background 0.3s, color 0.3s;
+
+  &.dark-mode,
+  .dark-mode & {
+    background: $very-dark-gray;
+    color: $neutral-gray;
+    border-color: #333;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  img {
+    width: 200px;
+    justify-self: center;
+    margin-bottom: 1em;
+  }
+
+  h1 {
+    margin-bottom: 0.5em;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: $deep-purple;
+    @include fluid-font(28, 36);
+    .dark-mode & {
+      // color: $sky;
+    }
+  }
+
+  p {
+    color: $text-dark-gray;
+    font-size: 1.1rem;
+    margin-bottom: 1.5em;
+    .dark-mode & {
+      color: $neutral-gray;
+    }
+  }
+
+  .about-features {
+    text-align: left;
+    margin: 0 auto 2em auto;
+    padding: 0 0 0 1.2em;
+    max-width: 340px;
+    li {
+      font-size: 1.05rem;
+      margin-bottom: 0.7em;
+      color: $bold-navy;
+      .dark-mode & {
+        color: $white;
+      }
+    }
+  }
+
+  .about-cta {
+    margin-top: 1.5em;
+    p {
+      font-weight: 500;
+      color: $deep-purple-hover;
+      margin-bottom: 0.5em;
+      .dark-mode & {
+        color: $sky;
+      }
+    }
+    .about-home-link {
+      display: inline-block;
+      background: $zoom-blue;
+      color: $white;
+      padding: 0.7em 1.6em;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.08rem;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      margin-top: 0.5em;
+      &:hover {
+        background: $deep-purple;
+        color: $white;
+        box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
+        text-decoration: none;
+      }
+      .dark-mode & {
+        background: $sky;
+        color: $very-dark-gray;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .about-card {
+    padding: 1.2em 0.5em 1.5em 0.5em;
+    max-width: 98vw;
+  }
+}

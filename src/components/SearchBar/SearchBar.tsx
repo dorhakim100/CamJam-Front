@@ -27,6 +27,9 @@ import { loadRoom } from '../../store/actions/room.actions.ts'
 import { PasswordRoom } from '../../types/PasswordRoom/PasswordRoom.ts'
 import { RoomPasswordModal } from '../RoomPasswordModal/RoomPasswordModal.tsx'
 
+import logo from '../../../public/logo.png'
+import logoDark from '../../../public/logo-dark.png'
+
 export function SearchBar() {
   const navigate = useNavigate()
   const prefs = useSelector(
@@ -48,6 +51,8 @@ export function SearchBar() {
 
   const [dropdownOptions, setDropdownOptions] = useState<DropdownOption[]>([])
 
+  const [currentLogo, setCurrentLogo] = useState(logo)
+
   const [isPasswordModal, setIsPasswordModal] = useState(false)
   const [currPasswordModal, setCurrPasswordModal] =
     useState<PasswordRoom | null>(null)
@@ -55,6 +60,10 @@ export function SearchBar() {
   const onToggleMenu = () => {
     setIsHeader(!isHeader)
   }
+
+  useEffect(() => {
+    setCurrentLogo(prefs.isDarkMode ? logoDark : logo)
+  }, [prefs.isDarkMode])
 
   useEffect(() => {
     let filteredRoutes
@@ -168,6 +177,9 @@ export function SearchBar() {
   const navigateToUser = () => {
     if (user) navigate(`/user/${user.id}`)
   }
+  const navigateToHome = () => {
+    navigate(`/`)
+  }
 
   return (
     <>
@@ -195,9 +207,10 @@ export function SearchBar() {
           onSubmit={preventSubmit}
           onKeyUp={handleEnterClick}
         >
-          <div className='menu-container'>
-            <DropdownMenu options={dropdownOptions} />
+          <div className='logo-container' onClick={navigateToHome}>
+            <img src={currentLogo} alt='' />
           </div>
+
           <div
             className={`search-container ${
               prefs.isDarkMode ? 'dark-mode' : ''
@@ -271,6 +284,9 @@ export function SearchBar() {
               >
                 <SettingsIcon className='settings-btn' />
               </IconButton>
+            </div>
+            <div className='menu-container'>
+              <DropdownMenu options={dropdownOptions} />
             </div>
           </div>
         </Paper>

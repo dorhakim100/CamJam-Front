@@ -10,6 +10,16 @@
     font-size: 1.5em;
   }
 
+  .logo-container {
+    width: 200px;
+    max-height: 70px;
+    cursor: pointer;
+    img {
+      // width: 200px;
+      max-height: 70px;
+    }
+  }
+
   .search-container {
     margin: 0.5em;
     background-color: $neutral-gray;
