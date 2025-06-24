@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { logout } from '../../store/actions/user.actios'
+import { logout, updateUser } from '../../store/actions/user.actios'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import {
@@ -14,6 +14,8 @@ import {
 import ModeEditIcon from '@mui/icons-material/ModeEdit'
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { uploadService } from '../../services/upload.service'
+import { showErrorMsg } from '../../services/event-bus.service'
 
 export function UserDetails() {
   const navigate = useNavigate()
@@ -33,6 +35,32 @@ export function UserDetails() {
     setOpen(false)
     setSelectedFile(null)
     setPreviewUrl(null)
+  }
+
+  const handleSave = async () => {
+    if (!selectedFile) {
+      showErrorMsg(`Couldn't upload file`)
+      return
+    }
+    try {
+      const res = await uploadService.uploadImg(selectedFile)
+      console.log(res)
+      if (!res.url || !user?.id) {
+        showErrorMsg(`Couldn't upload file`)
+        return
+      }
+      const userToSave = { ...user, imgUrl: res.url }
+
+      await updateUser(userToSave)
+    } catch (err) {
+      // console.log(err);
+
+      showErrorMsg(`Couldn't upload file`)
+    } finally {
+      setOpen(false)
+      setSelectedFile(null)
+      setPreviewUrl(null)
+    }
   }
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -126,9 +154,12 @@ export function UserDetails() {
             Cancel
           </Button>
           <Button
-            onClick={handleClose}
+            onClick={handleSave}
             color='primary'
             disabled={!selectedFile}
+            // sx={{
+            //   color: prefs.isDarkMode ? '#fff' : '',
+            // }}
           >
             Save
           </Button>

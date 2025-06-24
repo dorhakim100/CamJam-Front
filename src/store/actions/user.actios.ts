@@ -90,6 +90,10 @@ async function _loginWithGuest() {
 export async function updateUser(userToUpdate: User) {
   try {
     const saved = await userService.update(userToUpdate)
+    store.dispatch({
+      type: SET_USER,
+      user: saved,
+    })
 
     return saved
   } catch (err) {

@@ -2,15 +2,22 @@ export const uploadService = {
   uploadImg,
 }
 
-async function uploadImg(ev: any): Promise<any> {
-  const CLOUD_NAME = 'dnxi70mfs'
-  const UPLOAD_PRESET = 'SportClub'
+async function uploadImg(
+  evOrFile: React.ChangeEvent<HTMLInputElement> | File
+): Promise<any> {
+  if (!evOrFile) throw new Error(`Couldn't upload file`)
+  const CLOUD_NAME = 'dpsnczn5n'
+  const UPLOAD_PRESET = 'CamJam'
   const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`
 
   const formData = new FormData()
 
   // Building the request body
-  formData.append('file', ev.target.files[0])
+  if (evOrFile instanceof File) {
+    formData.append('file', evOrFile)
+  } else if ('target' in evOrFile && evOrFile.target.files?.[0]) {
+    formData.append('file', evOrFile.target.files[0])
+  }
   formData.append('upload_preset', UPLOAD_PRESET)
 
   // Sending a post method request to Cloudinary API
