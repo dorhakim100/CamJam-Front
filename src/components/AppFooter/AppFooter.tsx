@@ -13,6 +13,8 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import PlaceIcon from '@mui/icons-material/Place'
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone'
 import MailIcon from '@mui/icons-material/Mail'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import GitHubIcon from '@mui/icons-material/GitHub'
 
 export function AppFooter() {
   const navigate = useNavigate()
@@ -23,15 +25,33 @@ export function AppFooter() {
 
   const address = 'Address 19'
 
-  const phone = '09-958-0404'
-  const email = 'service.kfar@gmail.com'
-  const rights = 'All rights reserved, Dor Hakim'
+  const phone = '054-204-022'
+  const email = 'dorhakim100@gmail.com'
+  // const rights = 'All rights reserved, Dor Hakim'
 
-  const links = {
-    facebook: 'https://www.facebook.com/moadonsportkfar/?locale=he_IL',
-    instagram: 'https://www.instagram.com/moadonsport/',
-    whatsapp: 'https://wa.me/972522681757',
-  }
+  // const links = {
+  //   facebook: 'https://www.facebook.com/moadonsportkfar/?locale=he_IL',
+  //   instagram: 'https://www.instagram.com/moadonsport/',
+  //   whatsapp: 'https://wa.me/972542044022',
+  // }
+
+  const socials = [
+    {
+      platform: 'WhatsApp',
+      link: 'https://wa.me/972542044022',
+      icon: <WhatsAppIcon />,
+    },
+    {
+      platform: 'LinkedIn',
+      link: 'https://www.linkedin.com/in/dor-hakim/',
+      icon: <LinkedInIcon />,
+    },
+    {
+      platform: 'GitHub',
+      link: 'https://github.com/dorhakim100',
+      icon: <GitHubIcon />,
+    },
+  ]
 
   const handleCopyToClipboard = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault() // Prevent navigation to `mailto`
@@ -66,12 +86,12 @@ export function AppFooter() {
       className={`app-footer full ${prefs.isDarkMode ? 'dark-mode' : ''}`}
     >
       <div className='contact-container'>
-        <div className='method-container address' onClick={navigateToAbout}>
+        {/* <div className='method-container address' onClick={navigateToAbout}>
           <PlaceIcon />
           <div className='address-container'>
             <span>{address}</span>
           </div>
-        </div>
+        </div> */}
         <div className='method-container phone' onClick={call}>
           <LocalPhoneIcon />
           <span className={prefs.isDarkMode ? 'dark-mode' : ''}>{phone}</span>
@@ -87,35 +107,24 @@ export function AppFooter() {
         </div>
       </div>
       <div className='links-container'>
-        <div
-          className='social-container facebook-container'
-          onClick={() => {
-            openLink(links.facebook)
-          }}
-        >
-          <FacebookIcon />
-        </div>
-        <div
-          className='social-container whatsapp-container'
-          onClick={() => {
-            openLink(links.whatsapp)
-          }}
-        >
-          <WhatsAppIcon />
-        </div>
-        <div
-          className='social-container instagram-container'
-          onClick={() => {
-            openLink(links.instagram)
-          }}
-        >
-          <InstagramIcon />
-        </div>
+        {socials.map((social, idx) => {
+          return (
+            <div
+              className={`social-container ${social.platform}-container`}
+              key={`${social.platform}-${idx}`}
+              onClick={() => {
+                openLink(social.link)
+              }}
+            >
+              {social.icon}
+            </div>
+          )
+        })}
       </div>
 
-      <span>
+      {/* <span>
         {rights} &copy; {new Date().getFullYear()}
-      </span>
+      </span> */}
     </footer>
   )
 }
