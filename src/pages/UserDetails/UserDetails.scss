@@ -135,3 +135,97 @@
     }
   }
 }
+
+.MuiDialog-root {
+  z-index: 1300;
+
+  .MuiPaper-root {
+    border-radius: 16px;
+    padding: 0 8px 8px 8px;
+    background: $white;
+    color: $bold-navy;
+    box-shadow: 0 4px 24px rgba(44, 62, 80, 0.18);
+    min-width: 340px;
+    max-width: 95vw;
+    .dark-mode & {
+      background: $very-dark-gray;
+      color: $white;
+    }
+  }
+  .MuiDialogTitle-root {
+    font-weight: 600;
+    font-size: 1.2rem;
+    .dark-mode & {
+      color: $white;
+    }
+  }
+  .MuiDialogContent-root {
+    padding: 16px 8px 8px 8px;
+  }
+  .MuiDialogActions-root {
+    padding: 8px 16px;
+    justify-content: flex-end;
+  }
+}
+
+// Dropzone styles
+.dropzone-area {
+  justify-self: center;
+  background: $neutral-gray;
+  border: 2px dashed $zoom-blue;
+  border-radius: 12px;
+  min-height: 160px;
+  width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  text-align: center;
+  color: $text-medium-gray;
+  position: relative;
+  overflow: hidden;
+
+  &.active {
+    border-color: $zoom-blue-darker;
+    background: lighten($zoom-blue, 45%);
+  }
+
+  .dark-mode & {
+    background: $mid-dark-gray;
+    border-color: $bold-navy;
+    color: $white;
+  }
+
+  p {
+    margin: 0 auto;
+    font-size: 1.05rem;
+    color: inherit;
+    z-index: 2;
+    padding: 1em;
+  }
+}
+
+.dropzone-preview {
+  display: block;
+  max-width: 120px;
+  max-height: 120px;
+  // width: 400px;
+
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.12);
+  object-fit: cover;
+  z-index: 2;
+}
+
+// Style the Save/Cancel buttons if needed
+.MuiDialogActions-root .MuiButton-root {
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 6px 18px;
+  &.Mui-disabled {
+    opacity: 0.6;
+  }
+}
