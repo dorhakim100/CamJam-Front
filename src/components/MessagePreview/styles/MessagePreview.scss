@@ -59,7 +59,8 @@ span.user-name {
   //   display: flex;
   display: grid;
   grid-template-columns: auto 1fr;
-  //   grid-template-rows: repeat(2, auto);
+
+  // grid-template-rows: repeat(2, auto);
   align-items: center;
   gap: 0.5em;
   //   padding: 1rem 0.5em;
@@ -175,5 +176,9 @@ span.user-name {
     height: 35px;
     border-radius: 50%;
     object-fit: cover;
+  }
+
+  .time {
+    font-size: 0.6rem;
   }
 }

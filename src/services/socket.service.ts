@@ -10,6 +10,8 @@ export const SOCKET_EVENT_ANSWER = 'answer'
 export const SOCKET_EVENT_ICE_CANDIDATE = 'ice-candidate'
 export const SOCKET_EVENT_MEMBER_CHANGE = 'members-change'
 export const SOCKET_EVENT_END_MEETING = 'end-meeting'
+export const SOCKET_EMIT_SEND_MSG = 'chat-send-msg'
+export const SOCKET_EVENT_ADD_MSG = 'chat-add-msg'
 
 const SOCKET_EMIT_LOGIN = 'set-user-socket'
 const SOCKET_EMIT_LOGOUT = 'unset-user-socket'

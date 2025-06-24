@@ -89,15 +89,15 @@ export function RoomPage() {
   }, [])
 
   useEffect(() => {
-    // const newWebRTCService = new WebRTCService(socket)
-    // setWebRTCService(newWebRTCService)
+    const newWebRTCService = new WebRTCService(socket)
+    setWebRTCService(newWebRTCService)
   }, [])
 
   useEffect(() => {
     if (!socketService || !webRTCService || !id || !user) return
 
-    // initializeMedia()
-    // addListeners()
+    initializeMedia()
+    addListeners()
 
     return () => {
       clearAllConnections()

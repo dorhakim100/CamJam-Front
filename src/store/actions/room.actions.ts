@@ -12,7 +12,12 @@ import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
 import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 import { User } from '../../types/user/User'
-import { SOCKET_EVENT_END_MEETING, socket } from '../../services/socket.service'
+import {
+  SOCKET_EMIT_SEND_MSG,
+  SOCKET_EVENT_ADD_MSG,
+  SOCKET_EVENT_END_MEETING,
+  socket,
+} from '../../services/socket.service'
 import { Message } from '../../types/Message/Message'
 import { chatService } from '../../services/chat/chat.service'
 import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
@@ -83,6 +88,10 @@ export async function sendMessage(
         messages: [...roomToSave.chat.messages, savedMessage],
       },
     }
+    socket.emit(SOCKET_EMIT_SEND_MSG, {
+      room: updatedRoom.id,
+      msg: savedMessage,
+    })
     store.dispatch(getCmdSetRoom(updatedRoom))
     return savedMessage
   } catch (err) {

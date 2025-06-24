@@ -10,6 +10,11 @@ import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
 import { loadRoom, sendMessage } from '../../store/actions/room.actions'
 import { userService } from '../../services/user/user.service'
 import { Chat } from '../../types/chat/Chat'
+import {
+  SOCKET_EMIT_SEND_MSG,
+  SOCKET_EVENT_ADD_MSG,
+  socket,
+} from '../../services/socket.service'
 
 export function RoomChat() {
   const prefs = useSelector(
@@ -38,6 +43,22 @@ export function RoomChat() {
   useEffect(() => {
     smoothScrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    const handleMsg = async (data: any) => {
+      if (!room?.id) return
+      const updatedRoom = await loadRoom(room.id)
+      console.log(updatedRoom)
+
+      loadMessages(updatedRoom)
+    }
+
+    socket.on(SOCKET_EVENT_ADD_MSG, handleMsg)
+
+    return () => {
+      socket.off(SOCKET_EVENT_ADD_MSG, handleMsg)
+    }
+  }, [])
 
   const handleInputChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const elMessagesList = messagesListRef.current
@@ -93,6 +114,7 @@ export function RoomChat() {
         showErrorMsg(`Couldn't send message`)
         return
       }
+
       const messageToSend: MessageToAdd = {
         fromId: user.id,
         content: textAreaRef.current.value,
@@ -110,7 +132,7 @@ export function RoomChat() {
       textAreaRef.current.value = ''
       // showSuccessMsg('Message sent')
     } catch (err) {
-      console.log(err)
+      // console.log(err)
       showErrorMsg(`Couldn't send message`)
     }
   }
@@ -140,6 +162,13 @@ export function RoomChat() {
     setMessages(modifiedMessages)
   }
 
+  const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
   return (
     <div className={`chat-container ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
       <MessagesList messages={messages} messagesListRef={messagesListRef} />
@@ -151,12 +180,9 @@ export function RoomChat() {
           rows={1}
           ref={textAreaRef}
           onInput={handleInputChange}
+          onKeyDown={handleEnter}
         />
-        {/* <input
-          type='text'
-          placeholder='Type a message...'
-          className='chat-input'
-        /> */}
+
         <IconButton onClick={handleSend}>
           <SendIcon />
         </IconButton>

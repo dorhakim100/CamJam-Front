@@ -14,7 +14,7 @@ export function MessagePreview({ message }: { message: any }) {
           prefs.isDarkMode ? 'dark-mode' : ''
         }`}
       >
-        {message.user.isMe ? 'You' : message.user.username || 'Unknown User'}
+        {message.user.isMe ? 'You' : message.user.fullname || 'Unknown User'}
       </span>
       <li
         key={message._id}
@@ -27,6 +27,16 @@ export function MessagePreview({ message }: { message: any }) {
         </span> */}
         <img className='user-image' src={message.user.imgUrl} alt='user' />
         <span className='message-text'>{message.content}</span>
+        <span className='time'>
+          {new Date(message.sentAt).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}
+        </span>
       </li>
     </>
   )
