@@ -11,7 +11,6 @@ import {
   SET_IS_PREFS,
   SET_IS_MODAL,
   SET_MODAL_MESSAGE,
-  SET_SHOWED_UPDATE_MESSAGE,
   SET_IS_FIRST_RENDER_FALSE,
 } from '../reducers/system.reducer'
 

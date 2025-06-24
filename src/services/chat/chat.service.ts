@@ -1,8 +1,6 @@
 import { httpService } from '../http.service'
 import { makeId } from '../util.service'
 
-import { Chat } from '../../types/chat/Chat'
-import { ChatToAdd } from '../../types/chatToAdd/ChatToAdd'
 import { ChatFilter } from '../../types/chatFilter/ChatFilter'
 import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
 import { Message } from '../../types/Message/Message'

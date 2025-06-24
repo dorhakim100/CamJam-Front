@@ -2,12 +2,10 @@ import { httpService } from '../http.service'
 
 const STORAGE_KEY_LOGGEDIN_USER = 'loggedinUser'
 
-import { UserFilter } from '../../types/userFilter/UserFilter'
 import { User } from '../../types/user/User'
 import { UserCred } from '../../types/userCred/UserCred'
-import { u } from 'framer-motion/client'
-import { getPrefs } from '../util.service'
-import { setPrefs } from '../util.service'
+import { UserFilter } from '../../types/userFilter/UserFilter'
+import { getPrefs, setPrefs } from '../util.service'
 
 export const userService = {
   login,
@@ -65,7 +63,8 @@ async function update(user: User) {
     // console.log(savedUser)
     // return
 
-    const loggedinUser = await getLoggedinUser() // Might not work because its defined in the main service???
+    await getLoggedinUser() // Might not work because its defined in the main service???
+    // const loggedinUser = await getLoggedinUser() // Might not work because its defined in the main service???
 
     // if (loggedinUser.id === user.id) saveLoggedinUser(savedUser)
 

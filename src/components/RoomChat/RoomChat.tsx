@@ -4,17 +4,12 @@ import { RootState } from '../../store/store'
 import SendIcon from '@mui/icons-material/Send'
 import { IconButton } from '@mui/material'
 import { MessagesList } from '../MessagesList/MessagesList'
-import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
+import { showErrorMsg } from '../../services/event-bus.service'
 import { Message } from '../../types/Message/Message'
 import { MessageToAdd } from '../../types/messageToAdd/MessageToAdd'
 import { loadRoom, sendMessage } from '../../store/actions/room.actions'
 import { userService } from '../../services/user/user.service'
-import { Chat } from '../../types/chat/Chat'
-import {
-  SOCKET_EMIT_SEND_MSG,
-  SOCKET_EVENT_ADD_MSG,
-  socket,
-} from '../../services/socket.service'
+import { SOCKET_EVENT_ADD_MSG, socket } from '../../services/socket.service'
 import { setIsLoading } from '../../store/actions/system.actions'
 
 export function RoomChat() {
@@ -46,7 +41,7 @@ export function RoomChat() {
   }, [messages])
 
   useEffect(() => {
-    const handleMsg = async (data: any) => {
+    const handleMsg = async () => {
       if (!room?.id) return
       try {
         setIsLoading(true)
@@ -67,7 +62,7 @@ export function RoomChat() {
     }
   }, [])
 
-  const handleInputChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = () => {
     const elMessagesList = messagesListRef.current
     const textarea = textAreaRef.current
     if (!textarea) return
@@ -131,7 +126,8 @@ export function RoomChat() {
         chatId: room.chat._id,
       }
 
-      const savedMessage = await sendMessage(messageToSend, room)
+      await sendMessage(messageToSend, room)
+      // const savedMessage = await sendMessage(messageToSend, room)
       // console.log(savedMessage)
       const updatedRoom = await loadRoom(room.id)
 
@@ -200,98 +196,3 @@ export function RoomChat() {
     </div>
   )
 }
-
-//  later be replaced with actual chat messages
-// const messages = [
-//   {
-//     id: 1,
-//     text: 'Hey! How’s it going?',
-//     userImg: 'https://i.pravatar.cc/40?img=1',
-//     username: 'Alice',
-//     isMe: false,
-//   },
-//   {
-//     id: 2,
-//     text: 'All good, just working on a chat feature.',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 3,
-//     text: 'Nice! Let me know if you need help.',
-//     userImg: 'https://i.pravatar.cc/40?img=1',
-//     username: 'Alice',
-//     isMe: false,
-//   },
-//   {
-//     id: 4,
-//     text: 'Actually yeah — do you know how to style message tails in SASS?',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 5,
-//     text: 'Definitely! Want a triangle or something more like Telegram?',
-//     userImg: 'https://i.pravatar.cc/40?img=1',
-//     username: 'Alice',
-//     isMe: false,
-//   },
-//   {
-//     id: 6,
-//     text: 'More like Telegram. Smooth and modern.',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 7,
-//     text: 'Got it. Let me find a sample snippet for you.',
-//     userImg: 'https://i.pravatar.cc/40?img=1',
-//     username: 'Alice',
-//     isMe: false,
-//   },
-//   {
-//     id: 8,
-//     text: 'Thanks! I’ll adapt it to my dark mode setup too.',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 9,
-//     text: 'You’re building this whole chat from scratch?',
-//     userImg: 'https://i.pravatar.cc/40?img=3',
-//     username: 'Ben',
-//     isMe: false,
-//   },
-//   {
-//     id: 10,
-//     text: 'Yeah, front and back. I like having full control.',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 11,
-//     text: 'Respect. Are you deploying it too?',
-//     userImg: 'https://i.pravatar.cc/40?img=3',
-//     username: 'Ben',
-//     isMe: false,
-//   },
-//   {
-//     id: 12,
-//     text: 'Eventually yeah — Socket.IO on the backend, MongoDB for storage.',
-//     userImg: 'https://i.pravatar.cc/40?img=2',
-//     username: 'You',
-//     isMe: true,
-//   },
-//   {
-//     id: 13,
-//     text: 'I’m following this thread and learning a lot, thanks!',
-//     userImg: 'https://i.pravatar.cc/40?img=4',
-//     username: 'Dana',
-//     isMe: false,
-//   },
-// ]

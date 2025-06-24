@@ -10,5 +10,5 @@ export interface Message {
 }
 
 interface UserWithIsMe extends User {
-  isMe: Boolean
+  isMe: boolean
 }

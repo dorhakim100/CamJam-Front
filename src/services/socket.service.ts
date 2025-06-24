@@ -1,5 +1,4 @@
 import io, { Socket } from 'socket.io-client'
-import { userService } from './user/user.service'
 
 export const SOCKET_EVENT_JOIN_ROOM = 'join-room'
 export const SOCKET_EVENT_USER_JOINED = 'user-joined'
@@ -16,11 +15,10 @@ export const SOCKET_EVENT_ADD_MSG = 'chat-add-msg'
 const SOCKET_EMIT_LOGIN = 'set-user-socket'
 const SOCKET_EMIT_LOGOUT = 'unset-user-socket'
 
-// const baseUrl =
-//   process.env.NODE_ENV === 'production' ? 'production' : '//localhost:3030'
+const baseUrl =
+  process.env.NODE_ENV === 'production' ? 'production' : '//localhost:3030'
 
-const baseUrl = 'http://localhost:3030'
-console.log('Socket service base URL:', baseUrl)
+// const baseUrl = 'http://localhost:3030'
 
 export let socket: Socket
 export const socketService = createSocketService()

@@ -8,7 +8,6 @@ import { NewRoomForm } from '../../types/NewRoomForm/NewRoomForm'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { saveRoom, setNewRoomModal } from '../../store/actions/room.actions'
-import { label } from 'framer-motion/client'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 
 const inputs = [

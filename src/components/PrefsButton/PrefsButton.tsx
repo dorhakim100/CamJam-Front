@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { useSelector } from 'react-redux'
 
 import { setIsPrefs } from '../../store/actions/system.actions'

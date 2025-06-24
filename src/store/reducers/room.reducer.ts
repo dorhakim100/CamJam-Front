@@ -30,8 +30,8 @@ const initialState: RoomState = {
 }
 
 export function roomReducer(state = initialState, action: any) {
-  var newState = state
-  var rooms
+  let newState = state
+  let rooms
   switch (action.type) {
     case SET_ROOMS:
       newState = { ...state, rooms: [...action.rooms] }

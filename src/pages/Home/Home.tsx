@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from '../../store/store'
@@ -6,10 +6,8 @@ import { ClockTime } from '../../components/ClockTime/ClockTime'
 
 import { BsFillCameraVideoFill } from 'react-icons/bs'
 import { BsPlusSquareFill } from 'react-icons/bs'
-import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
-import { s } from 'framer-motion/client'
-import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
-import { saveRoom, setNewRoomModal } from '../../store/actions/room.actions'
+// import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
+import { setNewRoomModal } from '../../store/actions/room.actions'
 import { handleGuestMode } from '../../store/actions/user.actios'
 
 export function Home() {
@@ -42,29 +40,6 @@ export function Home() {
   useEffect(() => {
     if (!user) handleGuestMode()
   }, [])
-
-  const createRoom = async () => {
-    if (!user) {
-      showErrorMsg('You must be signed in to create a room')
-      return
-    }
-
-    try {
-      const room = {
-        host_id: user.id,
-        name: 'New Room',
-        is_private: false,
-        created_at: new Date(),
-      }
-
-      const saved = await saveRoom(room)
-
-      console.log(saved)
-      showSuccessMsg('Room created successfully')
-    } catch (err) {
-      showErrorMsg('Failed to create room')
-    }
-  }
 
   return (
     <div className='home-container'>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import {
@@ -8,14 +8,10 @@ import {
 } from '../../store/actions/system.actions'
 
 import { DarkModeSwitch } from '../DarkModeSwitch/DarkModeSwitch'
-import { LanguageSwitch } from '../LanguageSwitch/LanguageSwitch'
 
 import CloseIcon from '@mui/icons-material/Close'
-import LanguageIcon from '@mui/icons-material/Language'
-import DarkModeIcon from '@mui/icons-material/DarkMode'
-import LightModeIcon from '@mui/icons-material/LightMode'
 
-import { RootState, store } from '../../store/store'
+import { RootState } from '../../store/store'
 import { ShadowOverlay } from '../ShadowOverlay/ShadowOverlay'
 
 export function Prefs() {

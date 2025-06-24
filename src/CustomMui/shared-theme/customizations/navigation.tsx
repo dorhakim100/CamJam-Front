@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { Theme, alpha, Components } from '@mui/material/styles';
-import { SvgIconProps } from '@mui/material/SvgIcon';
-import { buttonBaseClasses } from '@mui/material/ButtonBase';
-import { dividerClasses } from '@mui/material/Divider';
-import { menuItemClasses } from '@mui/material/MenuItem';
-import { selectClasses } from '@mui/material/Select';
-import { tabClasses } from '@mui/material/Tab';
-import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import { gray, brand } from '../themePrimitives';
+import * as React from 'react'
+import { Theme, alpha, Components } from '@mui/material/styles'
+import { SvgIconProps } from '@mui/material/SvgIcon'
+import { buttonBaseClasses } from '@mui/material/ButtonBase'
+import { dividerClasses } from '@mui/material/Divider'
+import { menuItemClasses } from '@mui/material/MenuItem'
+import { selectClasses } from '@mui/material/Select'
+import { tabClasses } from '@mui/material/Tab'
+import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
+import { gray, brand } from '../themePrimitives'
 
 /* eslint-disable import/prefer-default-export */
-export const navigationCustomizations: Components<Theme> = {
+export const navigationCustomizations: Components<any> = {
   MuiMenuItem: {
     styleOverrides: {
       root: ({ theme }) => ({
@@ -58,9 +58,11 @@ export const navigationCustomizations: Components<Theme> = {
   },
   MuiSelect: {
     defaultProps: {
-      IconComponent: React.forwardRef<SVGSVGElement, SvgIconProps>((props, ref) => (
-        <UnfoldMoreRoundedIcon fontSize="small" {...props} ref={ref} />
-      )),
+      IconComponent: React.forwardRef<SVGSVGElement, SvgIconProps>(
+        (props, ref) => (
+          <UnfoldMoreRoundedIcon fontSize='small' {...props} ref={ref} />
+        )
+      ),
     },
     styleOverrides: {
       root: ({ theme }) => ({
@@ -86,7 +88,10 @@ export const navigationCustomizations: Components<Theme> = {
           borderRadius: (theme.vars || theme).shape.borderRadius,
           borderColor: gray[700],
           backgroundColor: (theme.vars || theme).palette.background.paper,
-          boxShadow: `inset 0 1px 0 1px ${alpha(gray[700], 0.15)}, inset 0 -1px 0 1px hsla(220, 0%, 0%, 0.7)`,
+          boxShadow: `inset 0 1px 0 1px ${alpha(
+            gray[700],
+            0.15
+          )}, inset 0 -1px 0 1px hsla(220, 0%, 0%, 0.7)`,
           '&:hover': {
             borderColor: alpha(gray[700], 0.7),
             backgroundColor: (theme.vars || theme).palette.background.paper,
@@ -276,4 +281,4 @@ export const navigationCustomizations: Components<Theme> = {
       }),
     },
   },
-};
+}

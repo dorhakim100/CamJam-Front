@@ -6,7 +6,6 @@ import {
   SET_ROOM_FILTER,
   REMOVE_ROOM,
   SET_IS_NEW_ROOM_MODAL_OPEN,
-  ADD_MESSAGE,
 } from '../reducers/room.reducer'
 import { RoomFilter } from '../../types/roomFilter/RoomFilter'
 import { Room } from '../../types/room/Room'
@@ -14,7 +13,6 @@ import { RoomToAdd } from '../../types/roomToAdd/RoomToAdd'
 import { User } from '../../types/user/User'
 import {
   SOCKET_EMIT_SEND_MSG,
-  SOCKET_EVENT_ADD_MSG,
   SOCKET_EVENT_END_MEETING,
   socket,
 } from '../../services/socket.service'

@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { alpha, Theme, Components } from '@mui/material/styles';
-import { outlinedInputClasses } from '@mui/material/OutlinedInput';
-import { svgIconClasses } from '@mui/material/SvgIcon';
-import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import { toggleButtonClasses } from '@mui/material/ToggleButton';
-import CheckBoxOutlineBlankRoundedIcon from '@mui/icons-material/CheckBoxOutlineBlankRounded';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
-import { gray, brand } from '../themePrimitives';
+import * as React from 'react'
+import { alpha, Theme, Components } from '@mui/material/styles'
+import { outlinedInputClasses } from '@mui/material/OutlinedInput'
+import { svgIconClasses } from '@mui/material/SvgIcon'
+import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup'
+import { toggleButtonClasses } from '@mui/material/ToggleButton'
+import CheckBoxOutlineBlankRoundedIcon from '@mui/icons-material/CheckBoxOutlineBlankRounded'
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
+import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
+import { gray, brand } from '../themePrimitives'
 
 /* eslint-disable import/prefer-default-export */
-export const inputsCustomizations: Components<Theme> = {
+export const inputsCustomizations: Components<any> = {
   MuiButtonBase: {
     defaultProps: {
       disableTouchRipple: true,
@@ -95,8 +95,14 @@ export const inputsCustomizations: Components<Theme> = {
             style: {
               color: 'white',
               backgroundColor: brand[300],
-              backgroundImage: `linear-gradient(to bottom, ${alpha(brand[400], 0.8)}, ${brand[500]})`,
-              boxShadow: `inset 0 2px 0 ${alpha(brand[200], 0.2)}, inset 0 -2px 0 ${alpha(brand[700], 0.4)}`,
+              backgroundImage: `linear-gradient(to bottom, ${alpha(
+                brand[400],
+                0.8
+              )}, ${brand[500]})`,
+              boxShadow: `inset 0 2px 0 ${alpha(
+                brand[200],
+                0.2
+              )}, inset 0 -2px 0 ${alpha(brand[700], 0.4)}`,
               border: `1px solid ${brand[500]}`,
               '&:hover': {
                 backgroundColor: brand[700],
@@ -314,7 +320,9 @@ export const inputsCustomizations: Components<Theme> = {
     defaultProps: {
       disableRipple: true,
       icon: (
-        <CheckBoxOutlineBlankRoundedIcon sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }} />
+        <CheckBoxOutlineBlankRoundedIcon
+          sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }}
+        />
       ),
       checkedIcon: <CheckRoundedIcon sx={{ height: 14, width: 14 }} />,
       indeterminateIcon: <RemoveRoundedIcon sx={{ height: 14, width: 14 }} />,
@@ -442,4 +450,4 @@ export const inputsCustomizations: Components<Theme> = {
       }),
     },
   },
-};
+}

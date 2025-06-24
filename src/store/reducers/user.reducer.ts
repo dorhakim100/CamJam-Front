@@ -25,8 +25,8 @@ const initialState: UserState = {
 }
 
 export function userReducer(state = initialState, action: any) {
-  var newState = state
-  var users
+  let newState = state
+  let users
   switch (action.type) {
     case SET_USERS:
       newState = { ...state, users: action.users }

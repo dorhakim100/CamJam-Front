@@ -7,7 +7,7 @@ export const storageService = {
 }
 
 function query(entityType:string, delay:number = 500):Promise<any> {
-  var entities = JSON.parse(localStorage.getGame(entityType)) || []
+  const entities = JSON.parse(localStorage.getGame(entityType)) || []
   return new Promise((resolve) => setTimeout(() => resolve(entities), delay))
 }
 
@@ -64,10 +64,10 @@ function _save(entityType:string, entities:any):void {
 }
 
 function _makeId(length:number = 5):string {
-  var text = ''
-  var possible =
+  let text = ''
+  const possible =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length))
   }
   return text

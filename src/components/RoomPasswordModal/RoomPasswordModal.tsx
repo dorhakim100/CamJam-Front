@@ -8,7 +8,6 @@ import { IconButton } from '@mui/material';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 
 import { RootState } from '../../store/store';
-import { Room } from '../../types/room/Room';
 
 
 

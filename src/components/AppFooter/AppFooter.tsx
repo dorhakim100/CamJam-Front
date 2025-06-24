@@ -1,29 +1,24 @@
-import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
-import { smoothScroll } from '../../services/util.service'
 
 import { RootState } from '../../store/store'
 
-import InstagramIcon from '@mui/icons-material/Instagram'
-import FacebookIcon from '@mui/icons-material/Facebook'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
-import PlaceIcon from '@mui/icons-material/Place'
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone'
 import MailIcon from '@mui/icons-material/Mail'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import GitHubIcon from '@mui/icons-material/GitHub'
 
 export function AppFooter() {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const prefs = useSelector(
     (storeState: RootState) => storeState.systemModule.prefs
   )
 
-  const address = 'Address 19'
+  // const address = 'Address 19'
 
   const phone = '054-204-022'
   const email = 'dorhakim100@gmail.com'
@@ -66,15 +61,6 @@ export function AppFooter() {
 
   const openLink = (link: string) => {
     window.open(link)
-  }
-
-  const navigateToAbout = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault() // Stop the link from navigating immediately
-    smoothScroll()
-
-    setTimeout(() => {
-      navigate('/about')
-    }, 300) // Adjust time based on your smoothScroll timing
   }
 
   const call = () => {

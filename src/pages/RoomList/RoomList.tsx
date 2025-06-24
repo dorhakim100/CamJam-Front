@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { loadRooms } from '../../store/actions/room.actions'
 
 import { RoomCard } from '../../components/RoomCard/RoomCard'
@@ -9,20 +9,19 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { RoomPasswordModal } from '../../components/RoomPasswordModal/RoomPasswordModal'
 import { showErrorMsg } from '../../services/event-bus.service'
-import { Room } from '../../types/room/Room'
 import { PasswordRoom } from '../../types/PasswordRoom/PasswordRoom'
 
 export function RoomList() {
   const rooms = useSelector(
     (stateSelector: RootState) => stateSelector.roomModule.rooms
   )
-  const room = useSelector(
-    (stateSelector: RootState) => stateSelector.roomModule.room
-  )
+  // const room = useSelector(
+  //   (stateSelector: RootState) => stateSelector.roomModule.room
+  // )
 
-  const user = useSelector(
-    (stateSelector: RootState) => stateSelector.userModule.user
-  )
+  // const user = useSelector(
+  //   (stateSelector: RootState) => stateSelector.userModule.user
+  // )
 
   const [filter, setFilter] = useState(roomService.getDefaultFilter())
 
@@ -37,6 +36,8 @@ export function RoomList() {
   async function setRooms(filterBy: RoomFilter) {
     try {
       const rooms = await loadRooms(filterBy)
+      console.log(rooms)
+      console.log(setFilter)
     } catch (err) {
       // console.error('Error setting rooms:', err)
       showErrorMsg('Failed to load rooms. Please try again later.')

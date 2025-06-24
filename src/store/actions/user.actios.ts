@@ -2,11 +2,9 @@ import { store } from '../store'
 import { userService } from '../../services/user/user.service'
 
 import {
-  ADD_USER,
   SET_USER,
   SET_USERS,
   REMOVE_USER,
-  UPDATE_USER,
   SET_WATCHED_USER,
   SET_USER_FILTER,
 } from '../reducers/user.reducer'
@@ -14,7 +12,6 @@ import {
 import { UserFilter } from '../../types/userFilter/UserFilter'
 import { UserCred } from '../../types/userCred/UserCred'
 import { User } from '../../types/user/User'
-import { makeId } from '../../services/util.service'
 
 export async function loadUsers(filter: UserFilter) {
   try {

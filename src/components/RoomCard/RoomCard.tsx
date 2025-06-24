@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Room } from '../../types/room/Room'
 import { RootState } from '../../store/store'
-import { Button } from '@mui/material'
 import HttpsIcon from '@mui/icons-material/Https'
 import { removeRoom } from '../../store/actions/room.actions'
 

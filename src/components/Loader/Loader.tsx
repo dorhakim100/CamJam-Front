@@ -1,4 +1,3 @@
-import React from 'react'
 import Lottie from 'lottie-react'
 import { useSelector } from 'react-redux'
 import animationData from '../../../public/loader-animation.json'

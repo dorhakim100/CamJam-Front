@@ -9,9 +9,9 @@
   width: 100%;
   justify-self: center;
 
-  &:hover {
-    //   transform: translateY(-1px);
-  }
+  // &:hover {
+  //   //   transform: translateY(-1px);
+  // }
 
   // Maintain 16:9 aspect ratio
   &::before {
@@ -43,8 +43,8 @@
       transition: fill 0.2s ease;
       fill: $dark-red;
 
-      &:hover {
-      }
+      // &:hover {
+      // }
     }
   }
 

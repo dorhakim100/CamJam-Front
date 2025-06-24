@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 
@@ -15,11 +15,10 @@ import {
 
 import { loadRoom } from '../../store/actions/room.actions'
 import { RootState } from '../../store/store'
-import { User } from '../../types/user/User'
 import { MembersList } from '../../components/MembersList/MembersList'
 import { WebRTCService } from '../../services/webRTC/webRTC2'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
-import { Button, IconButton } from '@mui/material'
+import { IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import {
@@ -30,7 +29,6 @@ import { VideoStream } from '../../components/VideoStream/VideoStream'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { TracksState } from '../../types/TracksState/TracksState'
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
-import { Room } from '../../types/room/Room'
 import { RoomChat } from '../../components/RoomChat/RoomChat'
 import { handleGuestMode } from '../../store/actions/user.actios'
 
@@ -42,9 +40,9 @@ export function RoomPage() {
     (stateSelector: RootState) => stateSelector.roomModule.room
   )
 
-  const currRoomId = useSelector(
-    (stateSelector: RootState) => stateSelector.roomModule.currRoomId
-  )
+  // const currRoomId = useSelector(
+  //   (stateSelector: RootState) => stateSelector.roomModule.currRoomId
+  // )
 
   const user = useSelector(
     (stateSelector: RootState) => stateSelector.userModule.user
@@ -75,22 +73,22 @@ export function RoomPage() {
     setRoom()
   }, [id])
 
-  useEffect(() => {
-    const testCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        })
-        stream.getTracks().forEach((track) => track.stop())
-      } catch (err) {
-        showErrorMsg(
-          'Failed to access camera or microphone. Please check permissions.'
-        )
-      }
-    }
-    // testCamera()
-  }, [])
+  // useEffect(() => {
+  // const testCamera = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       video: true,
+  //       audio: true,
+  //     })
+  //     stream.getTracks().forEach((track) => track.stop())
+  //   } catch (err) {
+  //     showErrorMsg(
+  //       'Failed to access camera or microphone. Please check permissions.'
+  //     )
+  //   }
+  // }
+  // testCamera()
+  // }, [])
 
   useEffect(() => {
     const newWebRTCService = new WebRTCService(socket)
@@ -149,7 +147,8 @@ export function RoomPage() {
       if (!user) {
         handleGuestMode()
       }
-      const roomToSet = await loadRoom(id)
+      await loadRoom(id)
+      // const roomToSet = await loadRoom(id)
 
       // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
     } catch (error) {
@@ -187,7 +186,7 @@ export function RoomPage() {
                 const video = remoteVideosRef.current.get(member.socketId)
                 if (video) {
                   video.srcObject = stream
-                  video.play().catch((e) => {
+                  video.play().catch(() => {
                     // console.log(e)
                     // video.play()
                   })
@@ -213,7 +212,7 @@ export function RoomPage() {
 
           if (video) {
             video.srcObject = stream
-            video.play().catch((e) => {
+            video.play().catch(() => {
               // console.log(e)
               throw new Error('Failed to play video')
               // setErrorBanner('Failed to connect to peer')
@@ -463,7 +462,7 @@ export function RoomPage() {
                       .then(() => {
                         showSuccessMsg('ID copied successfully')
                       })
-                      .catch((err) => {
+                      .catch(() => {
                         // console.log(err);
 
                         showErrorMsg(`Couldn't copy id`)

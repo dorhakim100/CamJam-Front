@@ -15,7 +15,6 @@ import MuiCard from '@mui/material/Card'
 import { styled } from '@mui/material/styles'
 import ForgotPassword from './components/ForgotPassword'
 import AppTheme from '../shared-theme/AppTheme'
-import ColorModeSelect from '../shared-theme/ColorModeSelect'
 import { useColorScheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
@@ -23,16 +22,9 @@ import { useNavigate } from 'react-router-dom'
 
 import { RootState } from '../../store/store'
 
-import {
-  GoogleIcon,
-  FacebookIcon,
-  SitemarkIcon,
-} from './components/CustomIcons'
-
 import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
-import { userService } from '../../services/user/user.service'
 import { login, signup } from '../../store/actions/user.actios'
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -90,9 +82,9 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     React.useState('')
   const [open, setOpen] = React.useState(false)
   const credientials: any = {}
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
+  // const handleClickOpen = () => {
+  //   setOpen(true)
+  // }
 
   const handleClose = () => {
     setOpen(false)
@@ -200,6 +192,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     if (prefs.isDarkMode !== undefined) {
       setMode(prefs.isDarkMode ? 'dark' : 'light')
       setLogoSrc(prefs.isDarkMode ? logoDark : logo)
+      console.log(mode)
     }
   }, [prefs.isDarkMode])
 

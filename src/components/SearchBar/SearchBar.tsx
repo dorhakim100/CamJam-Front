@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useSelector } from 'react-redux'
 
-import { setIsHeader, setIsPrefs } from '../../store/actions/system.actions'
+import { setIsPrefs } from '../../store/actions/system.actions'
 
 import { RootState } from '../../store/store'
 import { routes } from '../../assets/routes/routes'
@@ -43,9 +43,9 @@ export function SearchBar() {
     (stateSelector: RootState) => stateSelector.systemModule.isPrefs
   )
 
-  const isHeader = useSelector(
-    (stateSelector: RootState) => stateSelector.systemModule.isHeader
-  )
+  // const isHeader = useSelector(
+  //   (stateSelector: RootState) => stateSelector.systemModule.isHeader
+  // )
 
   const [searchRoom, setSearchRoom] = useState<string>('')
 
@@ -56,10 +56,6 @@ export function SearchBar() {
   const [isPasswordModal, setIsPasswordModal] = useState(false)
   const [currPasswordModal, setCurrPasswordModal] =
     useState<PasswordRoom | null>(null)
-
-  const onToggleMenu = () => {
-    setIsHeader(!isHeader)
-  }
 
   useEffect(() => {
     setCurrentLogo(prefs.isDarkMode ? logoDark : logo)

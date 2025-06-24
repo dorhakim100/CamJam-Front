@@ -39,9 +39,9 @@
     font-weight: 700;
     color: $deep-purple;
     @include fluid-font(28, 36);
-    .dark-mode & {
-      // color: $sky;
-    }
+    // .dark-mode & {
+    //   // color: $sky;
+    // }
   }
 
   p {
