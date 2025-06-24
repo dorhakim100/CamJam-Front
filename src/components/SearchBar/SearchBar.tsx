@@ -165,6 +165,10 @@ export function SearchBar() {
     navigateToRoom()
   }
 
+  const navigateToUser = () => {
+    if (user) navigate(`/user/${user.id}`)
+  }
+
   return (
     <>
       {isPasswordModal && currPasswordModal && (
@@ -243,6 +247,7 @@ export function SearchBar() {
                       outline: 'none',
                     },
                   }}
+                  onClick={navigateToUser}
                 >
                   <PersonIcon />
                 </IconButton>

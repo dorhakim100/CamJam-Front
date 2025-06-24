@@ -29,7 +29,7 @@ export const routes: Route[] = [
   },
   {
     title: 'Profile',
-    path: '/user',
+    path: '/user/:id',
     element: UserDetails,
   },
   {
