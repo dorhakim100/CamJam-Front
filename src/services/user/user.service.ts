@@ -73,7 +73,7 @@ async function update(user: User) {
     return savedUser
     // return saveLoggedinUser(savedUser)
   } catch (err) {
-    // console.log(err)
+    console.log(err)
     throw err
   }
 }

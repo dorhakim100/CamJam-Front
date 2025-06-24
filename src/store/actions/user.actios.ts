@@ -40,6 +40,7 @@ export async function removeUser(userId: string) {
 
 export async function login(credentials: UserCred) {
   try {
+    await logout()
     const user = await userService.login(credentials)
 
     store.dispatch({
@@ -104,6 +105,7 @@ export async function updateUser(userToUpdate: User) {
 
 export async function signup(credentials: UserCred) {
   try {
+    await logout()
     const user = await userService.signup(credentials)
     store.dispatch({
       type: SET_USER,

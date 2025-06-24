@@ -15,6 +15,7 @@ import {
   SOCKET_EVENT_ADD_MSG,
   socket,
 } from '../../services/socket.service'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 export function RoomChat() {
   const prefs = useSelector(
@@ -47,10 +48,16 @@ export function RoomChat() {
   useEffect(() => {
     const handleMsg = async (data: any) => {
       if (!room?.id) return
-      const updatedRoom = await loadRoom(room.id)
-      console.log(updatedRoom)
+      try {
+        setIsLoading(true)
+        const updatedRoom = await loadRoom(room.id)
 
-      loadMessages(updatedRoom)
+        loadMessages(updatedRoom)
+      } catch (err) {
+        // console.log(err);
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     socket.on(SOCKET_EVENT_ADD_MSG, handleMsg)
@@ -114,6 +121,7 @@ export function RoomChat() {
         showErrorMsg(`Couldn't send message`)
         return
       }
+      setIsLoading(true)
 
       const messageToSend: MessageToAdd = {
         fromId: user.id,
@@ -134,6 +142,8 @@ export function RoomChat() {
     } catch (err) {
       // console.log(err)
       showErrorMsg(`Couldn't send message`)
+    } finally {
+      setIsLoading(false)
     }
   }
 

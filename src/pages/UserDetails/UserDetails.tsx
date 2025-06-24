@@ -16,6 +16,7 @@ import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { uploadService } from '../../services/upload.service'
 import { showErrorMsg } from '../../services/event-bus.service'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 export function UserDetails() {
   const navigate = useNavigate()
@@ -43,8 +44,9 @@ export function UserDetails() {
       return
     }
     try {
+      setIsLoading(true)
       const res = await uploadService.uploadImg(selectedFile)
-      console.log(res)
+
       if (!res.url || !user?.id) {
         showErrorMsg(`Couldn't upload file`)
         return
@@ -53,10 +55,11 @@ export function UserDetails() {
 
       await updateUser(userToSave)
     } catch (err) {
-      // console.log(err);
+      console.log(err)
 
       showErrorMsg(`Couldn't upload file`)
     } finally {
+      setIsLoading(false)
       setOpen(false)
       setSelectedFile(null)
       setPreviewUrl(null)

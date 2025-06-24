@@ -9,6 +9,7 @@ import { AppFooter } from './components/AppFooter/AppFooter.tsx'
 import { Prefs } from './components/Prefs/Prefs'
 import { PrefsButton } from './components/PrefsButton/PrefsButton.tsx'
 import { UserMsg } from './components/UserMsg/UserMsg.tsx'
+import { Loader } from './components/Loader/Loader.tsx'
 
 import { RootState } from './store/store.ts'
 
@@ -64,6 +65,7 @@ function App() {
       {/* <PrefsButton /> */}
       <UserMsg />
       <NewRoomModal />
+      <Loader />
       <main className={`main ${prefs.isDarkMode ? 'dark-mode' : ''}`}>
         <SearchBar />
         <Routes>
@@ -80,6 +82,7 @@ function App() {
           })}
         </Routes>
       </main>
+
       <AppFooter />
     </>
   )

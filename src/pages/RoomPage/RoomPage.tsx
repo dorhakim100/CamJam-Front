@@ -22,7 +22,10 @@ import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { Button, IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { setIsFirstRender } from '../../store/actions/system.actions'
+import {
+  setIsFirstRender,
+  setIsLoading,
+} from '../../store/actions/system.actions'
 import { VideoStream } from '../../components/VideoStream/VideoStream'
 import { LocalTracks } from '../../types/LocalTracks/LocalTracks'
 import { TracksState } from '../../types/TracksState/TracksState'
@@ -142,15 +145,17 @@ export function RoomPage() {
   async function setRoom() {
     if (!id) return
     try {
+      setIsLoading(true)
       if (!user) {
         handleGuestMode()
       }
       const roomToSet = await loadRoom(id)
-      console.log(roomToSet)
 
       // if (roomToSet.id !== currRoomId) setIsFirstRender(true)
     } catch (error) {
       showErrorMsg('Failed to set room details')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -172,6 +177,7 @@ export function RoomPage() {
             connectedPeers.current.delete(member.socketId)
           }
           try {
+            setIsLoading(true)
             await webRTCService.createPeerConnection(
               member.socketId,
               (stream) => {
@@ -192,6 +198,8 @@ export function RoomPage() {
             setErrorBanner('')
           } catch (error) {
             // console.log(error)
+          } finally {
+            setIsLoading(false)
           }
         }
       })
@@ -199,6 +207,7 @@ export function RoomPage() {
 
     socket.on(SOCKET_EVENT_OFFER, async ({ offer, from }) => {
       try {
+        setIsLoading(true)
         await webRTCService.handleOffer(offer, from, (stream) => {
           const video = remoteVideosRef.current.get(from)
 
@@ -216,30 +225,39 @@ export function RoomPage() {
       } catch (error) {
         // console.log(error)
         setErrorBanner('Failed to connect to peer')
+      } finally {
+        setIsLoading(false)
       }
     })
 
     socket.on(SOCKET_EVENT_ANSWER, async ({ answer, from }) => {
       try {
+        setIsLoading(true)
         await webRTCService.handleAnswer(answer, from)
         // setErrorBanner('')
       } catch (error) {
         // console.log(error)
         setErrorBanner('Failed to connect to peer')
+      } finally {
+        setIsLoading(false)
       }
     })
 
     socket.on(SOCKET_EVENT_ICE_CANDIDATE, async ({ candidate, from }) => {
       try {
+        setIsLoading(true)
         await webRTCService.handleIceCandidate(candidate, from)
         // setErrorBanner('')
       } catch (error) {
         // console.log(error)
         // setErrorBanner('Failed to connect to peer')
+      } finally {
+        setIsLoading(false)
       }
     })
     socket.on(SOCKET_EVENT_END_MEETING, async () => {
       try {
+        setIsLoading(true)
         clearAllConnections()
         navigate('/room')
         showSuccessMsg('Meeting ended')
@@ -247,6 +265,8 @@ export function RoomPage() {
       } catch (error) {
         // console.log(error)
         // setErrorBanner('Failed to connect to peer')
+      } finally {
+        setIsLoading(false)
       }
     })
   }
@@ -257,6 +277,7 @@ export function RoomPage() {
   ) {
     try {
       if (!socketService || !webRTCService || !id || !user) return
+      setIsLoading(true)
       // socketService.leaveRoom(id)
       // socketService.logout()
       if (isRestart) {
@@ -289,6 +310,8 @@ export function RoomPage() {
       setErrorBanner('')
     } catch (error) {
       setErrorBanner('Failed to access camera/microphone')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -302,6 +325,7 @@ export function RoomPage() {
         !id
       )
         return
+      setIsLoading(true)
       socketService.leaveRoom(id)
       socketService.logout()
       // clearAllConnections()
@@ -339,6 +363,8 @@ export function RoomPage() {
     } catch (error) {
       console.error('Error disabling media:', error)
       setErrorBanner('Failed to disable media')
+    } finally {
+      setIsLoading(false)
     }
   }
 
