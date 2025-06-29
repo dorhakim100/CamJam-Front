@@ -19,12 +19,12 @@ const inputs = [
     placeholder: 'Room name',
     isLable: false,
   },
-  {
-    type: 'number',
-    name: 'max_participants',
-    id: 'max-participntes',
-    isLable: true,
-  },
+  // {
+  //   type: 'number',
+  //   name: 'max_participants',
+  //   id: 'max-participntes',
+  //   isLable: true,
+  // },
   {
     type: 'checkbox',
     name: 'is_private',

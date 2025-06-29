@@ -6,7 +6,6 @@
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   display: grid;
 
   background-color: $white;
@@ -17,6 +16,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   outline: 2px solid $deep-purple;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+
+  width: 500px;
+  @media (max-width: 600px) {
+    width: 300px;
+  }
 
   &.dark-mode {
     background-color: $very-dark-gray;

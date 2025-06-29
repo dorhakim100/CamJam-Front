@@ -1,5 +1,6 @@
 .login-sign-up-container {
   div {
+    max-height: calc(100vh - 74px - 174px);
     min-height: fit-content;
     .MuiCard-root {
       margin: 1em 0px 0px 0px;
