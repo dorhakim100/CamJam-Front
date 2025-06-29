@@ -16,7 +16,9 @@ const SOCKET_EMIT_LOGIN = 'set-user-socket'
 const SOCKET_EMIT_LOGOUT = 'unset-user-socket'
 
 const baseUrl =
-  process.env.NODE_ENV === 'production' ? 'production' : '//localhost:3030'
+  process.env.NODE_ENV === 'production'
+    ? 'https://camjam.onrender.com/'
+    : 'http://localhost:3030/'
 
 // const baseUrl = 'http://localhost:3030'
 

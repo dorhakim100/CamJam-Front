@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { saveRoom, setNewRoomModal } from '../../store/actions/room.actions'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 const inputs = [
   {
@@ -96,6 +97,7 @@ export function NewRoomModal() {
       return
     }
     try {
+      setIsLoading(true)
       const roomToSave = {
         ...formData,
         max_participants: +formData.max_participants,
@@ -115,6 +117,8 @@ export function NewRoomModal() {
     } catch (err) {
       // console.log('Error creating room:', err);
       showErrorMsg('Error creating room, please try again later')
+    } finally {
+      setIsLoading(false)
     }
   }
 

@@ -26,6 +26,7 @@ import logo from '../../../public/logo.png'
 import logoDark from '../../../public/logo-dark.png'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { login, signup } from '../../store/actions/user.actios'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -108,6 +109,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       credientials.fullname = data.get('fullname')
     }
     try {
+      setIsLoading(true)
       let user
       if (isSignup) {
         user = await signup(credientials)
@@ -123,6 +125,8 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
       }
     } catch (err) {
       showErrorMsg('An error occurred while signing in. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 

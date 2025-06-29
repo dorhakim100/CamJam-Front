@@ -10,6 +10,7 @@ import { RootState } from '../../store/store'
 import { RoomPasswordModal } from '../../components/RoomPasswordModal/RoomPasswordModal'
 import { showErrorMsg } from '../../services/event-bus.service'
 import { PasswordRoom } from '../../types/PasswordRoom/PasswordRoom'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 export function RoomList() {
   const rooms = useSelector(
@@ -35,12 +36,13 @@ export function RoomList() {
 
   async function setRooms(filterBy: RoomFilter) {
     try {
+      setIsLoading(true)
       const rooms = await loadRooms(filterBy)
-      console.log(rooms)
-      console.log(setFilter)
     } catch (err) {
       // console.error('Error setting rooms:', err)
       showErrorMsg('Failed to load rooms. Please try again later.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -59,6 +61,7 @@ export function RoomList() {
         ))}
         {isPasswordModal && currPasswordModal && (
           <RoomPasswordModal
+            key={`password-modal`}
             roomData={currPasswordModal}
             setIsPasswordModal={setIsPasswordModal}
           />

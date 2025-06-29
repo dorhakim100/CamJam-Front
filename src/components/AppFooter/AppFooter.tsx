@@ -10,6 +10,7 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone'
 import MailIcon from '@mui/icons-material/Mail'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import GitHubIcon from '@mui/icons-material/GitHub'
+import { setIsLoading } from '../../store/actions/system.actions'
 
 export function AppFooter() {
   // const navigate = useNavigate()
@@ -51,11 +52,14 @@ export function AppFooter() {
   const handleCopyToClipboard = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault() // Prevent navigation to `mailto`
     try {
+      setIsLoading(true)
       await navigator.clipboard.writeText(email)
       showSuccessMsg('Email copied')
     } catch (err) {
       // // console.log(err)
       showErrorMsg(`Couldn't copy email`)
+    } finally {
+      setIsLoading(false)
     }
   }
 

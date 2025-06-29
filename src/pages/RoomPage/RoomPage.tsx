@@ -360,7 +360,7 @@ export function RoomPage() {
       socketService.joinRoom(id)
       // addListeners()
     } catch (error) {
-      console.error('Error disabling media:', error)
+      // console.error('Error disabling media:', error)
       setErrorBanner('Failed to disable media')
     } finally {
       setIsLoading(false)

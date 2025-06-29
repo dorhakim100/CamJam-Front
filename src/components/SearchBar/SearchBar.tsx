@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useSelector } from 'react-redux'
 
-import { setIsPrefs } from '../../store/actions/system.actions'
+import { setIsLoading, setIsPrefs } from '../../store/actions/system.actions'
 
 import { RootState } from '../../store/store'
 import { routes } from '../../assets/routes/routes'
@@ -89,6 +89,7 @@ export function SearchBar() {
   useEffect(() => {
     const setRememberedUser = async () => {
       try {
+        setIsLoading(true)
         const remembered = await userService.getRememberedUser()
 
         if (!remembered) return
@@ -106,6 +107,8 @@ export function SearchBar() {
         // // console.log(err)
 
         showErrorMsg(`Couldn't load saved user`)
+      } finally {
+        setIsLoading(false)
       }
     }
     setRememberedUser()
@@ -136,7 +139,7 @@ export function SearchBar() {
       }
 
       // Navigate to the room list with the search query
-
+      setIsLoading(true)
       const roomToSearch = await loadRoom(searchRoom)
       if (!roomToSearch) {
         showErrorMsg('Room not found')
@@ -158,6 +161,8 @@ export function SearchBar() {
     } catch (error) {
       // console.error('Error navigating to room:', error)
       showErrorMsg('Error navigating to room')
+    } finally {
+      setIsLoading(false)
     }
   }
 

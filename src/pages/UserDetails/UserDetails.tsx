@@ -55,7 +55,7 @@ export function UserDetails() {
 
       await updateUser(userToSave)
     } catch (err) {
-      console.log(err)
+      // console.log(err)
 
       showErrorMsg(`Couldn't upload file`)
     } finally {
