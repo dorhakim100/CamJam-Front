@@ -2,9 +2,11 @@
 
 CamJam is a real-time video chat platform built with TypeScript and React. It uses the native WebRTC API alongside custom signaling via Socket.IO. The platform features live chat rooms, user authentication, and guest access capabilities — all in a responsive and modern UI.
 
-## 🚀 Live Site
+## 🚀 Related Links
 
-🔗 [https://camjam.onrender.com/](https://camjam.onrender.com/)
+🔗 [Live Site](https://camjam.onrender.com/)
+🔗 [Backend Repository]([https://camjam.onrender.com/](https://github.com/dorhakim100/CamJam-Back))
+
 
 ## 🛠️ Tech Stack
 
