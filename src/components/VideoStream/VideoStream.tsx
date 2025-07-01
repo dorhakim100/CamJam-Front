@@ -151,7 +151,6 @@ export function VideoStream({
         }
       }
 
-      // Ensure srcObject is set if it already exists
       const streamToSet =
         !isRemote && localVideoRef?.current?.srcObject
           ? localVideoRef.current.srcObject
@@ -170,13 +169,6 @@ export function VideoStream({
       }
     }
   }
-
-  useEffect(() => {
-    const arr = [...remoteVideosRef.current.values()]
-    arr.forEach((videoElement) => {
-      console.log(videoElement)
-    })
-  }, [remoteVideosRef.current])
 
   if (member)
     return (

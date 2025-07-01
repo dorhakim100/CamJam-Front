@@ -196,7 +196,7 @@ export function SignIn(props: { disableCustomTheme?: boolean }) {
     if (prefs.isDarkMode !== undefined) {
       setMode(prefs.isDarkMode ? 'dark' : 'light')
       setLogoSrc(prefs.isDarkMode ? logoDark : logo)
-      console.log(mode)
+      // console.log(mode)
     }
   }, [prefs.isDarkMode])
 

@@ -11,7 +11,7 @@ export function PrefsButton() {
   const isVisible = useSelector(
     (storeState: RootState) => storeState.systemModule.isPrefs
   )
-  console.log(isVisible)
+  // console.log(isVisible)
 
   // const buttonRef = useRef<HTMLButtonElement>(null)
 

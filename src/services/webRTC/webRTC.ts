@@ -1,409 +1,433 @@
-// src/utils/webRTC.ts
+import { Socket } from 'socket.io-client'
+import { SOCKET_EVENT_ICE_CANDIDATE } from '../socket.service'
 
-import { ICE_SERVERS } from '../../config/webrtc'
-import {
-  socketService,
-  SOCKET_EVENT_OFFER,
-  SOCKET_EVENT_ANSWER,
-  SOCKET_EVENT_ICE_CANDIDATE,
-  SOCKET_EVENT_MEMBER_CHANGE,
-} from '../socket.service'
-import type { SocketUser } from '../socket.service'
+export class WebRTCService {
+  private peerConnections: Map<string, RTCPeerConnection> = new Map()
+  private socket: Socket
+  private localStream: MediaStream | null = null
 
-// A map from peerId → RTCPeerConnection, so we can look up connections by remote peer's ID.
-const pcMap: Record<string, RTCPeerConnection> = {}
-// A map to keep track of remote streams by peer ID
-const remoteStreamMap: Record<string, MediaStream> = {}
+  constructor(socket: Socket) {
+    this.socket = socket
+  }
 
-/**
- * Create a new RTCPeerConnection for a given remote peerId.
- * - Registers ICE‐candidate handling (sending candidates via signaling).
- * - Registers ontrack to surface remote streams.
- * - Attaches all local tracks for sending.
- */
-export function createPeerConnection(
-  peerId: string,
-  localStream: MediaStream,
-  roomId: string,
-  onRemoteTrack: (stream: MediaStream, peerId: string) => void
-): RTCPeerConnection {
-  // console.log(`Creating new RTCPeerConnection for peer ${peerId}`)
-  const pc = new RTCPeerConnection({
-    iceServers: ICE_SERVERS,
-    iceCandidatePoolSize: 10,
-    bundlePolicy: 'max-bundle',
-    rtcpMuxPolicy: 'require',
-  })
+  async getLocalStream() {
+    try {
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      })
+      return this.localStream
+    } catch (error) {
+      // console.error('Error accessing media devices:', error)
+      throw error
+    }
+  }
 
-  pcMap[peerId] = pc
+  async disableLocalStream(type: string) {
+    try {
+      // let optionsObject
+      // optionsObject =
+      //   type === 'video'
+      //     ? {
+      //         video: false,
+      //         audio: {
+      //           echoCancellation: true,
+      //           noiseSuppression: true,
+      //         },
+      //       }
+      //     : {
+      //         video: {
+      //           width: { ideal: 640 },
+      //           height: { ideal: 480 },
+      //         },
+      //         audio: {
+      //           echoCancellation: true,
+      //           noiseSuppression: true,
+      //         },
+      //       }
 
-  // Log connection state changes
-  pc.onconnectionstatechange = () => {
-    // console.log(`Connection state for peer ${peerId}:`, pc.connectionState)
-    if (pc.connectionState === 'connected') {
-      // console.log(`Peer ${peerId} connection fully established`)
-      // Check if we have video tracks at this point
-      const receivers = pc.getReceivers()
-      receivers.forEach((receiver) => {
-        if (receiver.track.kind === 'video') {
-          // console.log(
-          //   `Video track stats for peer ${peerId}:`,
-          //   receiver.track.getSettings()
-          // )
-          // console.log(`Video track enabled:`, receiver.track.enabled)
-          // console.log(`Video track muted:`, receiver.track.muted)
+      // console.log(optionsObject)
+
+      // this.localStream = await navigator.mediaDevices.getUserMedia(
+      //   optionsObject
+      // )
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video:
+          type === 'video'
+            ? false
+            : {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      })
+      return this.localStream
+    } catch (error) {
+      // console.error('Error disabling local stream:', error)
+      throw error
+    }
+  }
+
+  async createPeerConnection(
+    remoteUserId: string,
+    onTrack: (stream: MediaStream) => void
+  ) {
+    try {
+      // console.log('Creating peer connection for:', remoteUserId)
+      const peerConnection = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          {
+            urls: 'turn:numb.viagenie.ca',
+            username: 'webrtc@live.com',
+            credential: 'muazkh',
+          },
+        ],
+        iceCandidatePoolSize: 10,
+        // iceCandidatePoolSize: 2,
+        bundlePolicy: 'max-bundle',
+        rtcpMuxPolicy: 'require',
+      })
+
+      // const peerConnection = new RTCPeerConnection({
+      //   iceServers: [
+      //     // Google STUNs for cheap, global STUN coverage
+      //     { urls: [ 'stun:stun.l.google.com:19302',
+      //               'stun:stun1.l.google.com:19302',
+      //               'stun:stun2.l.google.com:19302' ] },
+
+      //     // Your own Coturn server (UDP + TCP)
+      //     {
+      //       urls: [
+      //         'turn:turn.yourdomain.com:3478?transport=udp',
+      //         'turn:turn.yourdomain.com:3478?transport=tcp'
+      //       ],
+      //       username: 'YOUR_TURN_USER',
+      //       credential: 'YOUR_TURN_PASS'
+      //     },
+
+      //     // Secure TLS fallback on default HTTPS port
+      //     {
+      //       urls: [ 'turns:turn.yourdomain.com:443?transport=tcp' ],
+      //       username: 'YOUR_TURN_USER',
+      //       credential: 'YOUR_TURN_PASS'
+      //     },
+
+      //     // Public TURN as last resort
+      //     {
+      //       urls: [
+      //         'turn:numb.viagenie.ca:3478?transport=udp',
+      //         'turn:numb.viagenie.ca:3478?transport=tcp'
+      //       ],
+      //       username: 'webrtc@live.com',
+      //       credential: 'muazkh'
+      //     }
+      //   ],
+
+      //   // Pre-gather a small pool of candidates to speed up negotiation
+      //   iceCandidatePoolSize: 1,
+
+      //   // Allow both direct & relay (default), you could force 'relay' if you want TURN-only
+      //   iceTransportPolicy: 'all',
+
+      //   // Bundle all m-lines over a single 5-tuple
+      //   bundlePolicy: 'max-bundle',
+
+      //   // RTP + RTCP on same port
+      //   rtcpMuxPolicy: 'require',
+      // });
+
+      // Add local tracks to the peer connection
+      if (this.localStream) {
+        // console.log('Adding local tracks to peer connection')
+        this.localStream.getTracks().forEach((track) => {
+          if (this.localStream) {
+            const sender = peerConnection.addTrack(track, this.localStream)
+            // console.log('Added track:', track.kind, 'to peer connection')
+          }
+        })
+      } else {
+        // console.warn('No local stream available when creating peer connection')
+      }
+
+      // Handle ICE candidates
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          // console.log('Sending ICE candidate to:', remoteUserId)
+          this.socket.emit(SOCKET_EVENT_ICE_CANDIDATE, {
+            candidate: event.candidate,
+            to: remoteUserId,
+          })
+        } else {
+          // console.log('All ICE candidates have been sent')
         }
-      })
-    }
-  }
-
-  // Log signaling state changes
-  pc.onsignalingstatechange = () => {
-    // console.log(`Signaling state for peer ${peerId}:`, pc.signalingState)
-  }
-
-  // Log ICE connection state changes
-  pc.oniceconnectionstatechange = () => {
-    // console.log(
-    //   `ICE connection state for peer ${peerId}:`,
-    //   pc.iceConnectionState
-    // )
-  }
-
-  // Whenever WebRTC finds a new ICE candidate, send it to the remote peer.
-  pc.onicecandidate = (event) => {
-    if (event.candidate) {
-      // console.log(`Sending ICE candidate to peer ${peerId}:`, event.candidate)
-      socketService.emit(SOCKET_EVENT_ICE_CANDIDATE, {
-        to: peerId,
-        candidate: event.candidate,
-        room: roomId,
-      })
-    }
-  }
-
-  // Enhanced ontrack handler
-  pc.ontrack = (event) => {
-    // console.log(`Received ${event.track.kind} track from peer ${peerId}`)
-    // console.log(`Track ID: ${event.track.id}`)
-    // console.log(`Track enabled: ${event.track.enabled}`)
-    // console.log(`Track muted: ${event.track.muted}`)
-    // console.log(`Track settings:`, event.track.getSettings())
-    // console.log(`Number of streams:`, event.streams.length)
-    // console.log(event)
-
-    const remoteStream = event.streams[0]
-    if (!remoteStream) {
-      console.error(`No stream received for track from peer ${peerId}`)
-      return
-    }
-
-    // Log all tracks in the stream
-    // console.log(
-    //   `Stream tracks:`,
-    //   remoteStream.getTracks().map((t) => ({
-    //     kind: t.kind,
-    //     enabled: t.enabled,
-    //     muted: t.muted,
-    //     id: t.id,
-    //   }))
-    // )
-
-    remoteStreamMap[peerId] = remoteStream
-
-    // Add track ended handler
-    event.track.onended = () => {
-      // console.log(
-      //   `Track ${event.track.id} (${event.track.kind}) ended from peer ${peerId}`
-      // )
-    }
-
-    // Add track mute handler
-    event.track.onmute = () => {
-      // console.log(
-      //   `Track ${event.track.id} (${event.track.kind}) muted from peer ${peerId}`
-      // )
-    }
-
-    // Add track unmute handler
-    event.track.onunmute = () => {
-      // console.log(
-      //   `Track ${event.track.id} (${event.track.kind}) unmuted from peer ${peerId}`
-      // )
-    }
-
-    onRemoteTrack(remoteStream, peerId)
-  }
-
-  // Add all local tracks (video + audio) into this connection so they get sent out.
-  localStream.getTracks().forEach((track) => {
-    // console.log(`Adding local ${track.kind} track to peer ${peerId}`, {
-    //   trackId: track.id,
-    //   enabled: track.enabled,
-    //   muted: track.muted,
-    //   settings: track.getSettings(),
-    // })
-    pc.addTrack(track, localStream)
-  })
-
-  return pc
-}
-
-/**
- * Cleanup and close all existing peer connections.
- */
-export function closeAllPeerConnections() {
-  Object.values(pcMap).forEach((pc) => pc.close())
-  Object.keys(pcMap).forEach((id) => delete pcMap[id])
-  Object.keys(remoteStreamMap).forEach((id) => delete remoteStreamMap[id])
-}
-
-/**
- * Kick off the "offer" process for a newly joined peer:
- * 1. Create a PeerConnection (with localStream attached).
- * 2. Generate an SDP offer, set it as local description.
- * 3. Emit "offer" over signaling to the remote peer.
- */
-export async function sendOffer(
-  peerId: string,
-  localStream: MediaStream,
-  roomId: string,
-  onRemoteTrack: (stream: MediaStream, peerId: string) => void
-) {
-  // console.log(`Initiating offer to peer ${peerId}`)
-  const pc = createPeerConnection(peerId, localStream, roomId, onRemoteTrack)
-
-  // Create an SDP offer
-  const offer = await pc.createOffer()
-  // console.log(`Created offer for peer ${peerId}:`, offer.type)
-  await pc.setLocalDescription(offer)
-  // console.log(`Set local description for peer ${peerId}`)
-
-  // Send the offer to the remote peer via your signaling layer
-  socketService.emit(SOCKET_EVENT_OFFER, {
-    to: peerId,
-    offer,
-    room: roomId,
-  })
-}
-
-/**
- * Handle an incoming SDP "offer" from another peer:
- * 1. Create a PeerConnection (with localStream attached).
- * 2. Set the remote description to the received offer.
- * 3. Create an answer, set it as local description.
- * 4. Emit "answer" over signaling back to the caller.
- */
-export async function handleReceivedOffer(
-  fromPeerId: string,
-  offer: RTCSessionDescriptionInit,
-  localStream: MediaStream,
-  roomId: string,
-  onRemoteTrack: (stream: MediaStream, peerId: string) => void
-) {
-  // console.log(`Handling offer from peer ${fromPeerId}`)
-
-  // If we already have a connection to this peer, we need to handle it carefully
-  const existingPc = pcMap[fromPeerId]
-  if (existingPc) {
-    // If we're in stable state, we can safely close and recreate
-    if (existingPc.signalingState === 'stable') {
-      // console.log(`Closing existing stable connection to peer ${fromPeerId}`)
-      existingPc.close()
-      delete pcMap[fromPeerId]
-    } else {
-      // console.log(
-      //   `Ignoring offer - existing connection in state:`,
-      //   existingPc.signalingState
-      // )
-      return
-    }
-  }
-
-  const pc = createPeerConnection(
-    fromPeerId,
-    localStream,
-    roomId,
-    onRemoteTrack
-  )
-
-  try {
-    // console.log(`Setting remote description (offer) from peer ${fromPeerId}`)
-    await pc.setRemoteDescription(new RTCSessionDescription(offer))
-    // console.log(`Creating answer for peer ${fromPeerId}`)
-    const answer = await pc.createAnswer()
-    // console.log(`Setting local description (answer) for peer ${fromPeerId}`)
-    await pc.setLocalDescription(answer)
-
-    // Send the answer back to the original caller
-    socketService.emit(SOCKET_EVENT_ANSWER, {
-      to: fromPeerId,
-      answer,
-      room: roomId,
-    })
-  } catch (err) {
-    console.error(`Error during offer handling for peer ${fromPeerId}:`, err)
-    pc.close()
-    delete pcMap[fromPeerId]
-  }
-}
-
-/**
- * Handle an incoming SDP "answer" from a remote peer.
- * Sets the remote description on the existing RTCPeerConnection.
- */
-export async function handleReceivedAnswer(
-  fromPeerId: string,
-  answer: RTCSessionDescriptionInit
-) {
-  const pc = pcMap[fromPeerId]
-  if (!pc) return
-
-  // Only set remote description if we're in the correct state
-  if (pc.signalingState === 'have-local-offer') {
-    // console.log(`Setting remote description (answer) for peer ${fromPeerId}`)
-    await pc.setRemoteDescription(new RTCSessionDescription(answer))
-  } else {
-    // console.log(
-    //   `Ignoring answer from ${fromPeerId} - wrong signaling state:`,
-    //   pc.signalingState
-    // )
-  }
-}
-
-/**
- * Handle an incoming ICE candidate from a remote peer.
- * Adds the candidate into the matching RTCPeerConnection.
- */
-export function handleReceivedIceCandidate(
-  fromPeerId: string,
-  candidate: RTCIceCandidateInit
-) {
-  const pc = pcMap[fromPeerId]
-  if (!pc || !candidate) return
-  pc.addIceCandidate(new RTCIceCandidate(candidate))
-}
-
-/**
- * Clean up a specific peer connection and its associated stream
- */
-function cleanupPeerConnection(
-  peerId: string,
-  onRemoteStreamRemoved: (peerId: string) => void
-) {
-  const pc = pcMap[peerId]
-  if (pc) {
-    pc.close()
-    delete pcMap[peerId]
-  }
-  delete remoteStreamMap[peerId]
-  onRemoteStreamRemoved(peerId)
-}
-
-/**
- * Wire up all socket listeners needed for WebRTC:
- *  - "members-change": informs us of the current list of peers in the room,
- *      so we can initiate calls to any new peer IDs.
- *  - "offer": called when another peer wants to connect; we respond with an answer.
- *  - "answer": peer's response to our offer.
- *  - "ice-candidate": a piece of ICE info from peer; we add it to our PC.
- *
- *  This function should be called **after** you have acquired your localStream.
- */
-export function registerWebRTCListeners(
-  roomId: string,
-  userId: string,
-  localStream: MediaStream,
-  onRemoteStreamAdded: (stream: MediaStream, peerId: string) => void,
-  onRemoteStreamRemoved: (peerId: string) => void,
-  onMembersUpdate: (members: SocketUser[]) => void
-) {
-  // Clean up any existing connections first
-  closeAllPeerConnections()
-
-  // When the member list changes, connect to any new peer.
-  socketService.on(SOCKET_EVENT_MEMBER_CHANGE, (members: SocketUser[]) => {
-    // Filter out nullish entries and ourselves
-    const otherPeers = members
-      .filter((m) => m && m.id !== userId)
-      .map((m) => m.id)
-
-    // Let caller see the updated member list if desired
-    onMembersUpdate(members)
-
-    // Clean up connections for peers that are no longer in the room
-    Object.keys(pcMap).forEach((peerId) => {
-      if (!otherPeers.includes(peerId)) {
-        cleanupPeerConnection(peerId, onRemoteStreamRemoved)
       }
-    })
 
-    // For each peer we haven't already set up, send an offer
-    otherPeers.forEach((peerId) => {
-      const existingPc = pcMap[peerId]
-      if (!existingPc || existingPc.connectionState === 'failed') {
-        sendOffer(peerId, localStream, roomId, onRemoteStreamAdded)
+      // Handle connection state changes
+      peerConnection.onconnectionstatechange = () => {
+        // console.log(
+        // `Connection state for ${remoteUserId}:`,
+        // peerConnection.connectionState
+        // )
+        if (peerConnection.connectionState === 'connected') {
+          // console.log('Peer connection fully established')
+        } else if (
+          peerConnection.connectionState === 'disconnected' ||
+          peerConnection.connectionState === 'failed'
+        ) {
+          // console.log(
+          //   `Peer connection for ${remoteUserId} ${peerConnection.connectionState}. Closing connection.`
+          // )
+          this.closeConnection(remoteUserId)
+        }
       }
-    })
-  })
 
-  // 2. When someone sends us an offer, handle it and reply with answer
-  socketService.on(
-    SOCKET_EVENT_OFFER,
-    async ({
-      from,
-      offer,
-    }: {
-      from: string
-      offer: RTCSessionDescriptionInit
-    }) => {
-      // console.log('🔹 Received OFFER in', 'from', from)
-      // console.log('🔹 Offer details:', offer)
+      // Handle ICE connection state changes
+      peerConnection.oniceconnectionstatechange = () => {
+        // console.log(
+        //   `ICE connection state for ${remoteUserId}:`,
+        //   peerConnection.iceConnectionState
+        // )
+        if (peerConnection.iceConnectionState === 'connected') {
+          // console.log('ICE connection established')
+        }
+      }
 
-      await handleReceivedOffer(
-        from,
-        offer,
-        localStream,
-        roomId,
-        onRemoteStreamAdded
+      // Handle negotiation needed
+      peerConnection.onnegotiationneeded = async () => {
+        // console.log('Negotiation needed for:', remoteUserId)
+
+        if (peerConnection.signalingState === 'stable') {
+          try {
+            await this.createOffer(remoteUserId)
+          } catch (error) {
+            // console.error('Error during negotiation:', error)
+          }
+        } else {
+          // console.log(
+          //   'Skipping offer creation, signaling state is not stable:',
+          //   peerConnection.signalingState
+          // )
+        }
+      }
+
+      // Handle incoming tracks
+      peerConnection.ontrack = (event) => {
+        // console.log(
+        //   'Received remote track:',
+        //   event.track.kind,
+        //   'from:',
+        //   remoteUserId
+        // )
+
+        if (event.streams && event.streams[0]) {
+          onTrack(event.streams[0])
+        }
+
+        // Monitor track ending
+        event.track.onended = () => {
+          // console.log('Remote track ended:', event.track.kind)
+        }
+
+        // Monitor track muting
+        event.track.onmute = () => {
+          // console.log('Remote track muted:', event.track.kind)
+        }
+
+        event.track.onunmute = () => {
+          // console.log('Remote track unmuted:', event.track.kind)
+        }
+      }
+
+      this.peerConnections.set(remoteUserId, peerConnection)
+      return peerConnection
+    } catch (error) {
+      // console.error('Error creating peer connection:', error)
+      throw error
+    }
+  }
+
+  async createOffer(remoteUserId: string) {
+    const peerConnection = this.peerConnections.get(remoteUserId)
+    if (peerConnection) {
+      try {
+        // console.log('Creating offer for:', remoteUserId)
+        const offer = await peerConnection.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        })
+        // console.log('Setting local description')
+        await peerConnection.setLocalDescription(offer)
+        // console.log('Sending offer to:', remoteUserId)
+        this.socket.emit('offer', {
+          offer,
+          to: remoteUserId,
+        })
+      } catch (error) {
+        // console.error('Error creating offer:', error)
+        throw error
+      }
+    }
+  }
+
+  async handleOffer(
+    offer: RTCSessionDescriptionInit,
+    from: string,
+    onTrack: (stream: MediaStream) => void
+  ) {
+    try {
+      // console.log('Handling offer from:', from)
+      let peerConnection = this.peerConnections.get(from)
+      let isConnection = true
+
+      // Ensure socket and its ID are available for glare resolution.
+      if (!this.socket || typeof this.socket.id === 'undefined') {
+        // console.error(
+        //   'Error: Local socket or socket ID is unavailable for glare resolution. Cannot process offer.'
+        // )
+        return // Critical: Exit if socket or ID is not available to prevent crashes.
+      }
+      const currentSocketId = this.socket.id // Safely access socket ID here.
+
+      // Glare handling: if we have a local offer, apply tie-breaking rule.
+      if (
+        peerConnection &&
+        peerConnection.signalingState === 'have-local-offer'
+      ) {
+        if (currentSocketId < from) {
+          // We win glare (local ID is smaller): ignore the incoming offer.
+          // console.log(
+          //   'Glare detected: We win (local ID is smaller), ignoring incoming offer from',
+          //   from
+          // )
+          return // Exit function as we are ignoring this offer
+        } else {
+          // We lose glare (local ID is larger or equal): rollback our local offer
+          // and then process the incoming offer as the primary negotiation.
+          // console.log(
+          //   'Glare detected: We lose (local ID is larger or equal), rolling back local offer for',
+          //   from
+          // )
+          await peerConnection.setLocalDescription({ type: 'rollback' })
+          // After rollback, aggressively close the existing problematic connection.
+          this.closeConnection(from) // Ensure old PC is completely removed.
+          // peerConnection = null // Set to null to trigger new creation below.
+          isConnection = false
+        }
+      } else if (peerConnection) {
+        // If peerConnection exists but NOT in 'have-local-offer' state
+        // This means it's an offer that's not part of a glare, but an existing connection.
+        // It could be a re-negotiation, or a stale connection.
+        // Aggressively close and recreate to ensure a clean state for this new offer.
+        // console.warn(
+        //   `Existing peer connection for ${from} detected (not glare). Closing and recreating for clean negotiation.`
+        // )
+        this.closeConnection(from)
+        // peerConnection = null // Set to null to trigger new creation below.
+        isConnection = false
+      }
+
+      // At this point, peerConnection should be null if it was closed or didn't exist,
+      // or it's the winning peer's already established connection.
+      // If it's null, create a new one to handle this incoming offer.
+      if (!isConnection) {
+        peerConnection = await this.createPeerConnection(from, onTrack)
+      }
+
+      // console.log('Setting remote description')
+      await peerConnection?.setRemoteDescription(
+        new RTCSessionDescription(offer)
       )
+
+      // console.log('Creating answer')
+      const answer = await peerConnection?.createAnswer()
+      // console.log('Setting local description')
+      await peerConnection?.setLocalDescription(answer)
+      // console.log('Sending answer to:', from)
+      this.socket.emit('answer', {
+        answer,
+        to: from,
+      })
+    } catch (error) {
+      // console.error('Error handling offer:', error)
+      throw error
     }
-  )
+  }
 
-  // 3. When we get an answer to our offer, finalize the connection
-  socketService.on(
-    SOCKET_EVENT_ANSWER,
-    async ({
-      from,
-      answer,
-    }: {
-      from: string
-      answer: RTCSessionDescriptionInit
-    }) => {
-      // console.log('🔹 Received ANSWER in', 'from', from)
+  async handleAnswer(answer: RTCSessionDescriptionInit, from: string) {
+    const peerConnection = this.peerConnections.get(from)
+    if (peerConnection) {
+      try {
+        // console.log(
+        //   'Current signaling state for',
+        //   from,
+        //   'before handling answer:',
+        //   peerConnection.signalingState
+        // )
 
-      await handleReceivedAnswer(from, answer)
+        // Only set remote description if we have a local offer waiting for an answer.
+        // This addresses the InvalidStateError during glare by ignoring redundant answers.
+
+        if (peerConnection.signalingState !== 'have-local-offer') {
+          // console.warn(
+          //   `Skipping answer from ${from}: Peer connection not in 'have-local-offer' state. Current state: ${peerConnection.signalingState}`
+          // )
+          throw new Error(
+            `Cannot handle answer from ${from} when signaling state is ${peerConnection.signalingState}. Expected 'have-local-offer'.`
+          )
+          return
+        }
+
+        // console.log('Setting remote description for answer from:', from)
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        )
+      } catch (error) {
+        // console.error('Error handling answer:', error)
+        throw error
+      }
     }
-  )
+  }
 
-  // 4. When a peer's ICE candidate arrives, add it to our RTCPeerConnection
-  socketService.on(
-    SOCKET_EVENT_ICE_CANDIDATE,
-    ({ from, candidate }: { from: string; candidate: RTCIceCandidateInit }) => {
-      // console.log('🔹 Received ICE candidate in', 'from', from)
-      handleReceivedIceCandidate(from, candidate)
+  async handleIceCandidate(candidate: RTCIceCandidate, from: string) {
+    const peerConnection = this.peerConnections.get(from)
+    if (peerConnection) {
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+      } catch (error) {
+        // console.error('Error handling ICE candidate:', error)
+        throw error
+      }
     }
-  )
-}
+  }
 
-/**
- * Call this to tear down all WebRTC event listeners and close connections.
- * Should be invoked when leaving the room or unmounting the component.
- */
-export function unregisterWebRTCListeners(roomId: string | undefined) {
-  socketService.off(SOCKET_EVENT_MEMBER_CHANGE)
-  socketService.off(SOCKET_EVENT_OFFER)
-  socketService.off(SOCKET_EVENT_ANSWER)
-  socketService.off(SOCKET_EVENT_ICE_CANDIDATE)
-  closeAllPeerConnections()
+  closeConnection(userId: string) {
+    const peerConnection = this.peerConnections.get(userId)
+    if (peerConnection) {
+      peerConnection.close()
+      // this.peerConnections.delete(userId)
+    }
+  }
+
+  closeAllConnections() {
+    this.peerConnections.forEach((connection) => {
+      connection.close()
+    })
+    this.peerConnections.clear()
+    if (this.localStream) {
+      this.localStream.getTracks().forEach((track) => track.stop())
+      this.localStream = null
+    }
+  }
 }

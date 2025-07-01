@@ -16,7 +16,7 @@ import {
 import { loadRoom } from '../../store/actions/room.actions'
 import { RootState } from '../../store/store'
 import { MembersList } from '../../components/MembersList/MembersList'
-import { WebRTCService } from '../../services/webRTC/webRTC2'
+import { WebRTCService } from '../../services/webRTC/webRTC'
 import { showErrorMsg, showSuccessMsg } from '../../services/event-bus.service'
 import { IconButton } from '@mui/material'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
@@ -182,7 +182,7 @@ export function RoomPage() {
               (stream) => {
                 const videoTrack = stream.getVideoTracks()[0] || null
                 const audioTrack = stream.getAudioTracks()[0] || null
-                console.log(videoTrack, audioTrack)
+                // console.log(videoTrack, audioTrack)
                 const video = remoteVideosRef.current.get(member.socketId)
                 if (video) {
                   video.srcObject = stream
