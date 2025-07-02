@@ -13,6 +13,7 @@ import {
   SOCKET_EVENT_END_MEETING,
   SOCKET_EVENT_MEDIA_STATE_CHANGED,
   SOCKET_EVENT_CHANGE_MEDIA,
+  SOCKET_EVENT_USER_LEFT,
 } from '../../services/socket.service'
 
 import { loadRoom } from '../../store/actions/room.actions'
@@ -256,6 +257,16 @@ export function RoomPage() {
         setIsLoading(false)
       }
     })
+    socket.on(SOCKET_EVENT_USER_LEFT, (userId: string) => {
+      console.log(userId)
+
+      // Remove from members
+      setCurrentMembers((prev) => prev.filter((member) => member.id !== userId))
+      // Close peer connection
+      if (webRTCService) webRTCService.closeConnection(userId)
+      // Remove from connectedPeers
+      connectedPeers.current.delete(userId)
+    })
     socket.on(SOCKET_EVENT_END_MEETING, async () => {
       try {
         setIsLoading(true)
@@ -297,7 +308,7 @@ export function RoomPage() {
       setIsLoading(true)
 
       if (isRestart) {
-        clearAllConnections()
+        // clearAllConnections()
       }
 
       const stream = await webRTCService.getLocalStream()
