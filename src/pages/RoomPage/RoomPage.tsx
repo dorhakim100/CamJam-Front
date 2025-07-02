@@ -11,6 +11,8 @@ import {
   SOCKET_EVENT_ANSWER,
   SOCKET_EVENT_ICE_CANDIDATE,
   SOCKET_EVENT_END_MEETING,
+  SOCKET_EVENT_MEDIA_STATE_CHANGED,
+  SOCKET_EVENT_CHANGE_MEDIA,
 } from '../../services/socket.service'
 
 import { loadRoom } from '../../store/actions/room.actions'
@@ -214,7 +216,7 @@ export function RoomPage() {
             video.srcObject = stream
             video.play().catch(() => {
               // console.log(e)
-              throw new Error('Failed to play video')
+              // throw new Error('Failed to play video')
               // setErrorBanner('Failed to connect to peer')
             })
           }
@@ -268,6 +270,22 @@ export function RoomPage() {
         setIsLoading(false)
       }
     })
+
+    socket.on(SOCKET_EVENT_CHANGE_MEDIA, (updatedUser) => {
+      const { id: userId } = updatedUser
+
+      setCurrentMembers((prevMembers) =>
+        prevMembers.map((member) => {
+          return member.id === userId
+            ? {
+                ...member,
+                isVideoOn: updatedUser.isVideoOn,
+                isAudioOn: updatedUser.isAudioOn,
+              }
+            : member
+        })
+      )
+    })
   }
 
   async function initializeMedia(
@@ -277,18 +295,15 @@ export function RoomPage() {
     try {
       if (!socketService || !webRTCService || !id || !user) return
       setIsLoading(true)
-      // socketService.leaveRoom(id)
-      // socketService.logout()
+
       if (isRestart) {
         clearAllConnections()
       }
 
       const stream = await webRTCService.getLocalStream()
-      // console.log('stream', stream)
 
       const videoTrack = stream.getVideoTracks()[0] || null
       const audioTrack = stream.getAudioTracks()[0] || null
-      // console.log(localVideoRef, videoTrack, audioTrack)
 
       if (localVideoRef.current && stream) {
         localVideoRef.current.srcObject = stream
@@ -325,40 +340,8 @@ export function RoomPage() {
       )
         return
       setIsLoading(true)
-      socketService.leaveRoom(id)
-      socketService.logout()
-      // clearAllConnections()
 
-      let type = ''
-
-      if (!stateToSet.video) {
-        type = 'video'
-      } else type = 'audio'
-
-      const stream = await webRTCService.disableLocalStream(type)
-
-      const videoTrack = stream.getVideoTracks()[0] || null
-      const audioTrack = stream.getAudioTracks()[0] || null
-      // console.log(videoTrack, audioTrack)
-
-      if (localVideoRef.current && stream) {
-        localVideoRef.current.srcObject = stream
-        setLocalTracks({
-          video: videoTrack,
-          audio: audioTrack,
-        })
-      }
-
-      socketService.login({
-        id: user.id,
-        fullname: user.fullname,
-        imgUrl: user.imgUrl,
-        isVideoOn: videoTrack ? true : false,
-        // isAudioOn: audioTrack ? true : false,
-        isAudioOn: stateToSet.audio ? true : false,
-      })
-      socketService.joinRoom(id)
-      // addListeners()
+      emitMediaStateChange(id, user.id, stateToSet.video, stateToSet.audio)
     } catch (error) {
       // console.error('Error disabling media:', error)
       setErrorBanner('Failed to disable media')
@@ -372,11 +355,30 @@ export function RoomPage() {
     socket.off(SOCKET_EVENT_OFFER)
     socket.off(SOCKET_EVENT_ANSWER)
     socket.off(SOCKET_EVENT_ICE_CANDIDATE)
+    socket.off(SOCKET_EVENT_END_MEETING)
+    socket.off(SOCKET_EVENT_MEDIA_STATE_CHANGED)
+
     if (webRTCService) {
       webRTCService.closeAllConnections()
     }
     socketService.leaveRoom(id)
     connectedPeers.current.clear()
+  }
+
+  function emitMediaStateChange(
+    roomId: string,
+    userId: string,
+    isVideo: boolean,
+    isAudio: boolean
+  ) {
+    socket.emit(SOCKET_EVENT_MEDIA_STATE_CHANGED, {
+      roomId,
+      userId,
+      stateToChange: {
+        isVideo,
+        isAudio,
+      },
+    })
   }
 
   // if(isPasswordModal && room) return <PasswordModal room={room} setIsPasswordModal={setIsPasswordModal}/>

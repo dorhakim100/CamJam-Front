@@ -61,16 +61,12 @@ export function VideoStream({
       action: () => {
         if (!toggleMedia || !initializeMedia) return
 
-        // const stateToSet = localTracks?.audio ? false : true
         const stateToSet = isAudio ? false : true
         const state = {
           audio: stateToSet,
-          video: localTracks?.video ? true : false,
+          video: isVisble,
         }
         try {
-          // if (!stateToSet) {
-          //   toggleMedia('audio')
-          // } else initializeMedia(true)
           toggleMedia(state)
           setIsAudio(stateToSet)
         } catch (error) {
@@ -91,15 +87,15 @@ export function VideoStream({
       action: () => {
         if (!toggleMedia || !initializeMedia) return
 
-        const stateToSet = localTracks?.video ? false : true
+        const stateToSet = isVisble ? false : true
+
         const state = {
           video: stateToSet,
-          audio: localTracks?.audio ? true : false,
+          audio: isAudio,
         }
         try {
-          if (!stateToSet) {
-            toggleMedia(state)
-          } else initializeMedia(true)
+          toggleMedia(state)
+
           setIsVisible(stateToSet)
         } catch (error) {
           // console.error('Error toggling video:', error)

@@ -4,11 +4,17 @@ export const SOCKET_EVENT_JOIN_ROOM = 'join-room'
 export const SOCKET_EVENT_USER_JOINED = 'user-joined'
 export const SOCKET_EVENT_SET_USER_SOCKET = 'set-user-socket'
 export const SOCKET_EVENT_USER_LEFT = 'user-left'
+
 export const SOCKET_EVENT_OFFER = 'offer'
 export const SOCKET_EVENT_ANSWER = 'answer'
 export const SOCKET_EVENT_ICE_CANDIDATE = 'ice-candidate'
+
 export const SOCKET_EVENT_MEMBER_CHANGE = 'members-change'
+export const SOCKET_EVENT_MEDIA_STATE_CHANGED = 'media-state-changed'
+export const SOCKET_EVENT_CHANGE_MEDIA = 'change-media-state'
+
 export const SOCKET_EVENT_END_MEETING = 'end-meeting'
+
 export const SOCKET_EMIT_SEND_MSG = 'chat-send-msg'
 export const SOCKET_EVENT_ADD_MSG = 'chat-add-msg'
 
