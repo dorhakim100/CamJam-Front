@@ -184,13 +184,17 @@ export function VideoStream({
 
         {!isRemote && localTracks && !isVisble && (
           <div className='video-off'>
-            <img src={member.imgUrl} alt='' />
+            <div className='img-container'>
+              <img src={member.imgUrl} alt='' />
+            </div>
             <span>Video off</span>
           </div>
         )}
         {isRemote && !member.isVideoOn && (
           <div className='video-off'>
-            <img src={member.imgUrl} alt='' />
+            <div className='img-container'>
+              <img src={member.imgUrl} alt='' />
+            </div>
             <span>Video off</span>
           </div>
         )}

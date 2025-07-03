@@ -42,9 +42,17 @@
       // cursor: pointer;
       transition: fill 0.2s ease;
       fill: $dark-red;
+    }
+    @media (max-width: 600px) {
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 2rem;
+      height: 2rem;
 
-      // &:hover {
-      // }
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
     }
   }
 
@@ -63,11 +71,12 @@
     top: 0;
     left: 0;
     width: 100%;
-    // height: calc(100% - 4rem);
     height: 100%;
+    // height: calc(100% - 4rem);
     display: grid;
 
     align-items: center;
+    align-items: start;
     justify-items: center;
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
@@ -77,14 +86,22 @@
     font-weight: bold;
     z-index: 1;
 
-    img {
-      width: 30%;
-      border-radius: 15px;
+    .img-container {
+      width: 20vw;
+      height: calc(20vw);
+      align-self: center;
+    }
 
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); // glow effect
+    img {
+      width: 20vw;
+      height: calc(20vw);
+      border-radius: 15px;
+      object-fit: cover;
+      // border-radius: 50%;
+
       // border: 2px solid rgba(255, 255, 255, 0.8); // subtle white border
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
     }
   }
   &:hover {
@@ -103,7 +120,10 @@
     padding: 1% 4%;
     max-width: 180px;
     @media (max-width: 600px) {
+      bottom: 0.5rem;
+      left: 0.5rem;
       padding: 0.25rem 0.5rem;
+      font-size: 0.6rem;
     }
     border-radius: 35px;
     font-size: 0.9rem;
@@ -160,6 +180,15 @@
     -webkit-backdrop-filter: blur(3px);
     opacity: 0;
 
+    @media (max-width: 600px) {
+      // bottom: 0.5rem;
+      // left: 0.5rem;
+      // padding: 0.25rem 0.5rem;
+
+      font-size: 0.6rem;
+      padding: 0.4rem 1rem 0.5rem;
+    }
+
     button {
       background: $btn-bg;
       backdrop-filter: blur(8px);
@@ -169,6 +198,7 @@
       border-radius: 0.5rem;
       color: #fff;
       font-size: 0.875rem;
+
       cursor: pointer;
       transition: background 0.2s ease, transform 0.1s ease;
 
@@ -184,6 +214,13 @@
         font-size: 1.2rem;
 
         transition: color 0.2s ease;
+      }
+      @media (max-width: 600px) {
+        margin: 0 0.25em;
+        padding: 0.3rem 0.75rem;
+        .icon {
+          // font-size: 0.8rem;
+        }
       }
       &:hover {
         .icon {
