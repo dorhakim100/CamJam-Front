@@ -87,14 +87,18 @@
     z-index: 1;
 
     .img-container {
-      width: 20vw;
-      height: calc(20vw);
+      max-width: 400px;
+      width: 18vw;
+
+      height: calc(18vw);
       align-self: center;
     }
 
     img {
-      width: 20vw;
-      height: calc(20vw);
+      max-width: 400px;
+      width: 18vw;
+
+      height: calc(18vw);
       border-radius: 15px;
       object-fit: cover;
       // border-radius: 50%;
